@@ -1,3 +1,42 @@
+const express = require('express');
+const axios = require('axios');
+const app = express();
+const http = require("http");
+const hostname = 'X.X.X.X';
+const port = 8083;
+const LED_URL = 'XXXXXXXXXXXXX';
+
+//Create HTTP server and listen on port 3000 for requests
+const server = http.Server(app);
+
+// send as part of request body which isn't present in url
+app.use(express.json());
+
+app.get('/healthCheck', (req, res) => {
+  axios.get(LED_URL + 'api/health-check')
+    .then(response => {
+      res.send(response.data);
+    })
+    .catch(error => {
+      console.error('ERROR', error);
+    });
+});
+
+app.post('/updateSignText', (req, res) => {
+  axios.post(LED_URL + 'api/update-sign', req.body)
+    .then(response => {
+      res.send(response.data);
+    })
+    .catch(error => {
+      console.error('ERROR', error);
+    });
+});
+
+//listen for request on port 8083, and as a callback function have the port listened on logged
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
+});
+
 const AWS = require('aws-sdk');
 const config = require('../config/config.json');
 
@@ -20,9 +59,9 @@ const params = {
   WaitTimeSeconds: 0
 };
 setInterval(() => {
-  
+
   sqs.receiveMessage(params, (err, data) => {
-    
+
     if (err) {
       console.log(err, err.stack);
     } else {
@@ -34,6 +73,7 @@ setInterval(() => {
       // console.log("I am going to parse", data.Messages[0].Body);
       const orderData = JSON.parse(data.Messages[0].Body);
       console.log('Order received', orderData);
+      axios.post(LED_URL + 'api/update-sign', orderData);
       // orderData is now an object that contains order_id and date properties
       // Lookup order data from data storage
       // Execute billing for order
