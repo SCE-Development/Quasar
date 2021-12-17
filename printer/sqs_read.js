@@ -40,7 +40,7 @@ setInterval(() => {
 
     if (err) {
       // throw err
-      console.log(err, err.stack);
+      return;
 
     } else {
       // if no error we might be in business
