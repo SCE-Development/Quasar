@@ -1,13 +1,8 @@
 const express = require('express');
 const axios = require('axios');
+const config = require('../config/config.json');
 const app = express();
-const http = require("http");
-const hostname = 'X.X.X.X';
-const port = 8083;
-const LED_URL = 'XXXXXXXXXXXXX';
-
-//Create HTTP server and listen on port 3000 for requests
-const server = http.Server(app);
+const LED_URL = config.LED_URL;
 
 // send as part of request body which isn't present in url
 app.use(express.json());
@@ -32,13 +27,7 @@ app.post('/updateSignText', (req, res) => {
     });
 });
 
-//listen for request on port 8083, and as a callback function have the port listened on logged
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
-
 const AWS = require('aws-sdk');
-const config = require('../config/config.json');
 
 creds = new AWS.Credentials(config.ACCESS_ID, config.SECRET_KEY);
 AWS.config.update({
@@ -63,33 +52,19 @@ setInterval(() => {
   sqs.receiveMessage(params, (err, data) => {
 
     if (err) {
-      console.log(err, err.stack);
+      return;
     } else {
-      // console.log(data, "whaa");
       if (!data.Messages) {
-        console.log('Nothing to process');
         return;
       }
-      // console.log("I am going to parse", data.Messages[0].Body);
       const orderData = JSON.parse(data.Messages[0].Body);
-      console.log('Order received', orderData);
       axios.post(LED_URL + 'api/update-sign', orderData);
-      // orderData is now an object that contains order_id and date properties
-      // Lookup order data from data storage
-      // Execute billing for order
-      // Update data storage
-      // Now we must delete the message so we don't handle it again
       const deleteParams = {
         QueueUrl: queueUrl,
         ReceiptHandle: data.Messages[0].ReceiptHandle
       };
       sqs.deleteMessage(deleteParams, (err, data) => {
-        if (err) {
-          console.log(err, err.stack);
-        } else {
-          console.log('Successfully deleted message from queue');
-        }
       });
     }
   });
-}, 1000);
+}, 10000);
