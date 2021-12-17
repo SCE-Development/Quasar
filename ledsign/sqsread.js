@@ -1,31 +1,6 @@
-const express = require('express');
 const axios = require('axios');
 const config = require('../config/config.json');
-const app = express();
 const LED_URL = config.LED_URL;
-
-// send as part of request body which isn't present in url
-app.use(express.json());
-
-app.get('/healthCheck', (req, res) => {
-  axios.get(LED_URL + 'api/health-check')
-    .then(response => {
-      res.send(response.data);
-    })
-    .catch(error => {
-      console.error('ERROR', error);
-    });
-});
-
-app.post('/updateSignText', (req, res) => {
-  axios.post(LED_URL + 'api/update-sign', req.body)
-    .then(response => {
-      res.send(response.data);
-    })
-    .catch(error => {
-      console.error('ERROR', error);
-    });
-});
 
 const AWS = require('aws-sdk');
 
