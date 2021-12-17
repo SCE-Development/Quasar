@@ -34,25 +34,26 @@ setInterval(() => {
     if (!data.Messages) return;
 
     const orderData = JSON.parse(data.Messages[0].Body);
-    const filePath = "./temp.pdf";
+    const {fileNo} = orderData;
+    const path = `./${fileNo}.pdf`;
 
     const paramers = {
       Bucket: PRINTING_BUCKET_NAME,
-      Key: `folder/${orderData.fileNo}.pdf`,
+      Key: `folder/${fileNo}.pdf`,
     };
 
     s3.getObject(paramers, (err, data) => {
       if (err) console.error(err);
-      fs.writeFileSync(filePath, data.Body, "binary");
+      fs.writeFileSync(path, data.Body, "binary");
     });
 
     exec(
       "sudo lp -n 1 -o sides=one-sided -d " +
-        `HP-LaserJet-p2015dn-right ${filePath}`,
+        `HP-LaserJet-p2015dn-right ${path}`,
       (error, stdout, stderr) => {
         if (error) throw error;
         if (stderr) throw stderr;
-        if (error) exec(`rm ${fileName}`, () => { });
+        if (error) exec(`rm ${path}`, () => { });
       }
     );
 
