@@ -1,8 +1,8 @@
-# node modules
-/node_modules
-
+#node modules
 /printer/node_modules
+
 # config
 config.json
 
-*.pdf
+# pdfs
+/printer/*.pdf
