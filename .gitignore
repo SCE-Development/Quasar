@@ -4,3 +4,5 @@
 /printer/node_modules
 # config
 config.json
+
+*.pdf
