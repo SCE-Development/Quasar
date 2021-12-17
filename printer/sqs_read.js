@@ -1,4 +1,4 @@
-import {ACCESS_ID, SECRET_KEY, ACCOUNT_ID, PRINTING_QUEUE_NAME, PRINTING_BUCKET_NAME} from "../config/config.json";
+const {ACCESS_ID, SECRET_KEY, ACCOUNT_ID, PRINTING_QUEUE_NAME, PRINTING_BUCKET_NAME} = require( "../config/config.json");
 // Load the AWS SDK for Node.js
 const AWS = require('aws-sdk');
 // Other imports
@@ -8,6 +8,7 @@ const fs = require('fs');
 const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
 // AWS credentials
 var creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
+var exec = require('exec');
 
 // AWS config for location and passing in the credentials
 AWS.config.update({
@@ -33,8 +34,7 @@ const params = {
 
 // set interval to poll --- 5 seconds
 setInterval(() => {
-  console.log('allen gang');
-
+  // allen gang
   // receive the message in the queue with the data
   sqs.receiveMessage(params, (err, data) => {
 
@@ -55,7 +55,7 @@ setInterval(() => {
       const orderData = JSON.parse(data.Messages[0].Body);
       console.log('Order received', orderData);
 
-      const filePath = "./yowtf.pdf"
+      const filePath = "./temp.pdf"
 
       const paramers = {
         Bucket: PRINTING_BUCKET_NAME,
@@ -68,7 +68,19 @@ setInterval(() => {
         console.log(`${filePath} has been created!`);
       });
 
-
+      exec(
+        'sudo lp -n 1 -o sides=one-sided -d '
+        + `HP-LaserJet-p2015dn-right ${filePath}`,
+        (error, stdout, stderr) => {
+          console.log(stdout);
+          // exec(`rm ${fileName}`, () => { });
+          if (error) {
+            throw error;
+          }
+          if (stderr) {
+            throw stderr;
+          }
+        });
       // orderData is now an object that contains order_id and date properties
       // Lookup order data from data storage Execute billing for order
       // Update data storage
