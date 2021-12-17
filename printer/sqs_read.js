@@ -16,7 +16,6 @@ AWS.config.update({
   credentials: creds
 });
 
-console.log('grrr');
 
 // create SQS object with api version
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
