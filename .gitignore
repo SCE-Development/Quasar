@@ -5,4 +5,4 @@
 config.json
 
 # pdfs
-/printer/*.pdf
+*.pdf
