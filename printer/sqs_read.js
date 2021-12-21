@@ -12,7 +12,7 @@ var creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 var exec = require("exec");
 
 AWS.config.update({
-  region: "us-west-1",
+  region: 'us-west-1',
   endpoint: "https://s3.amazonaws.com",
   credentials: creds,
 });
@@ -48,7 +48,7 @@ setInterval(() => {
     });
 
     exec(
-      "sudo lp -n 1 -o sides=one-sided -d " +
+      'sudo lp -n 1 -o sides=one-sided -d ' +
         `HP-LaserJet-p2015dn-right ${path}`,
       (error, stdout, stderr) => {
         if (error) throw error;
