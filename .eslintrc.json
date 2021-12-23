@@ -1,78 +1,67 @@
 {
     "env": {
-        "browser": true,
-        "es6": true,
-        "node": true
+        "node": true,
+        "es6": true
     },
+    "extends": "eslint:recommended",
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
-    "parser": "babel-eslint",
     "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
-        "ecmaVersion": 2017,
+        "ecmaVersion": 2018,
         "sourceType": "module"
     },
     "rules": {
         "indent": [
             "error",
-            2
+            2,
+            {"SwitchCase": 1}
         ],
-        "template-curly-spacing":"off",
         "quotes": [
             "error",
-            "double"
+            "single"
         ],
         "semi": [
             "error",
             "always"
         ],
         "camelcase": 2,
-        "no-cond-assign": [
-            "error",
-            "always"
-        ],
-        "react/jsx-filename-extension": [
-            1,
-            {
-                "extensions": [
-                    ".js",
-                    ".jsx"
-                ]
-            }
-        ],
-        "no-console": [
-            "error",
-            {
-                "allow": [
-                    "error"
-                ]
-            }
-        ],
-        "block-spacing": "error",
-        "keyword-spacing": "error",
-        "space-before-function-paren": [
-            "error",
-            {
-                "anonymous": "never",
-                "named": "never",
-                "asyncArrow": "always"
-            }
-        ],
         "max-len": [
             2,
             {
-                "code": 80
+                "code": 100
             }
         ],
         "comma-spacing": "error",
-        "multiline-comment-style": [
+        "no-empty": [
             "error",
-            "separate-lines"
+            {
+                "allowEmptyCatch": true
+            }
         ],
-        "no-extra-semi": "error"
+        "no-warning-comments": [
+            2,
+            {
+                "terms": [
+                    "todo",
+                    "fixme",
+                    "any other term"
+                ],
+                "location": "anywhere"
+            }
+        ],
+        "spaced-comment": [
+            2,
+            "always",
+            {
+                "markers": [
+                    "/"
+                ]
+            }
+        ],
+        "no-extra-semi": "error",
+        "no-var": 2,
+        "eol-last": 2
     }
 }
