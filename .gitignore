@@ -1,5 +1,8 @@
-# node modules
+#node modules
 /node_modules
 
 # config
 config.json
+
+# pdfs
+*.pdf
