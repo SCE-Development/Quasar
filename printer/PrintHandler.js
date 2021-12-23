@@ -8,8 +8,8 @@ const {
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
-let creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
-let exec = require('exec');
+const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
+const exec = require('exec');
 
 AWS.config.update({
   region: 'us-west-1',
