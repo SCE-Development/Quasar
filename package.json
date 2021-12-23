@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/SCE-Development/Quasar#readme",
   "devDependencies": {
-    "eslint": "^8.5.0"
+    "eslint": "^6.8.0"
   },
   "dependencies": {
     "@babel/eslint-parser": "^7.16.5",
