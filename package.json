@@ -1,0 +1,28 @@
+{
+  "name": "quasar",
+  "version": "1.0.0",
+  "description": "Code for all of the SCE peripherals (printer + LED sign).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "./node_modules/.bin/eslint ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SCE-Development/Quasar.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SCE-Development/Quasar/issues"
+  },
+  "homepage": "https://github.com/SCE-Development/Quasar#readme",
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  },
+  "dependencies": {
+    "@babel/eslint-parser": "^7.16.5",
+    "babel": "^6.23.0",
+    "babel-eslint": "^10.1.0"
+  }
+}
