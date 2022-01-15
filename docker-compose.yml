@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  sce-ledsign:
+    container_name: sce-ledsign
+    build:
+      context: .
+      dockerfile: ./ledsign/Dockerfile
