@@ -45,25 +45,22 @@ setInterval(() => {
     s3.getObject(paramers, (err, data) => {
       if (err) console.error(err);
       fs.writeFileSync(path, data.Body, 'binary');
-    });
-
-    exec(
-      'sudo lp -n 1 -o sides=one-sided -d ' +
+      exec(
+        'sudo lp -n 1 -o sides=one-sided -d ' +
         `HP-LaserJet-p2015dn-right ${path}`,
-      (error, stdout, stderr) => {
-        if (error) throw error;
-        if (stderr) throw stderr;
-        if (error) exec(`rm ${path}`, () => { });
-      }
-    );
+        (error, stdout, stderr) => {
+          if (error) throw error;
+          if (stderr) throw stderr;
+          exec(`rm ${path}`, () => { });
+          const deleteParams = {
+            QueueUrl: queueUrl,
+            ReceiptHandle: data.Messages[0].ReceiptHandle,
+          };
 
-    const deleteParams = {
-      QueueUrl: queueUrl,
-      ReceiptHandle: data.Messages[0].ReceiptHandle,
-    };
-
-    sqs.deleteMessage(deleteParams, (err) => {
-      if (err) throw err;
+          sqs.deleteMessage(deleteParams, (err) => {
+            if (err) throw err;
+          });
+        });
     });
   });
 }, 10000);
