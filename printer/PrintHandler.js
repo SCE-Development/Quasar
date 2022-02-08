@@ -35,7 +35,7 @@ setInterval(() => {
 
     const orderData = JSON.parse(data.Messages[0].Body);
     const {fileNo} = orderData;
-    const path = `./${fileNo}.pdf`;
+    const path = `/tmp/${fileNo}.pdf`;
 
     const paramers = {
       Bucket: PRINTING_BUCKET_NAME,
