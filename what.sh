@@ -1,8 +1,6 @@
 #!/bin/sh
 # in https://stackoverflow.com/a/41518225 we trust
 
-echo bruhhhhhhHHHhHHHHHhhhh
-
 # spawn new process for cups server
 
 create_and_enable_printer() {
@@ -16,13 +14,7 @@ create_and_enable_printer() {
 
 sleep 10
 
-
 create_and_enable_printer $LEFT_PRINTER_NAME $LEFT_PRINTER_IP
 create_and_enable_printer $RIGHT_PRINTER_NAME $RIGHT_PRINTER_IP
 
-
-lpstat -t
-
 node printer/PrintHandler.js
-
-sleep 10000
