@@ -29,11 +29,11 @@ const params = {
 };
 
 setInterval(() => {
-  sqs.receiveMessage(params, (err, data) => {
+  sqs.receiveMessage(params, (err, printRequestFromSqs) => {
     if (err) return;
-    if (!data.Messages) return;
+    if (!printRequestFromSqs.Messages) return;
 
-    const orderData = JSON.parse(data.Messages[0].Body);
+    const orderData = JSON.parse(printRequestFromSqs.Messages[0].Body);
     const {fileNo} = orderData;
     const path = `/tmp/${fileNo}.pdf`;
 
@@ -42,9 +42,9 @@ setInterval(() => {
       Key: `folder/${fileNo}.pdf`,
     };
 
-    s3.getObject(paramers, (err, data) => {
+    s3.getObject(paramers, (err, dataFromS3) => {
       if (err) console.error(err);
-      fs.writeFileSync(path, data.Body, 'binary');
+      fs.writeFileSync(path, dataFromS3.Body, 'binary');
       exec(
         'sudo lp -n 1 -o sides=one-sided -d ' +
         `HP-LaserJet-p2015dn-right ${path}`,
@@ -54,7 +54,7 @@ setInterval(() => {
           exec(`rm ${path}`, () => { });
           const deleteParams = {
             QueueUrl: queueUrl,
-            ReceiptHandle: data.Messages[0].ReceiptHandle,
+            ReceiptHandle: printRequestFromSqs.Messages[0].ReceiptHandle,
           };
 
           sqs.deleteMessage(deleteParams, (err) => {
