@@ -10,7 +10,6 @@ const fs = require('fs');
 const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
 const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 const exec = require('exec');
-const { exit } = require('process');
 
 AWS.config.update({
   region: 'us-west-1',
@@ -32,7 +31,6 @@ const params = {
 setInterval(() => {
   sqs.receiveMessage(params, (err, data) => {
     if (err) return;
-    console.log(data.Messages);
     if (!data.Messages) return;
 
     const orderData = JSON.parse(data.Messages[0].Body);
@@ -46,14 +44,11 @@ setInterval(() => {
 
     s3.getObject(paramers, (err, data) => {
       if (err) console.error(err);
-      console.log('we got an object!!!!', 'lp -n 1 -o sides=one-sided -d ' +
-      `HP-LaserJet-p2015dn-left ${path}`);
       fs.writeFileSync(path, data.Body, 'binary');
       exec(
         'lp -n 1 -o sides=one-sided -d ' +
           `HP-LaserJet-p2015dn-left ${path}`,
         (error, stdout, stderr) => {
-          console.log('yarrrr',{error, stdout, stderr});
           if (error) throw error;
           if (stderr) throw stderr;
           exec(`rm ${path}`, () => { });
@@ -61,15 +56,11 @@ setInterval(() => {
             QueueUrl: queueUrl,
             ReceiptHandle: data.Messages[0].ReceiptHandle,
           };
-      
+
           sqs.deleteMessage(deleteParams, (err) => {
             if (err) throw err;
           });
-          exit(0);
         });
     });
-
-      }
-    );
-
+  });
 }, 10000);
