@@ -28,13 +28,13 @@ const params = {
   WaitTimeSeconds: 0,
 };
 
-function calculate(){
+function determinePrinterForJob(){
   const randomNumber = Math.random();
   if(randomNumber < 0.5){
-    return true;
+    return 'left';
   }
   else {
-    return false;
+    return 'right';
   }
 }
 
