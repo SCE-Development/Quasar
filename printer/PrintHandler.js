@@ -28,6 +28,16 @@ const params = {
   WaitTimeSeconds: 0,
 };
 
+function determinePrinterForJob(){
+  const randomNumber = Math.random();
+  if(randomNumber < 0.5){
+    return 'left';
+  }
+  else {
+    return 'right';
+  }
+}
+
 setInterval(() => {
   sqs.receiveMessage(params, (err, printRequestFromSqs) => {
     if (err) return;
@@ -45,9 +55,10 @@ setInterval(() => {
     s3.getObject(paramers, (err, dataFromS3) => {
       if (err) console.error(err);
       fs.writeFileSync(path, dataFromS3.Body, 'binary');
+      const printer = determinePrinterForJob();
       exec(
         'sudo lp -n 1 -o sides=one-sided -d ' +
-        `HP-LaserJet-p2015dn-right ${path}`,
+        `HP-LaserJet-p2015dn-${printer} ${path}`,
         (error, stdout, stderr) => {
           if (error) throw error;
           if (stderr) throw stderr;
