@@ -28,6 +28,16 @@ const params = {
   WaitTimeSeconds: 0,
 };
 
+ function calculate(){
+    const randomNumber = Math.random();
+    if(randomNumber < 0.5){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 setInterval(() => {
   sqs.receiveMessage(params, (err, printRequestFromSqs) => {
     if (err) return;
