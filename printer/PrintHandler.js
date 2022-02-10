@@ -10,6 +10,7 @@ const fs = require('fs');
 const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
 const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 const exec = require('exec');
+const { exit } = require('process');
 
 AWS.config.update({
   region: 'us-west-1',
