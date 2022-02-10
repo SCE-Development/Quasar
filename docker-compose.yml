@@ -1,7 +1,35 @@
-version: '3.8'
+version: '2'
 services:
   sce-ledsign:
     container_name: sce-ledsign
     build:
       context: .
       dockerfile: ./ledsign/Dockerfile
+    networks:
+      - quasar-local
+  sce-printer:
+    container_name: sce-printer
+    build:
+      context: .
+      dockerfile: ./printer/Dockerfile
+    privileged: true
+    environment:
+      - LEFT_PRINTER_NAME=${LEFT_PRINTER_NAME}
+      - RIGHT_PRINTER_NAME=${RIGHT_PRINTER_NAME}
+      - LEFT_PRINTER_IP=${LEFT_PRINTER_IP}
+      - RIGHT_PRINTER_IP=${RIGHT_PRINTER_IP}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - "/etc/cups/ppd/:/etc/cups/ppd"
+    networks:
+      - quasar-local
+
+networks:
+  quasar-local:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.100.0.0/24
+          gateway: 172.100.0.254
