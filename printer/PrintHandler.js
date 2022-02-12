@@ -57,7 +57,7 @@ setInterval(() => {
       fs.writeFileSync(path, dataFromS3.Body, 'binary');
       const printer = determinePrinterForJob();
       exec(
-        'sudo lp -n 1 -o sides=one-sided -d ' +
+        'lp -n 1 -o sides=one-sided -d ' +
         `HP-LaserJet-p2015dn-${printer} ${path}`,
         (error, stdout, stderr) => {
           if (error) throw error;
