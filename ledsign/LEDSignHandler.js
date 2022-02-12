@@ -11,7 +11,7 @@ AWS.config.update({
 });
 
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
-const queueUrl = `https://sqs.us-west-1.amazonaws.com/${ACCOUNT_ID}/${LED_QUEUE_NAME}`;
+const queueUrl = `https://sqs.us-west-2.amazonaws.com/${ACCOUNT_ID}/${LED_QUEUE_NAME}`;
 
 const params = {
   QueueUrl: queueUrl,
