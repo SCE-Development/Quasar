@@ -27,7 +27,7 @@ setInterval(async () => {
     return;
   }
 
-  await axios.post(LED_URL + 'api/update-sign', orderData);
+  await axios.post(LED_URL + 'api/update-sign', JSON.parse(data.Body));
   const deleteParams = {
     QueueUrl: queueUrl,
     ReceiptHandle: data.ReceiptHandle,
