@@ -29,9 +29,9 @@ const params = {
   WaitTimeSeconds: 0,
 };
 
-function determinePrinterForJob(){
+function determinePrinterForJob() {
   const randomNumber = Math.random();
-  if(randomNumber < 0.5){
+  if (randomNumber < 0.5) {
     return 'left';
   }
   else {
@@ -41,11 +41,11 @@ function determinePrinterForJob(){
 
 setInterval(async () => {
   const orderData = await sqsReadHandler(params, sqs);
-  if(!orderData) {
+  if (!orderData) {
     return;
   }
 
-  const {fileNo, copies} = orderData;
+  const { fileNo, copies } = orderData;
   const path = `/tmp/${fileNo}.pdf`;
 
   const paramers = {

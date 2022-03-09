@@ -23,7 +23,7 @@ const params = {
 
 setInterval(async () => {
   const orderData = await sqsReadHandler(params, sqs);
-  if(!orderData) {
+  if (!orderData) {
     return;
   }
 
@@ -32,5 +32,5 @@ setInterval(async () => {
     QueueUrl: queueUrl,
     ReceiptHandle: data.Messages[0].ReceiptHandle,
   };
-  sqs.deleteMessage(deleteParams, () => {});
+  sqs.deleteMessage(deleteParams, () => { });
 }, 10000);
