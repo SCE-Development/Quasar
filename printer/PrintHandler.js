@@ -41,7 +41,7 @@ function determinePrinterForJob() {
 
 setInterval(async () => {
   const data = await sqsReadHandler(params, sqs);
-  if (!JSON.parse(data.Body)) {
+  if (!data) {
     return;
   }
 
