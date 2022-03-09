@@ -22,15 +22,15 @@ const params = {
 };
 
 setInterval(async () => {
-  const orderData = await sqsReadHandler(params, sqs);
-  if (!orderData) {
+  const data = await sqsReadHandler(params, sqs);
+  if (!JSON.parse(data.Body)) {
     return;
   }
 
   await axios.post(LED_URL + 'api/update-sign', orderData);
   const deleteParams = {
     QueueUrl: queueUrl,
-    ReceiptHandle: data.Messages[0].ReceiptHandle,
+    ReceiptHandle: data.ReceiptHandle,
   };
   sqs.deleteMessage(deleteParams, () => { });
 }, 10000);

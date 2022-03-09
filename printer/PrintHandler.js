@@ -40,12 +40,12 @@ function determinePrinterForJob() {
 }
 
 setInterval(async () => {
-  const orderData = await sqsReadHandler(params, sqs);
-  if (!orderData) {
+  const data = await sqsReadHandler(params, sqs);
+  if (!JSON.parse(data.Body)) {
     return;
   }
 
-  const { fileNo, copies } = orderData;
+  const { fileNo, copies } = JSON.parse(data.Body);
   const path = `/tmp/${fileNo}.pdf`;
 
   const paramers = {
@@ -66,7 +66,7 @@ setInterval(async () => {
         exec(`rm ${path}`, () => { });
         const deleteParams = {
           QueueUrl: queueUrl,
-          ReceiptHandle: printRequestFromSqs.Messages[0].ReceiptHandle,
+          ReceiptHandle: data.ReceiptHandle,
         };
 
         sqs.deleteMessage(deleteParams, (err) => {

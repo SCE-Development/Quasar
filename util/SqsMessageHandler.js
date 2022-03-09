@@ -6,7 +6,7 @@
  * or if there was an error, otherwise returns the recieved message
  */
 function sqsReadHandler(params, sqs) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve) => {
     sqs.recieveMessage(params, (err, printRequestFromSqs) => {
       if (err) return resolve(false);
       else {
@@ -14,7 +14,7 @@ function sqsReadHandler(params, sqs) {
           return resolve(false);
         }
       }
-      return resolve(JSON.parse(printRequestFromSqs.Messages[0].Body));
+      return resolve(printRequestFromSqs.Messages[0]);
     });
   });
 }
