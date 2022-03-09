@@ -39,7 +39,7 @@ function determinePrinterForJob(){
   }
 }
 
-setInterval(() => {
+setInterval(async () => {
   const orderData = await sqsReadHandler(params, sqs);
   if(!orderData) {
     return;

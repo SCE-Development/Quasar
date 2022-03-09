@@ -21,8 +21,8 @@ const params = {
   WaitTimeSeconds: 0,
 };
 
-setInterval(() => {
-  const orderData = sqsReadHandler(params, sqs);
+setInterval(async () => {
+  const orderData = await sqsReadHandler(params, sqs);
   if(!orderData) {
     return;
   }
