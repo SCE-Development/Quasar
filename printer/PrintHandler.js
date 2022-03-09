@@ -44,7 +44,8 @@ setInterval(() => {
     if (!printRequestFromSqs.Messages) return;
 
     const orderData = JSON.parse(printRequestFromSqs.Messages[0].Body);
-    const {fileNo, copies} = orderData;
+    const {fileNo, copies, pageRanges} = orderData;
+    const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
     const path = `/tmp/${fileNo}.pdf`;
 
     const paramers = {
@@ -57,7 +58,7 @@ setInterval(() => {
       fs.writeFileSync(path, dataFromS3.Body, 'binary');
       const printer = determinePrinterForJob();
       exec(
-        `lp -n ${copies} -o sides=one-sided -d ` +
+        `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
         `HP-LaserJet-p2015dn-${printer} ${path}`,
         (error, stdout, stderr) => {
           if (error) throw error;
