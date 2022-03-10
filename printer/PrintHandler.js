@@ -10,7 +10,7 @@ const fs = require('fs');
 const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
 const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 const exec = require('exec');
-const { sqsReadHandler } = require('../util/SqsMessageHandler');
+const { readMessageFromSqs } = require('../util/SqsMessageHandler');
 
 AWS.config.update({
   region: 'us-west-1',
@@ -40,7 +40,7 @@ function determinePrinterForJob() {
 }
 
 setInterval(async () => {
-  const data = await sqsReadHandler(params, sqs);
+  const data = await readMessageFromSqs(params, sqs);
   if (!data) {
     return;
   }

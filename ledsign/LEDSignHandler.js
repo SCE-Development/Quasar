@@ -3,7 +3,7 @@ const config = require('../config/config.json');
 const AWS = require('aws-sdk');
 const { LED_URL, ACCESS_ID, SECRET_KEY, ACCOUNT_ID, LED_QUEUE_NAME } = config;
 const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
-const { sqsReadHandler } = require('../util/SqsMessageHandler');
+const { readMessageFromSqs } = require('../util/SqsMessageHandler');
 
 AWS.config.update({
   region: 'us-west-1',
@@ -22,7 +22,7 @@ const params = {
 };
 
 setInterval(async () => {
-  const data = await sqsReadHandler(params, sqs);
+  const data = await readMessageFromSqs(params, sqs);
   if (!data) {
     return;
   }

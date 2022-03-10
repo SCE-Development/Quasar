@@ -5,7 +5,7 @@
  * @returns {Promise} Returns false if no message was recieved 
  * or if there was an error, otherwise returns the recieved message
  */
-function sqsReadHandler(params, sqs) {
+function readMessageFromSqs(params, sqs) {
   return new Promise((resolve) => {
     sqs.recieveMessage(params, (err, printRequestFromSqs) => {
       if (err) return resolve(false);
@@ -19,4 +19,4 @@ function sqsReadHandler(params, sqs) {
   });
 }
 
-module.exports = { sqsReadHandler };
+module.exports = { readMessageFromSqs };
