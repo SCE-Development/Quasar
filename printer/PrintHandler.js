@@ -45,7 +45,7 @@ setInterval(async () => {
     return;
   }
 
-  const { fileNo, copies } = JSON.parse(data.Body);
+  const { fileNo, copies } = data.Body;
   const path = `/tmp/${fileNo}.pdf`;
 
   const paramers = {

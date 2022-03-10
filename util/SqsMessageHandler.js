@@ -14,7 +14,11 @@ function readMessageFromSqs(params, sqs) {
           return resolve(false);
         }
       }
-      return resolve(printRequestFromSqs.Messages[0]);
+      const data = {
+        Body: JSON.parse(printRequestFromSqs.Message[0].Body),
+        ReceiptHandle: JSON.parse(printRequestFromSqs.Message[0].ReceiptHandle)
+      };
+      return resolve(data);
     });
   });
 }
