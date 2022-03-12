@@ -7,19 +7,21 @@
  */
 function readMessageFromSqs(params, sqs) {
   return new Promise((resolve) => {
-    sqs.recieveMessage(params, (err, printRequestFromSqs) => {
-      if (err) return resolve(false);
-      else {
-        if (!printRequestFromSqs.Messages) {
+    try {
+      sqs.recieveMessage(params, (err, printRequestFromSqs) => {
+        if (err) return resolve(false);
+        else if (!printRequestFromSqs.Messages) {
           return resolve(false);
         }
-      }
-      const data = {
-        Body: JSON.parse(printRequestFromSqs.Message[0].Body),
-        ReceiptHandle: JSON.parse(printRequestFromSqs.Message[0].ReceiptHandle)
-      };
-      return resolve(data);
-    });
+        const data = {
+          Body: JSON.parse(printRequestFromSqs.Message[0].Body),
+          ReceiptHandle: JSON.parse(printRequestFromSqs.Message[0].ReceiptHandle)
+        };
+        return resolve(data);
+      });
+    } catch (error) {
+      resolve(false);
+    }
   });
 }
 
