@@ -45,7 +45,8 @@ setInterval(async () => {
     return;
   }
 
-  const { fileNo, copies } = data.Body;
+  const { fileNo, copies, pageRanges } = data.Body;
+  const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
   const path = `/tmp/${fileNo}.pdf`;
 
   const paramers = {
@@ -58,7 +59,7 @@ setInterval(async () => {
     fs.writeFileSync(path, dataFromS3.Body, 'binary');
     const printer = determinePrinterForJob();
     exec(
-      `lp -n ${copies} -o sides=one-sided -d ` +
+      `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
       `HP-LaserJet-p2015dn-${printer} ${path}`,
       (error, stdout, stderr) => {
         if (error) throw error;
