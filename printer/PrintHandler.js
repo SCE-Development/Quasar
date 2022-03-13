@@ -10,6 +10,7 @@ const fs = require('fs');
 const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
 const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 const exec = require('exec');
+const { readMessageFromSqs } = require('../util/SqsMessageHandler');
 
 AWS.config.update({
   region: 'us-west-1',
@@ -28,9 +29,9 @@ const params = {
   WaitTimeSeconds: 0,
 };
 
-function determinePrinterForJob(){
+function determinePrinterForJob() {
   const randomNumber = Math.random();
-  if(randomNumber < 0.5){
+  if (randomNumber < 0.5) {
     return 'left';
   }
   else {
@@ -38,40 +39,39 @@ function determinePrinterForJob(){
   }
 }
 
-setInterval(() => {
-  sqs.receiveMessage(params, (err, printRequestFromSqs) => {
-    if (err) return;
-    if (!printRequestFromSqs.Messages) return;
+setInterval(async () => {
+  const data = await readMessageFromSqs(params, sqs);
+  if (!data) {
+    return;
+  }
 
-    const orderData = JSON.parse(printRequestFromSqs.Messages[0].Body);
-    const {fileNo, copies} = orderData;
-    const path = `/tmp/${fileNo}.pdf`;
+  const { fileNo, copies } = data.Body;
+  const path = `/tmp/${fileNo}.pdf`;
 
-    const paramers = {
-      Bucket: PRINTING_BUCKET_NAME,
-      Key: `folder/${fileNo}.pdf`,
-    };
+  const paramers = {
+    Bucket: PRINTING_BUCKET_NAME,
+    Key: `folder/${fileNo}.pdf`,
+  };
 
-    s3.getObject(paramers, (err, dataFromS3) => {
-      if (err) console.error(err);
-      fs.writeFileSync(path, dataFromS3.Body, 'binary');
-      const printer = determinePrinterForJob();
-      exec(
-        `lp -n ${copies} -o sides=one-sided -d ` +
-        `HP-LaserJet-p2015dn-${printer} ${path}`,
-        (error, stdout, stderr) => {
-          if (error) throw error;
-          if (stderr) throw stderr;
-          exec(`rm ${path}`, () => { });
-          const deleteParams = {
-            QueueUrl: queueUrl,
-            ReceiptHandle: printRequestFromSqs.Messages[0].ReceiptHandle,
-          };
+  s3.getObject(paramers, (err, dataFromS3) => {
+    if (err) console.error(err);
+    fs.writeFileSync(path, dataFromS3.Body, 'binary');
+    const printer = determinePrinterForJob();
+    exec(
+      `lp -n ${copies} -o sides=one-sided -d ` +
+      `HP-LaserJet-p2015dn-${printer} ${path}`,
+      (error, stdout, stderr) => {
+        if (error) throw error;
+        if (stderr) throw stderr;
+        exec(`rm ${path}`, () => { });
+        const deleteParams = {
+          QueueUrl: queueUrl,
+          ReceiptHandle: data.ReceiptHandle,
+        };
 
-          sqs.deleteMessage(deleteParams, (err) => {
-            if (err) throw err;
-          });
+        sqs.deleteMessage(deleteParams, (err) => {
+          if (err) throw err;
         });
-    });
+      });
   });
 }, 10000);
