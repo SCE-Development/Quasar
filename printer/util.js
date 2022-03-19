@@ -1,9 +1,10 @@
 const snmp = require('net-snmp');
 const config = require('../config/config.json');
 const { RIGHT_PRINTER_IP, LEFT_PRINTER_IP } = config;
+let session;
 
 function inkLevel(printer) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if (printer == 'right') {
       session = snmp.createSession(RIGHT_PRINTER_IP, 'public');
     } else if (printer == 'left') {
