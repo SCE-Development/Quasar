@@ -1,23 +1,23 @@
 const snmp = require('net-snmp');
-const config = require('../config/config.json');
-const { RIGHT_PRINTER_IP, LEFT_PRINTER_IP } = config;
-let session;
 
-function inkLevel(printer) {
+async function inkLevel(printer) {
+  const currentLevel = await getCurrentTonerLevel(printer);
+  const capacity = await getTonerCapacity(printer);
+
+  return (currentLevel / capacity) * 100;
+}
+
+function getTonerCapacity(printer) {
   return new Promise((resolve) => {
-    if (printer == 'right') {
-      session = snmp.createSession(RIGHT_PRINTER_IP, 'public');
-    } else if (printer == 'left') {
-      session = snmp.createSession(LEFT_PRINTER_IP, 'public');
-    }
+    const session = snmp.createSession(printer, 'public');
 
-    const oids = ['1.3.6.1.2.1.43.11.1.1.8.1.1', '1.3.6.1.2.1.43.11.1.1.9.1.1'];
+    const oids = ['1.3.6.1.2.1.43.11.1.1.8.1.1'];
 
     session.get(oids, function (error, varbinds) {
       if (error) {
         console.error(error);
       } else {
-        resolve((varbinds[1].value / varbinds[0].value) * 100);
+        resolve(varbinds[0].value);
       }
       session.close();
     });
@@ -30,4 +30,27 @@ function inkLevel(printer) {
   });
 }
 
-module.exports = { inkLevel };
+function getCurrentTonerLevel(printer) {
+  return new Promise((resolve) => {
+    const session = snmp.createSession(printer, 'public');
+
+    const oids = ['1.3.6.1.2.1.43.11.1.1.9.1.1'];
+
+    session.get(oids, function (error, varbinds) {
+      if (error) {
+        console.error(error);
+      } else {
+        resolve(varbinds[0].value);
+      }
+      session.close();
+    });
+
+    session.trap(snmp.TrapType.LinkDown, function (error) {
+      if (error) {
+        console.error(error);
+      }
+    });
+  });
+}
+
+module.exports = { inkLevel, getCurrentTonerLevel, getTonerCapacity };
