@@ -54,3 +54,4 @@ function getCurrentTonerLevel(printer) {
 }
 
 module.exports = { inkLevel, getCurrentTonerLevel, getTonerCapacity };
+
