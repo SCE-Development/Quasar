@@ -3,7 +3,7 @@ const snmp = require('net-snmp');
 /**
  * inkLevel determines and returns the current ink level of a HP p2015dn printer
  * @param {String} printer IP address of printer to query
- * @returns Promise with current ink level of printer in % of capacity
+ * @returns {Promise} Promise with current ink level of the printer in % of capacity
  */
 async function inkLevel(printer) {
   const currentLevel = await getCurrentTonerLevel(printer);
@@ -15,7 +15,7 @@ async function inkLevel(printer) {
 /**
  * getTonerCapacity makes snmp query against toner capacity OID and returns value
  * @param {String} printer IP address of printer to query
- * @returns Promise with toner capacity in unknown units
+ * @returns {Promise} Promise with toner capacity in unknown units
  */
 function getTonerCapacity(printer) {
   return new Promise((resolve) => {
@@ -43,7 +43,7 @@ function getTonerCapacity(printer) {
 /**
  * getCurrentTonerLevel makes snmp query against toner level OID and returns value
  * @param {String} printer IP address of printer to query
- * @returns Promise with current toner level in unknown units
+ * @returns {Promise} Promise with current toner level in unknown units
  */
 function getCurrentTonerLevel(printer) {
   return new Promise((resolve) => {
