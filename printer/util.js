@@ -11,9 +11,7 @@ const SNMP_OBJECT_IDS = {
  */
 async function inkLevel(printerIP) {
   const currentLevel = await getCurrentTonerLevel(printerIP);
-  console.log(currentLevel);
   const capacity = await getTonerCapacity(printerIP);
-  console.log(capacity);
 
   if (currentLevel && capacity) {
     return (currentLevel / capacity) * 100;
@@ -23,73 +21,31 @@ async function inkLevel(printerIP) {
 }
 
 /**
- * getTonerCapacity makes snmp query against toner capacity OID and returns value
+ * getTonerCapacity makes a snmp query against toner capacity OID and returns value
  * @param {String} printerIP IP address of printer to query
  * @returns Promise with toner capacity in unknown units
  */
 async function getTonerCapacity(printerIP) {
-  await executeSNMPRequest(printerIP, [SNMP_OBJECT_IDS.TONER_CAPACITY]);
+  return await executeSNMPRequest(printerIP, [SNMP_OBJECT_IDS.TONER_CAPACITY]);
 }
-/*
-function getTonerCapacity(printer) {
-  return new Promise((resolve) => {
-    const session = snmp.createSession(printer, 'public');
-
-    const oids = ['1.3.6.1.2.1.43.11.1.1.8.1.1'];
-
-    session.get(oids, function (error, varbinds) {
-      if (error) {
-        console.error(error);
-      } else {
-        resolve(varbinds[0].value);
-      }
-      session.close();
-    });
-
-    session.trap(snmp.TrapType.LinkDown, function (error) {
-      if (error) {
-        console.error(error);
-      }
-    });
-  });
-}*/
 
 /**
- * getCurrentTonerLevel makes snmp query against toner level OID and returns value
- * @param {String} printer IP address of printer to query
+ * getCurrentTonerLevel makes a snmp query against toner level OID and returns value
+ * @param {String} printerIP IP address of printer to query
  * @returns {Promise} Promise with current toner level in unknown units
  */
-
 async function getCurrentTonerLevel(printerIP) {
-  console.log(printerIP);
-  await executeSNMPRequest(printerIP, [SNMP_OBJECT_IDS.CURRENT_TONER_LEVEL]);
+  return await executeSNMPRequest(printerIP, [
+    SNMP_OBJECT_IDS.CURRENT_TONER_LEVEL,
+  ]);
 }
 
-/*
-function getCurrentTonerLevel(printer) {
-  return new Promise((resolve) => {
-    const session = snmp.createSession(printer, 'public');
-
-    const oids = ['1.3.6.1.2.1.43.11.1.1.9.1.1'];
-
-    session.get(oids, function (error, varbinds) {
-      if (error) {
-        console.error(error);
-      } else {
-        resolve(varbinds[0].value);
-      }
-      session.close();
-    });
-
-    session.trap(snmp.TrapType.LinkDown, function (error) {
-      if (error) {
-        console.error(error);
-      }
-    });
-  });
-}
-*/
-
+/**
+ * executreSNMPRequest makes a snmp query against the given OID
+ * @param {String} printerIP IP address of printer to query
+ * @param {String} objectIdentifier OID to query
+ * @returns value corresponding to OID, or false on error
+ */
 async function executeSNMPRequest(printerIP, objectIdentifier) {
   return new Promise((resolve) => {
     const session = snmp.createSession(printerIP, 'public');
@@ -98,7 +54,6 @@ async function executeSNMPRequest(printerIP, objectIdentifier) {
         if (error) {
           resolve(false);
         } else {
-          console.log(result[0].value);
           resolve(result[0].value);
         }
         session.close();
