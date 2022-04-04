@@ -57,7 +57,7 @@ function getTonerCapacity(printer) {
 /**
  * getCurrentTonerLevel makes snmp query against toner level OID and returns value
  * @param {String} printer IP address of printer to query
- * @returns Promise with current toner level in unknown units
+ * @returns {Promise} Promise with current toner level in unknown units
  */
 
 async function getCurrentTonerLevel(printerIP) {
