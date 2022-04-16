@@ -7,8 +7,6 @@ services:
       dockerfile: ./ledsign/Dockerfile
     networks:
       - quasar-local
-    volumes:
-      - ./util:/app/util:ro
   sce-printer:
     container_name: sce-printer
     build:
@@ -25,7 +23,6 @@ services:
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
     volumes:
       - '/etc/cups/ppd/:/etc/cups/ppd'
-      - ./util:/app/util:ro
     networks:
       - quasar-local
 
