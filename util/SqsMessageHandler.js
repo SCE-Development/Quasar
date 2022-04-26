@@ -8,7 +8,7 @@
 function readMessageFromSqs(params, sqs) {
   return new Promise((resolve) => {
     try {
-      sqs.recieveMessage(params, (err, printRequestFromSqs) => {
+      sqs.receiveMessage(params, (err, printRequestFromSqs) => {
         if (err) return resolve(false);
         else if (!printRequestFromSqs.Messages) {
           return resolve(false);
