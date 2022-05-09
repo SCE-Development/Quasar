@@ -11,7 +11,7 @@ const client = require('prom-client');
 let register = new client.Registry();
 
 const inkLevelRight = new client.Gauge({
-  name: 'sce_printer_right_ink_level',
+  name: 'ink_level_right',
   help: 'metric_help',
   async collect() {
     const currentValue = await inkLevel(RIGHT_PRINTER_IP);

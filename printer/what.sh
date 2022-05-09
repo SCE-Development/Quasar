@@ -28,7 +28,12 @@ sleep 10
 create_and_enable_printer $LEFT_PRINTER_NAME $LEFT_PRINTER_IP
 create_and_enable_printer $RIGHT_PRINTER_NAME $RIGHT_PRINTER_IP
 
+# Attempt to run express server
+echo Starting metrics server...
+node printer/metrics.js
+
 echo Starting print server...
 
 # Run the actual code to read from SQS/S3 and send files to the printers.
-node printer/PrintHandler.js
+node printer/PrintHandler.js 
+
