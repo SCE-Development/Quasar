@@ -4,7 +4,7 @@ const app = express();
 const util = require('./util.js');
 const { inkLevel } = util;
 const config = require('../config/config.json');
-const { RIGHT_PRINTER_IP, LEFT_PRINTER_IP } = config;
+const { RIGHT_PRINTER_IP } = config;
 
 const client = require('prom-client');
 
