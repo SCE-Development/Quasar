@@ -42,6 +42,8 @@ services:
     depends_on:
       - sce-printer
     ports: ['8080:8080']
+    networks:
+      - quasar-local
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -54,6 +56,8 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
       - '9090:9090'
+    networks:
+      - quasar-local
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -69,6 +73,8 @@ services:
       - prometheus
     ports:
       - '3000:3000'
+    networks:
+      - quasar-local
 
 networks:
   quasar-local:
