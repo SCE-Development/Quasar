@@ -1,4 +1,7 @@
 const snmp = require('net-snmp');
+const pdfLib = require('pdf-lib');
+const fs = require('fs');
+
 const SNMP_OBJECT_IDS = {
   TONER_CAPACITY: '1.3.6.1.2.1.43.11.1.1.8.1.1',
   CURRENT_TONER_LEVEL: '1.3.6.1.2.1.43.11.1.1.9.1.1',
@@ -70,4 +73,21 @@ async function executeSNMPRequest(printerIP, objectIdentifier) {
   });
 }
 
-module.exports = { inkLevel, getCurrentTonerLevel, getTonerCapacity };
+/**
+ * Gets the number of pages in a file
+ * @param {String} file - path to file 
+ * @returns {Number} - number of pages in a file
+ */
+async function getNumPages(file) {
+  const pdfDocument = fs.readFileSync(file);
+  const doc = await pdfLib.PDFDocument.load(pdfDocument);
+  const pageCount = await doc.getPageCount();
+  return pageCount;
+}
+
+module.exports = { 
+  inkLevel,
+  getCurrentTonerLevel,
+  getTonerCapacity,
+  getNumPages
+};
