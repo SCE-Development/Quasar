@@ -69,7 +69,16 @@ services:
       - prometheus
     ports:
       - '3000:3000'
-  
+  nginx:
+    image: 'nginx'
+    container_name: arcam_nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    command: [nginx-debug, '-g', 'daemon off;']
+    ports:
+      - '80:80'
+    restart: 'on-failure'
+      
 networks:
   quasar-local:
     driver: bridge
