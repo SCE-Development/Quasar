@@ -67,6 +67,8 @@ services:
     user: "1000"
     depends_on:
       - prometheus
+    environment:
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/  
     ports:
       - '3000:3000'
   nginx:
@@ -78,7 +80,7 @@ services:
     ports:
       - '80:80'
     restart: 'on-failure'
-      
+
 networks:
   quasar-local:
     driver: bridge
