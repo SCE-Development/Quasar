@@ -17,4 +17,6 @@ COPY ./config/config.json /app/config/config.json
 
 COPY /util /app/util
 
+EXPOSE 5000
+
 CMD [ "node", "./ledsign/LEDSignHandler.js" ]

@@ -4,6 +4,22 @@ const AWS = require('aws-sdk');
 const { LED_URL, ACCESS_ID, SECRET_KEY, ACCOUNT_ID, LED_QUEUE_NAME } = config;
 const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 const { readMessageFromSqs } = require('../util/SqsMessageHandler');
+const client = require('prom-client');
+let register = new client.Registry();
+
+client.collectDefaultMetrics({ register })
+const timesChanged = new client.Counter({
+  name: "times_changed",
+  help: "Times LED Sign has been changed"
+})
+
+register.registerMetric(timesChanged);
+
+register.setDefaultLabels ({
+  app: 'led-sign'
+})
+
+
 
 AWS.config.update({
   region: 'us-west-1',
@@ -34,3 +50,12 @@ setInterval(async () => {
   };
   sqs.deleteMessage(deleteParams, () => { });
 }, 10000);
+
+app.get('/metrics', async (request, response) => {
+  response.setHeader('Content-Type', register.contentType);
+  response.end(await register.metrics());
+})
+
+app.listen(5000, () =>{
+  console.log('Started server on port 5000');
+})
