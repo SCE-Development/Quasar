@@ -5,6 +5,10 @@ const { LED_URL, ACCESS_ID, SECRET_KEY, ACCOUNT_ID, LED_QUEUE_NAME } = config;
 const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 const { readMessageFromSqs } = require('../util/SqsMessageHandler');
 const client = require('prom-client');
+const express = require('express')
+
+let app = express()
+
 let register = new client.Registry();
 
 client.collectDefaultMetrics({ register })
