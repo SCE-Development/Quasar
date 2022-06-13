@@ -18,4 +18,3 @@ open_ssh_tunnel () {
 }
 
 open_ssh_tunnel
-python /app/tunnel/app.py ${QUASAR_PORT}
