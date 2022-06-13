@@ -17,9 +17,6 @@
     "url": "https://github.com/SCE-Development/Quasar/issues"
   },
   "homepage": "https://github.com/SCE-Development/Quasar#readme",
-  "devDependencies": {
-    "eslint": "^6.8.0"
-  },
   "dependencies": {
     "@babel/eslint-parser": "^7.16.5",
     "aws-sdk": "^2.1048.0",
@@ -28,5 +25,8 @@
     "babel-eslint": "^10.1.0",
     "exec": "^0.2.1",
     "net-snmp": "^3.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.17.0"
   }
 }
