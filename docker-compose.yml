@@ -30,9 +30,9 @@ services:
       context: .
       dockerfile: ./tunnel/Dockerfile
     volumes:
-      - /home/sce/Quasar/test_ssh_keys/test_keys.pub:/app/test_keys.pub
-      - /home/sce/Quasar/test_ssh_keys/test_keys:/app/test_keys
-      - /home/sce/Quasar/test_ssh_keys/known_hosts:/app/known_hosts
+      - /home/sce/.ssh/id_rsa.pub:/app/test_keys.pub
+      - /home/sce/.ssh/id_rsa:/app/test_keys
+      - /home/sce/.ssh/known_hosts:/app/known_hosts
     tty: true
 
 networks:
