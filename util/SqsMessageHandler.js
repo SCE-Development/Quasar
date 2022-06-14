@@ -14,8 +14,8 @@ function readMessageFromSqs(params, sqs) {
           return resolve(false);
         }
         const data = {
-          Body: JSON.parse(printRequestFromSqs.Message[0].Body),
-          ReceiptHandle: JSON.parse(printRequestFromSqs.Message[0].ReceiptHandle)
+          Body: JSON.parse(printRequestFromSqs.Messages[0].Body),
+          ReceiptHandle: printRequestFromSqs.Messages[0].ReceiptHandle
         };
         return resolve(data);
       });

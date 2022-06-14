@@ -14,10 +14,10 @@ open_ssh_tunnel () {
     -o UserKnownHostsFile=${DOCKER_CONTAINER_KNOWN_HOSTS} \
     -i ${DOCKER_CONTAINER_SSH_KEYS} \
     -f -N -R ${CORE_V4_PORT}:localhost:${QUASAR_PORT} ${CORE_V4_HOST}
+
 }
 
 chmod 600 ${DOCKER_CONTAINER_SSH_KEYS}
 
 open_ssh_tunnel
 python /app/tunnel/app.py ${QUASAR_PORT}
-
