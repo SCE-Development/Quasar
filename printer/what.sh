@@ -31,6 +31,8 @@ LEFT_PRINTER_IP=$(jq -r '.PRINTER_LEFT_IP' config/config.json)
 RIGHT_PRINTER_NAME=$(jq -r '.PRINTER_RIGHT_NAME' config/config.json)
 RIGHT_PRINTER_IP=$(jq -r '.PRINTER_RIGHT_IP' config/config.json)
 
+# we set these environment variables as the AWS S3 node library will
+# throw errors otherwise.
 AWS_ACCESS_KEY_ID=$(jq -r '.ACCESS_ID' config/config.json)${AWS_ACCESS_KEY_ID}
 AWS_SECRET_ACCESS_KEY=$(jq -r '.SECRET_KEY' config/config.json)${AWS_SECRET_ACCESS_KEY}
 AWS_DEFAULT_REGION=$(jq -r '.AWS_DEFAULT_REGION' config/config.json)${AWS_DEFAULT_REGION}
