@@ -17,5 +17,7 @@ open_ssh_tunnel () {
 
 }
 
+chmod 600 ${DOCKER_CONTAINER_SSH_KEYS}
+
 open_ssh_tunnel
 python /app/tunnel/app.py ${QUASAR_PORT}
