@@ -23,6 +23,15 @@ create_and_enable_printer() {
 # script hangs out for 10 seconds.
 sleep 10
 
+# use jq to parse config.json variables
+/app/config/config.json
+
+LEFT_PRINTER_NAME=$(jq -r '.PRINTER_LEFT_NAME' /app/config/config.json)
+LEFT_PRINTER_IP=$(jq -r '.PRINTER_LEFT_IP' /app/config/config.json)
+
+RIGHT_PRINTER_NAME=$(jq -r '.PRINTER_RIGHT_NAME' /app/config/config.json)
+RIGHT_PRINTER_IP=$(jq -r '.PRINTER_RIGHT_IP' /app/config/config.json)
+
 # Call the above function for the left and right printers, both values
 # defined in an .env file. See this repo's README.md for more info.
 create_and_enable_printer $LEFT_PRINTER_NAME $LEFT_PRINTER_IP
