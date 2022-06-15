@@ -24,7 +24,6 @@ create_and_enable_printer() {
 sleep 10
 
 # use jq to parse config.json variables
-/app/config/config.json
 
 LEFT_PRINTER_NAME=$(jq -r '.PRINTER_LEFT_NAME' /app/config/config.json)
 LEFT_PRINTER_IP=$(jq -r '.PRINTER_LEFT_IP' /app/config/config.json)
