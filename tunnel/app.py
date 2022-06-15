@@ -10,7 +10,5 @@ def api():
         
 
 if __name__ == "__main__":
-    # TODO(CCLDArjun): Turn these params into argparse values
+    # TODO: Turn these params into argparse values
     app.run(host='127.0.0.1', port=int(sys.argv[1]))
-
-

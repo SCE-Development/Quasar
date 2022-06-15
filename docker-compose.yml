@@ -25,6 +25,15 @@ services:
       - "/etc/cups/ppd/:/etc/cups/ppd"
     networks:
       - quasar-local
+  conn:
+    build:
+      context: .
+      dockerfile: ./tunnel/Dockerfile
+    volumes:
+      - ~/.ssh/id_rsa.pub:/app/test_keys.pub
+      - ~/.ssh/id_rsa:/app/test_keys
+      - ~/.ssh/known_hosts:/app/known_hosts
+    tty: true
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor

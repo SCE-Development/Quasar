@@ -47,6 +47,7 @@ open_ssh_tunnel () {
     -f -N -R ${CORE_V4_PORT}:localhost:${QUASAR_PORT} ${CORE_V4_HOST}
 }
 
+
 # Change file permissions of the private key.
 # 600 means only the owner should be able to read/write the file.
 # If the permissions aren't tight, ssh complains and doesn't connect. 
