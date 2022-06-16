@@ -54,7 +54,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/prometheus.yml:/etc/monitoring/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
@@ -69,9 +69,9 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/data:/var/lib/grafana
+      - ./monitoring/grafana/grafana.ini:/etc/monitoring/grafana/grafana.ini
+      - ./monitoring/grafana/provisioning:/etc/monitoring/grafana/provisioning
+      - ./monitoring/grafana/data:/var/lib/monitoring/grafana
     user: "1000"
     depends_on:
       - quasar_prometheus

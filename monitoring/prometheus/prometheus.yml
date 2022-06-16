@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'cadvisor'
+    static_configs: 
+      - targets: ['quasar_cadvisor:8080']
+  - job_name: 'led-sign'
+    static_configs:
+      - targets: ['led-sign:5000']
