@@ -24,7 +24,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -43,7 +42,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#ffba00"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -53,11 +53,11 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 5,
         "x": 0,
         "y": 0
       },
-      "id": 6,
+      "id": 2,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -70,6 +70,7 @@
           "fields": "",
           "values": false
         },
+        "text": {},
         "textMode": "auto"
       },
       "pluginVersion": "8.5.5",
@@ -83,7 +84,7 @@
           "refId": "A"
         }
       ],
-      "title": "Panel Title",
+      "title": "Uptime",
       "type": "stat"
     },
     {
@@ -129,7 +130,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -139,40 +141,15 @@
           },
           "unit": "bytes"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "Printer Mem"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
+        "h": 8,
+        "w": 9,
+        "x": 5,
         "y": 0
       },
-      "id": 2,
+      "id": 4,
       "options": {
         "legend": {
           "calcs": [],
@@ -192,7 +169,7 @@
           },
           "editorMode": "code",
           "expr": "container_memory_usage_bytes{name=\"sce-printer\"}",
-          "legendFormat": "Printer Mem",
+          "legendFormat": "Printer",
           "range": true,
           "refId": "A"
         },
@@ -204,20 +181,12 @@
           "editorMode": "code",
           "expr": "container_memory_usage_bytes{name=\"sce-ledsign\"}",
           "hide": false,
-          "legendFormat": "LED Sign Mem",
+          "legendFormat": "LED Sign",
           "range": true,
           "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "hide": false,
-          "refId": "C"
         }
       ],
-      "title": "MEM Usage ",
+      "title": "Memory Usage (bytes)",
       "type": "timeseries"
     },
     {
@@ -263,7 +232,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -271,17 +241,17 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "percent"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
+        "w": 10,
+        "x": 14,
+        "y": 0
       },
-      "id": 4,
+      "id": 6,
       "options": {
         "legend": {
           "calcs": [],
@@ -300,7 +270,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(container_cpu_usage_seconds_total{name=\"sce-printer\"}[$__rate_interval])",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{name=\"sce-printer\"}[$__interval])) * 100",
           "legendFormat": "Printer",
           "range": true,
           "refId": "A"
@@ -311,7 +281,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(container_cpu_usage_seconds_total{name=\"sce-ledsign\"}[$__rate_interval])",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{name=\"sce-ledsign\"}[$__interval])) * 100",
           "hide": false,
           "legendFormat": "LED Sign",
           "range": true,
@@ -322,6 +292,7 @@
       "type": "timeseries"
     }
   ],
+  "refresh": "",
   "schemaVersion": 36,
   "style": "dark",
   "tags": [],
@@ -329,12 +300,12 @@
     "list": []
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Stacked Dashboard",
+  "title": "Quasar Container Monitoring",
   "uid": "Cu8mzxCnz",
   "version": 3,
   "weekStart": ""
