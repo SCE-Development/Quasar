@@ -5,8 +5,6 @@ services:
     build:
       context: .
       dockerfile: ./ledsign/Dockerfile
-    networks:
-      - quasar-local
   sce-printer:
     container_name: sce-printer
     build:
@@ -23,8 +21,6 @@ services:
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
     volumes:
       - "/etc/cups/ppd/:/etc/cups/ppd"
-    networks:
-      - quasar-local
   conn:
     build:
       context: .
@@ -34,9 +30,9 @@ services:
       - ~/.ssh/id_rsa:/app/test_keys
       - ~/.ssh/known_hosts:/app/known_hosts
     tty: true
-  cadvisor:
+  quasar_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
+    container_name: quasar_cadvisor
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -51,9 +47,9 @@ services:
     depends_on:
       - sce-ledsign
       - sce-printer
-  prometheus:
+  quasar_prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
+    container_name: quasar_prometheus
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -63,9 +59,12 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
       - '9090:9090'  
-  grafana:
+    depends_on:
+      - sce-ledsign
+      - sce-printer
+  quasar_grafana:
     image: grafana/grafana:latest
-    container_name: grafana
+    container_name: quasar_grafana
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -75,13 +74,6 @@ services:
       - ./grafana/data:/var/lib/grafana
     user: "1000"
     depends_on:
-      - prometheus
+      - quasar_prometheus
     ports:
       - '3000:3000'
-networks:
-  quasar-local:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.100.0.0/24
-          gateway: 172.100.0.254
