@@ -5,8 +5,6 @@ services:
     build:
       context: .
       dockerfile: ./ledsign/Dockerfile
-    networks:
-      - quasar-local
   sce-printer:
     container_name: sce-printer
     build:
@@ -23,11 +21,18 @@ services:
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
     volumes:
       - "/etc/cups/ppd/:/etc/cups/ppd"
-    networks:
-      - quasar-local
-  cadvisor:
+  conn:
+    build:
+      context: .
+      dockerfile: ./tunnel/Dockerfile
+    volumes:
+      - ~/.ssh/id_rsa.pub:/app/test_keys.pub
+      - ~/.ssh/id_rsa:/app/test_keys
+      - ~/.ssh/known_hosts:/app/known_hosts
+    tty: true
+  quasar_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
+    container_name: quasar_cadvisor
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -42,49 +47,36 @@ services:
     depends_on:
       - sce-ledsign
       - sce-printer
-  prometheus:
+  quasar_prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
+    container_name: quasar_prometheus
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
-      - '9090:9090'
-  grafana:
+      - '9090:9090'  
+    depends_on:
+      - sce-ledsign
+      - sce-printer
+  quasar_grafana:
     image: grafana/grafana:latest
-    container_name: grafana
+    container_name: quasar_grafana
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/data:/var/lib/grafana
+      - ./monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - quasar_grafana_data:/var/lib/grafana
     user: "1000"
     depends_on:
-      - prometheus
-    environment:
-      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/  
+      - quasar_prometheus
     ports:
       - '3000:3000'
-  nginx:
-    image: 'nginx'
-    container_name: arcam_nginx
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    command: [nginx-debug, '-g', 'daemon off;']
-    ports:
-      - '80:80'
-    restart: 'on-failure'
 
-networks:
-  quasar-local:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.100.0.0/24
-          gateway: 172.100.0.254
+volumes:
+  quasar_grafana_data:
