@@ -21,10 +21,10 @@ services:
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
     volumes:
       - "/etc/cups/ppd/:/etc/cups/ppd"
-  conn:
+  health_check_tunnel:
     build:
       context: .
-      dockerfile: ./tunnel/Dockerfile
+      dockerfile: ./healthcheck/Dockerfile
     volumes:
       - ~/.ssh/id_rsa.pub:/app/test_keys.pub
       - ~/.ssh/id_rsa:/app/test_keys
