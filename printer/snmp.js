@@ -21,7 +21,7 @@ class HPp2015dn {
    * @param {String} printerIP IP address of printer to query
    * @returns Promise with current ink level of printer in % of capacity
    */
-  async inkLevel() {
+  async getInkLevel() {
     const currentLevel = await this.getCurrentTonerLevel();
     const capacity = await this.getTonerCapacity();
 
@@ -37,7 +37,7 @@ class HPp2015dn {
    * @returns Promise with toner capacity in unknown units
    */
   async  getTonerCapacity() {
-    return await this.executeSNMPRequest(this.printerIP, [SNMP_OBJECT_IDS.TONER_CAPACITY]);
+    return await this.executeSNMPRequest([SNMP_OBJECT_IDS.TONER_CAPACITY]);
   }
 
   /**
@@ -45,7 +45,7 @@ class HPp2015dn {
    * @returns {Promise} Promise with current toner level in unknown units
    */
   async  getCurrentTonerLevel() {
-    return await this.executeSNMPRequest(this.printerIP, [
+    return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.CURRENT_TONER_LEVEL,
     ]);
   }
@@ -54,8 +54,8 @@ class HPp2015dn {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  pagesPrinted() {
-    return await this.executeSNMPRequest(this.printerIP, [
+  async  getPagesPrinted() {
+    return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.PAGES_PRINTED,
     ]);
   }
@@ -65,8 +65,8 @@ class HPp2015dn {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  macAddy() {
-    return await this.executeSNMPRequest(this.printerIP, [
+  async getMacAddy() {
+    return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MAC_ADDY,
     ]);
   }
@@ -76,8 +76,8 @@ class HPp2015dn {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  serialNumber() {
-    return await this.executeSNMPRequest(this.printerIP, [
+  async  getSerialNumber() {
+    return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.SERIAL_NUMBER,
     ]);
   }
@@ -87,8 +87,8 @@ class HPp2015dn {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  modelNumber() {
-    return await this.executeSNMPRequest(this.printerIP, [
+  async  getModelNumber() {
+    return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MODEL_NUMBER,
     ]);
   }
@@ -98,8 +98,8 @@ class HPp2015dn {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  memorySize() {
-    return await this.executeSNMPRequest(this.printerIP, [
+  async  getMemorySize() {
+    return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MEMORY_SIZE,
     ]);
   }
@@ -109,8 +109,8 @@ class HPp2015dn {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  memoryUsed() {
-    return await this.executeSNMPRequest(this.printerIP, [
+  async  getMemoryUsed() {
+    return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MEMORY_USED,
     ]);
   }
@@ -120,9 +120,9 @@ class HPp2015dn {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async executeSNMPRequest(printerIP, objectIdentifier) {
+  async executeSNMPRequest(objectIdentifier) {
     return new Promise((resolve) => {
-      const session = snmp.createSession(printerIP, 'public');
+      const session = snmp.createSession(this.printerIP, 'public');
       try {
         session.get(objectIdentifier, function (error, result) {
           if (error) {
