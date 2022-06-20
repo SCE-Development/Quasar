@@ -11,8 +11,8 @@ class HPp2015dn {
    * @returns Promise with current ink level of printer in % of capacity
    */
   async inkLevel(printerIP) {
-    const currentLevel = await getCurrentTonerLevel(printerIP);
-    const capacity = await getTonerCapacity(printerIP);
+    const currentLevel = await this.getCurrentTonerLevel(printerIP);
+    const capacity = await this.getTonerCapacity(printerIP);
 
     if (currentLevel && capacity) {
       return (currentLevel / capacity) * 100;
@@ -27,7 +27,7 @@ class HPp2015dn {
    * @returns Promise with toner capacity in unknown units
    */
   async getTonerCapacity(printerIP) {
-    return await executeSNMPRequest(printerIP, [SNMP_OBJECT_IDS.TONER_CAPACITY]);
+    return await this.executeSNMPRequest(printerIP, [SNMP_OBJECT_IDS.TONER_CAPACITY]);
   }
 
   /**
@@ -36,7 +36,7 @@ class HPp2015dn {
    * @returns {Promise} Promise with current toner level in unknown units
    */
   async getCurrentTonerLevel(printerIP) {
-    return await executeSNMPRequest(printerIP, [
+    return await this.executeSNMPRequest(printerIP, [
       SNMP_OBJECT_IDS.CURRENT_TONER_LEVEL,
     ]);
   }
@@ -71,4 +71,5 @@ class HPp2015dn {
     });
   }
 }
-module.exports = { inkLevel, getCurrentTonerLevel, getTonerCapacity };
+module.exports = {HPp2015dn};
+
