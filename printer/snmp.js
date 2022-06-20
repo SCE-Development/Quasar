@@ -40,7 +40,7 @@ class HpLaserJetP2015 {
    * getTonerCapacity makes a snmp query against toner capacity OID and returns value
    * @returns Promise with toner capacity in unknown units
    */
-  async  getTonerCapacity() {
+  async getTonerCapacity() {
     return await this.executeSNMPRequest([SNMP_OBJECT_IDS.TONER_CAPACITY]);
   }
 
@@ -48,7 +48,7 @@ class HpLaserJetP2015 {
    * getCurrentTonerLevel makes a snmp query against toner level OID and returns value
    * @returns {Promise} Promise with current toner level in unknown units
    */
-  async  getCurrentTonerLevel() {
+  async getCurrentTonerLevel() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.CURRENT_TONER_LEVEL,
     ]);
@@ -58,7 +58,7 @@ class HpLaserJetP2015 {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getPagesPrinted() {
+  async getPagesPrinted() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.PAGES_PRINTED,
     ]);
@@ -80,7 +80,7 @@ class HpLaserJetP2015 {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getSerialNumber() {
+  async getSerialNumber() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.SERIAL_NUMBER,
     ]);
@@ -91,7 +91,7 @@ class HpLaserJetP2015 {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getModelNumber() {
+  async getModelNumber() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MODEL_NUMBER,
     ]);
@@ -102,7 +102,7 @@ class HpLaserJetP2015 {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getMemorySize() {
+  async getMemorySize() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MEMORY_SIZE,
     ]);
@@ -113,7 +113,7 @@ class HpLaserJetP2015 {
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getMemoryUsed() {
+  async getMemoryUsed() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MEMORY_USED,
     ]);
