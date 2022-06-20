@@ -13,7 +13,9 @@ const SNMP_OBJECT_IDS = {
   MEMORY_SIZE: '1.3.6.1.2.1.25.2.3.1.5.1',
   MEMORY_USED: '1.3.6.1.2.1.25.2.3.1.6.1'
 };
-class HPp2015dn {
+
+
+class HpLaserJetP2015 {
   constructor(printerIP) {
     this.printerIP = printerIP;
   }
