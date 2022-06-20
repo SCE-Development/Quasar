@@ -1,4 +1,6 @@
 const snmp = require('net-snmp');
+
+
 // see https://github.com/remetremet/SNMP-OIDs/blob/master/OIDs/Printer-HP-LaserJet-P2055.md
 const SNMP_OBJECT_IDS = {
   TONER_CAPACITY: '1.3.6.1.2.1.43.11.1.1.8.1.1',
