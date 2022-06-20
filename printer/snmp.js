@@ -152,4 +152,4 @@ class HpLaserJetP2015 {
 }
 
 
-module.exports = {HPp2015dn};
+module.exports = {HpLaserJetP2015};
