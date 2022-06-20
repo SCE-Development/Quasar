@@ -21,7 +21,8 @@ class HpLaserJetP2015 {
   }
 
   /**
-   * inkLevel determines and returns the current ink level of a HP p2015dn printer
+   * getInkLevel determines and returns the current ink level of a HP p2015dn printer
+   * when the current toner level is queried with SNMP, the printer will return a number such as 1833.
    * @param {String} printerIP IP address of printer to query
    * @returns Promise with current ink level of printer in % of capacity
    */
@@ -38,6 +39,7 @@ class HpLaserJetP2015 {
 
   /**
    * getTonerCapacity makes a snmp query against toner capacity OID and returns value
+   * when the toner capacity is queried with SNMP, the printer will return a number such as 2620.
    * @returns Promise with toner capacity in unknown units
    */
   async getTonerCapacity() {
@@ -46,6 +48,7 @@ class HpLaserJetP2015 {
 
   /**
    * getCurrentTonerLevel makes a snmp query against toner level OID and returns value
+   * when the current toner level is queried with SNMP, the printer will return a number such as 1833.
    * @returns {Promise} Promise with current toner level in unknown units
    */
   async getCurrentTonerLevel() {
@@ -54,7 +57,8 @@ class HpLaserJetP2015 {
     ]);
   }
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getPagesPrinted makes a snmp query against the pages printed OID and returns the total pages printed
+   * when the pages printed is queried with SNMP, the printer will return an number such as 52329.
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
@@ -65,7 +69,8 @@ class HpLaserJetP2015 {
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getMacAddy makes a snmp query against the Mac Address OID and returns mac address.
+   * when the mac adress is queried with SNMP, it returns ----
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
@@ -76,7 +81,8 @@ class HpLaserJetP2015 {
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getSerialNumber makes a snmp query against the Serial Number OID and returns the serial number
+   * when the serial number is queried with SNMP, the printer will return a number such as, .
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
@@ -87,7 +93,8 @@ class HpLaserJetP2015 {
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getModelNumber makes a snmp query against the Model Number OID and returns the model Number of the Printer
+   * when the model number is queried with SNMP, the printer will return the name such as, HP LaserJet P2015 Series
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
@@ -98,7 +105,8 @@ class HpLaserJetP2015 {
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getMemorySize makes a snmp query against the Memory Size OID and returns the memory size of the Printer
+   * when the memory size is queried with SNMP, the printer will return the memory size, such as, 301989872
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
@@ -109,7 +117,8 @@ class HpLaserJetP2015 {
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getMemoryUsed makes a snmp query against the Memory Used OID and returns the memory used of the Printer
+   * when the memory used is queried with SNMP, the printer will return the memory used, such as, 18249829
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
