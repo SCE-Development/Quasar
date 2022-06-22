@@ -8,7 +8,7 @@ WORKDIR /app
 # node and npm.
 RUN apt-get update
 ENV NODE_VERSION=16.13.0
-RUN apt install -y curl
+RUN apt install -y curl jq
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 ENV NVM_DIR=/root/.nvm
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}

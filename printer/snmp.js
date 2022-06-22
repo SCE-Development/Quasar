@@ -1,4 +1,6 @@
 const snmp = require('net-snmp');
+
+
 // see https://github.com/remetremet/SNMP-OIDs/blob/master/OIDs/Printer-HP-LaserJet-P2055.md
 const SNMP_OBJECT_IDS = {
   TONER_CAPACITY: '1.3.6.1.2.1.43.11.1.1.8.1.1',
@@ -11,13 +13,17 @@ const SNMP_OBJECT_IDS = {
   MEMORY_SIZE: '1.3.6.1.2.1.25.2.3.1.5.1',
   MEMORY_USED: '1.3.6.1.2.1.25.2.3.1.6.1'
 };
-class HPp2015dn {
+
+
+class HpLaserJetP2015 {
   constructor(printerIP) {
     this.printerIP = printerIP;
   }
 
   /**
-   * inkLevel determines and returns the current ink level of a HP p2015dn printer
+   * getInkLevel determines and returns the current ink level of a HP p2015dn printer
+   * when the current toner level is queried with SNMP,
+   * the printer will return a number such as 1833.
    * @param {String} printerIP IP address of printer to query
    * @returns Promise with current ink level of printer in % of capacity
    */
@@ -34,34 +40,39 @@ class HPp2015dn {
 
   /**
    * getTonerCapacity makes a snmp query against toner capacity OID and returns value
+   * when the toner capacity is queried with SNMP, the printer will return a number such as 2620.
    * @returns Promise with toner capacity in unknown units
    */
-  async  getTonerCapacity() {
+  async getTonerCapacity() {
     return await this.executeSNMPRequest([SNMP_OBJECT_IDS.TONER_CAPACITY]);
   }
 
   /**
    * getCurrentTonerLevel makes a snmp query against toner level OID and returns value
+   * when the current toner level is queried with SNMP, 
+   * the printer will return a number such as 1833.
    * @returns {Promise} Promise with current toner level in unknown units
    */
-  async  getCurrentTonerLevel() {
+  async getCurrentTonerLevel() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.CURRENT_TONER_LEVEL,
     ]);
   }
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getPagesPrinted makes a snmp query against the pages printed OID and returns pages printed
+   * when the pages printed is queried with SNMP, the printer will return an number such as 52329.
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getPagesPrinted() {
+  async getPagesPrinted() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.PAGES_PRINTED,
     ]);
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getMacAddy makes a snmp query against the Mac Address OID and returns mac address.
+   * when the mac adress is queried with SNMP, it returns ----
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
@@ -72,44 +83,54 @@ class HPp2015dn {
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getSerialNumber makes a snmp query against the Serial Number OID and returns the serial number
+   * when the serial number is queried with SNMP, the printer will return a number such as, .
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getSerialNumber() {
+  async getSerialNumber() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.SERIAL_NUMBER,
     ]);
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getModelNumber makes a snmp query against the Model Number OID 
+   * returns the model Number of the Printer
+   * when the model number is queried with SNMP, the printer will
+   * return the name such as, HP LaserJet P2015 Series
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getModelNumber() {
+  async getModelNumber() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MODEL_NUMBER,
     ]);
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getMemorySize makes a snmp query against the Memory Size OID and 
+   * returns the memory size of the Printer
+   * when the memory size is queried with SNMP, the printer will 
+   * return the memory size, such as, 301989872
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getMemorySize() {
+  async getMemorySize() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MEMORY_SIZE,
     ]);
   }
 
   /**
-   * executreSNMPRequest makes a snmp query against the given OID
+   * getMemoryUsed makes a snmp query against the Memory Used OID 
+   * and returns the memory used of the Printer
+   * when the memory used is queried with SNMP, the printer will 
+   * return the memory used, such as, 18249829
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
    */
-  async  getMemoryUsed() {
+  async getMemoryUsed() {
     return await this.executeSNMPRequest([
       SNMP_OBJECT_IDS.MEMORY_USED,
     ]);
@@ -148,4 +169,4 @@ class HPp2015dn {
 }
 
 
-module.exports = {HPp2015dn};
+module.exports = {HpLaserJetP2015};
