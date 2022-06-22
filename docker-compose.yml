@@ -11,14 +11,6 @@ services:
       context: .
       dockerfile: ./printer/Dockerfile
     privileged: true
-    environment:
-      - LEFT_PRINTER_NAME=${LEFT_PRINTER_NAME}
-      - RIGHT_PRINTER_NAME=${RIGHT_PRINTER_NAME}
-      - LEFT_PRINTER_IP=${LEFT_PRINTER_IP}
-      - RIGHT_PRINTER_IP=${RIGHT_PRINTER_IP}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
     volumes:
       - "/etc/cups/ppd/:/etc/cups/ppd"
   health_check_tunnel:
