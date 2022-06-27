@@ -1,5 +1,6 @@
+const {PrinterScraper} = require('./printerScraper');
 const rawArgs = process.argv.slice(2);
-if(rawArgs.length != 6)
+if(rawArgs.length != 8)
 {
   throw new Error('Incorrect Length');
 }
@@ -7,6 +8,7 @@ let printerIP = '';
 let intervalSeconds = 0;
 let stat = ''
 let printerName = ''
+let influx_url = ''
 //perform argument checks before continuing with program
 for(let i = 0; i < rawArgs.length; i += 2)
 {
@@ -19,11 +21,14 @@ for(let i = 0; i < rawArgs.length; i += 2)
       break;
     case '--printer_name':
       printerName = rawArgs[i + 1];
+      break;
+    case '--influx_url':
+      influx_url = rawArgs[i + 1];
+      break;
     default:
       throw new Error('Check Argument: ' + rawArgs[i]);
   }
 }
-
 // minimum seconds due to data receiving speed
 if(intervalSeconds < 60)
 {
@@ -31,8 +36,8 @@ if(intervalSeconds < 60)
   intervalSeconds = 60;
 }
 
-
-
+let pS = new PrinterScraper(printerIP, intervalSeconds, printerName, influx_url)
+pS.handleScrape();
 /**
  * fix the object we are querying
  * dont hardcode ip

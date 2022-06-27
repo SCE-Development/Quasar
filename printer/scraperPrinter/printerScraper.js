@@ -1,4 +1,5 @@
 const fetch = require('node-fetch')
+const logger = require('../logger.js')
 const {HpLaserJetP2015} = require('../snmp.js');
 class PrinterScraper {
     constructor(printerIP, intervalSeconds, printerName, influxBaseUrl){
@@ -21,11 +22,11 @@ class PrinterScraper {
         this.printerName = printerName
         this.influxBaseUrl = influxBaseUrl
     }
-  
     /**
      * creates database for influx called quasar_data, incase it doesnt exist
      */
     async initializeInfluxDb() {
+        logger.warn("Creating influx Database called quasar_data if not created already")
       fetch(`${this.influxBaseUrl}/query`,{
         method: 'POST',
         headers: {
@@ -42,15 +43,16 @@ class PrinterScraper {
      * @returns an object, snmpData
      */
     async getSnmpData(){
+        logger.info("Got SNMP Data");
       let snmpData = {
-        inkLevel: await stat.getInkLevel(),
-        macAddy: await stat.getMacAddy(),
-        currentTonerLevel: await stat.getCurrentTonerLevel(),
-        memorySize: await stat.getMemorySize(),
-        memoryUsed: await stat.getMemoryUsed(),
-        pagesPrinted: await stat.getPagesPrinted(),
-        serialNumber: await stat.getSerialNumber(),
-        modelNumber: await stat.getModelNumber(),
+        inkLevel: await this.stat.getInkLevel(),
+        macAddy: await this.stat.getMacAddy(),
+        currentTonerLevel: await this.stat.getCurrentTonerLevel(),
+        memorySize: await this.stat.getMemorySize(),
+        memoryUsed: await this.stat.getMemoryUsed(),
+        pagesPrinted: await this.stat.getPagesPrinted(),
+        serialNumber: await this.stat.getSerialNumber(),
+        modelNumber: await this.stat.getModelNumber(),
       };
       return snmpData;
     }
@@ -60,6 +62,7 @@ class PrinterScraper {
      * @returns string object bodyData, to pass to body for influxDB
      */
     formatForInflux(snmpData){
+        logger.info("Formatted SNMP data");
       let bodyData = 'laserJet inkLevel=' + String(snmpData.inkLevel);
       bodyData += '\nlaserJet macAddy=' + String(snmpData.macAddy);
       bodyData += '\nlaserJet currentTonerLevel=' + String(snmpData.currentTonerLevel);
@@ -72,14 +75,19 @@ class PrinterScraper {
       return bodyData;
     }
     
-    writeToInflux(bodyData){    
-      const response = await fetch(`${this.influxBaseUrl}/write?db=mydb&precision=s`, {
-        body: bodyData,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        method: 'POST'
-      });
+    async writeToInflux(bodyData){  
+        logger.info("Writing to influxDB");
+        try {
+            const response = await fetch(`${this.influxBaseUrl}/write?db=mydb&precision=s`, {
+                body: bodyData,
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                method: 'POST'
+              });
+          } catch (error) {
+            logger.error("Error Writing to influx.")
+          }
       return response
     }
   
@@ -96,8 +104,8 @@ class PrinterScraper {
   
     //Start the query
     startScraper(){
-      console.log('Starting Query, Ctrl+c to quit.');
-      setInterval(this.writeToInflux, this.intervalSeconds * 1000);
+        logger.warn(String(`Starting Query with Interval ${this.intervalSeconds} seconds`))
+      setInterval(this.handleScrape, this.intervalSeconds * 1000);
     }
   }
   

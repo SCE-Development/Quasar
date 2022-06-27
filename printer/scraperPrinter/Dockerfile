@@ -13,6 +13,11 @@ RUN npm install
 COPY ./printer /app
 #copies this file to the desination
 
+COPY ../../util /app
+#copies this file to the desination
+
+RUN ls
+
 #for test case only it is 5 CHANGE THAT SOON!!
 # sippin tea in yo hood wtf is up 
-CMD [ "node", "./scraperPrinter/scraper.js", "--printer_ip", "10.31.86.162", "--fetch_interval_seconds", "5"]
+CMD [ "node", "./scraperPrinter/scraper.js", "--printer_ip", "10.31.86.162", "--fetch_interval_seconds", "5", "--printer_name", "right","--influx_url", "http://quasar_influx.quasar_default:8086"]
