@@ -43,17 +43,26 @@ class PrinterScraper {
      * @returns an object, snmpData
      */
     async getSnmpData(){
-        logger.info("Got SNMP Data");
+      const inkLevel = await this.stat.getInkLevel();
+      const macAddy = await this.stat.getMacAddy();
+      const currentTonerLevel = await this.stat.getCurrentTonerLevel();
+      const memorySize = await this.stat.getMemorySize();
+      const memoryUsed = await this.stat.getMemoryUsed();
+      const pagesPrinted = await this.stat.getPagesPrinted();
+      const serialNumber = await this.stat.getSerialNumber();
+      const modelNumber = await this.stat.getModelNumber();
       let snmpData = {
-        inkLevel: await this.stat.getInkLevel(),
-        macAddy: await this.stat.getMacAddy(),
-        currentTonerLevel: await this.stat.getCurrentTonerLevel(),
-        memorySize: await this.stat.getMemorySize(),
-        memoryUsed: await this.stat.getMemoryUsed(),
-        pagesPrinted: await this.stat.getPagesPrinted(),
-        serialNumber: await this.stat.getSerialNumber(),
-        modelNumber: await this.stat.getModelNumber(),
+        inkLevel,
+        macAddy,
+        currentTonerLevel,
+        memorySize,
+        memoryUsed,
+        pagesPrinted,
+        serialNumber,
+        modelNumber,
       };
+      console.log(snmpData, "ASDFASDFASDF")
+      // logger.info(snmpData);
       return snmpData;
     }
     /**
@@ -63,32 +72,34 @@ class PrinterScraper {
      */
     formatForInflux(snmpData){
         logger.info("Formatted SNMP data");
-      let bodyData = 'laserJet inkLevel=' + String(snmpData.inkLevel);
-      bodyData += '\nlaserJet macAddy=' + String(snmpData.macAddy);
-      bodyData += '\nlaserJet currentTonerLevel=' + String(snmpData.currentTonerLevel);
-      bodyData += '\nlaserJet memorySize=' + String(snmpData.memorySize);
-      bodyData += '\nlaserJet memoryUsed=' + String(snmpData.memoryUsed);
-      bodyData += '\nlaserJet pagesPrinted=' + String(snmpData.pagesPrinted);
-      bodyData += '\nlaserJet serialNumber=' + String(snmpData.serialNumber);
-      bodyData += '\nlaserJet modelNumber=' + String(snmpData.modelNumber);
-      bodyData += '\nlaserJet printerName=' + this.printerName;
+      let bodyData = 'laserJet,tag=1 inkLevel="' + String(snmpData.inkLevel) + '",';
+      // bodyData += 'macAddy="' + String(snmpData.macAddy) + '",';
+      // bodyData += 'currentTonerLevel="' + String(snmpData.currentTonerLevel) + '",';
+      // bodyData += 'memorySize="' + String(snmpData.memorySize) + '",';
+      // bodyData += 'memoryUsed="' + String(snmpData.memoryUsed) + '",';
+      // bodyData += 'pagesPrinted="' + String(snmpData.pagesPrinted) + '",';
+      // bodyData += 'serialNumber="' + String(snmpData.serialNumber) + '",';
+      // bodyData += 'modelNumber="' + String(snmpData.modelNumber) + '",';
+      // bodyData += 'printerName="' + this.printerName + '\n"';
+      console.log("WHYY ME", bodyData)
       return bodyData;
     }
     
     async writeToInflux(bodyData){  
         logger.info("Writing to influxDB");
         try {
-            const response = await fetch(`${this.influxBaseUrl}/write?db=mydb&precision=s`, {
+            const response = await fetch(`${this.influxBaseUrl}/write?db=quasar_data`, {
                 body: bodyData,
                 headers: {
                   'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 method: 'POST'
               });
+              console.log("influx returned", response)
+              return response
           } catch (error) {
             logger.error("Error Writing to influx.")
           }
-      return response
     }
   
   
@@ -97,15 +108,17 @@ class PrinterScraper {
      * otherwise there was a write error. 
      * @returns the response that was given by the write to influx db
      */
-    async handleScrape(){
-      let bodyData = await this.formatForInflux(await this.getSnmpData());
-      return await this.writeToInflux(bodyData);
+    async handleScrape(globalThis){
+      let bodyData = await globalThis.formatForInflux(await globalThis.getSnmpData());
+      globalThis.writeToInflux(bodyData);
     }
   
     //Start the query
     startScraper(){
         logger.warn(String(`Starting Query with Interval ${this.intervalSeconds} seconds`))
-      setInterval(this.handleScrape, this.intervalSeconds * 1000);
+      setInterval(() => {
+        this.handleScrape(this)
+      }, this.intervalSeconds * 1000);
     }
   }
   

@@ -30,14 +30,16 @@ for(let i = 0; i < rawArgs.length; i += 2)
   }
 }
 // minimum seconds due to data receiving speed
+/*
 if(intervalSeconds < 60)
 {
   console.log('interval seconds has been changed to 60 seconds');
   intervalSeconds = 60;
-}
+}*/
 
 let pS = new PrinterScraper(printerIP, intervalSeconds, printerName, influx_url)
-pS.handleScrape();
+pS.initializeInfluxDb();
+pS.startScraper();
 /**
  * fix the object we are querying
  * dont hardcode ip
