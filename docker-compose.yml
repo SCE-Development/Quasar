@@ -13,15 +13,20 @@ services:
     privileged: true
     volumes:
       - "/etc/cups/ppd/:/etc/cups/ppd"
-  health_check_tunnel:
+  printing_scraper:
+    container_name: printing_scraper
     build:
       context: .
-      dockerfile: ./healthcheck/Dockerfile
+      dockerfile: ./printer/scraperPrinter/Dockerfile
+    privileged: true
+  influxDB:
+    container_name: quasar_influx
+    image: influxdb:1.8
+    restart: 'on-failure'
     volumes:
-      - ~/.ssh/id_rsa.pub:/app/test_keys.pub
-      - ~/.ssh/id_rsa:/app/test_keys
-      - ~/.ssh/known_hosts:/app/known_hosts
-    tty: true
+      - /:/var/lib/docker/volumes/influxdb/_data
+    ports:
+      - '8086:8086'
   quasar_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: quasar_cadvisor
