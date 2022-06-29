@@ -16,8 +16,6 @@ COPY ./printer /app
 COPY ../../util /app
 #copies this file to the desination
 
-RUN ls
-
 #for test case only it is 5 CHANGE THAT SOON!!
 # sippin tea in yo hood wtf is up 
-CMD [ "node", "./scraperPrinter/scraper.js", "--printer_ip", "192.168.1.51", "--fetch_interval_seconds", "5", "--printer_name", "right","--influx_url", "http://quasar_influx.quasar_default:8086"]
+CMD [ "node", "./scraperPrinter/scraper.js", "--printer_ip", "192.168.1.51", "--fetch_interval_seconds", "5", "--printer_name", "right","--influx_url", "http://influxDB.quasar_default:8086"]

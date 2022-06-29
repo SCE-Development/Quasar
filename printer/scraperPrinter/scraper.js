@@ -6,10 +6,10 @@ if(rawArgs.length != 8)
 }
 let printerIP = '';
 let intervalSeconds = 0;
-let stat = ''
-let printerName = ''
-let influx_url = ''
-//perform argument checks before continuing with program
+let stat = '';
+let printerName = '';
+let influxUrl = '';
+// perform argument checks before continuing with program
 for(let i = 0; i < rawArgs.length; i += 2)
 {
   switch (rawArgs[i]) {
@@ -23,7 +23,7 @@ for(let i = 0; i < rawArgs.length; i += 2)
       printerName = rawArgs[i + 1];
       break;
     case '--influx_url':
-      influx_url = rawArgs[i + 1];
+      influxUrl = rawArgs[i + 1];
       break;
     default:
       throw new Error('Check Argument: ' + rawArgs[i]);
@@ -37,7 +37,7 @@ if(intervalSeconds < 60)
   intervalSeconds = 60;
 }*/
 
-let pS = new PrinterScraper(printerIP, intervalSeconds, printerName, influx_url)
+let pS = new PrinterScraper(printerIP, intervalSeconds, printerName, influxUrl);
 pS.initializeInfluxDb();
 pS.startScraper();
 /**
