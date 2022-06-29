@@ -4,9 +4,13 @@ import sys
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/healthcheck/printer")
 def api():
-    return "Hello from Quasar!"
+    return "printer is up!"
+
+@app.route("/healthcheck/ledsign")
+def ledsign_health_api():
+    return "ledsign is up!"
         
 
 if __name__ == "__main__":
