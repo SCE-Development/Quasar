@@ -27,8 +27,7 @@ setInterval(async () => {
   if (!data) {
     return;
   }
-  // await axios.post(LED_URL + 'api/update-sign', data.Body);
-  console.log(data.Body);
+  await axios.post(LED_URL + 'api/update-sign', data.Body);
 
   // add logic to test if the light is off/on
   if (data.Body.ledIsOff && data.Body.ledIsOff != undefined) {
