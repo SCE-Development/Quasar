@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const logger = require('../logger.js');
 const {HpLaserJetP2015} = require('../snmp.js');
+let temp = 55;
 class PrinterScraper {
   constructor(printerIP, intervalSeconds, printerName, influxBaseUrl){
     this.stat = new HpLaserJetP2015(printerIP);
@@ -72,16 +73,17 @@ class PrinterScraper {
      * @param {snmpData} object 
      * @returns string object bodyData, to pass to body for influxDB
      */
-  formatForInflux(snmpData){
+  formatForInflux(){
     logger.info('Formatted SNMP data');
-    let bodyData = 'laserJet,tag=1 inkLevel=' + String(snmpData.inkLevel) + '\n';
-    bodyData += 'laserJet,tag=1 macAddy=' + String(snmpData.macAddy) + '\n';
-    bodyData += 'laserJet,tag=1 currentTonerLevel=' + String(snmpData.currentTonerLevel) + '\n';
-    bodyData += 'laserJet,tag=1 memorySize=' + String(snmpData.memorySize) + '\n';
-    bodyData += 'laserJet,tag=1 memoryUsed=' + String(snmpData.memoryUsed) + '\n';
-    bodyData += 'laserJet,tag=1 pagesPrinted=' + String(snmpData.pagesPrinted) + '\n';   
-    bodyData += 'laserJet,tag=1 serialNumber=' + String(snmpData.serialNumber) + '\n';   
-    bodyData += 'laserJet,tag=1 modelNumber=' + String(snmpData.modelNumber);    
+    let bodyData = 'laserJet,tag=CNB9M04409 inkLevel=69.9618320610687'/* + String(snmpData.inkLevel)*/ + '\n';
+    bodyData += 'laserJet,tag=CNB9M04409 macAddy=" "' /* + String(snmpData.macAddy)*/ + '\n';
+    bodyData += 'laserJet,tag=CNB9M04409 currentTonerLevel=1833'/* + String(snmpData.currentTonerLevel)*/ + '\n';
+    bodyData += 'laserJet,tag=CNB9M04409 memorySize=301989872'/* + String(snmpData.memorySize)*/ + '\n';
+    bodyData += 'laserJet,tag=CNB9M04409 memoryUsed=18249829'/* + String(snmpData.memoryUsed)*/ + '\n';
+    bodyData += `laserJet,tag=CNB9M04409 pagesPrinted=${temp += 1}`/* + String(snmpData.pagesPrinted)*/ + '\n';   
+    bodyData += 'laserJet,tag=CNB9M04409 serialNumber="CNB9M04409"'/* + String(snmpData.serialNumber)*/ + '\n';   
+    bodyData += 'laserJet,tag=CNB9M04409 modelNumber=" "'/* + String(snmpData.modelNumber)*/ + '\n';  
+    bodyData += 'laserJet,tag=CNB9M04409 tonerCapacity=2620'/* + String(snmpData.modelNumber)*/;   
     logger.warn('This was Sent \n' + bodyData);
     return bodyData;
   }
@@ -110,7 +112,8 @@ class PrinterScraper {
      * @returns the response that was given by the write to influx db
      */
   async handleScrape(globalThis){
-    let bodyData = await globalThis.formatForInflux(await globalThis.getSnmpData());
+    //let bodyData = await globalThis.formatForInflux(await globalThis.getSnmpData());
+    let bodyData = await globalThis.formatForInflux();
     globalThis.writeToInflux(bodyData);
   }
   
