@@ -22,6 +22,14 @@ services:
       - ~/.ssh/id_rsa:/app/test_keys
       - ~/.ssh/known_hosts:/app/known_hosts
     tty: true
+  printing_scraper:
+    container_name: printing_scraper
+    build:
+      context: .
+      dockerfile: ./printer/scraperPrinter/Dockerfile
+    privileged: true
+    depends_on:
+      - influxDB  
   quasar_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: quasar_cadvisor
