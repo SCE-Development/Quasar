@@ -27,15 +27,13 @@ setInterval(async () => {
   if (!data) {
     return;
   }
-  await axios.post(LED_URL + 'api/update-sign', data.Body);
 
-  // add logic to test if the light is off/on
   if (data.Body.ledIsOff && data.Body.ledIsOff != undefined) {
-    console.log('led should turn off now');
     await axios.get(LED_URL + 'api/turn-off');
+  }else{
+    await axios.post(LED_URL + 'api/update-sign', data.Body);
   }
 
-  // console.log(data.Body.becko);
   const deleteParams = {
     QueueUrl: queueUrl,
     ReceiptHandle: data.ReceiptHandle,
