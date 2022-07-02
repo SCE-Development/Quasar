@@ -29,6 +29,21 @@ const params = {
   WaitTimeSeconds: 0,
 };
 
+function deleteFile() {
+  const paramers = {
+      Bucket: PRINTING_BUCKET_NAME,
+      Key: `folder/${fileNo}.pdf`,
+  };
+
+  s3.deleteObject(paramers, function (err, data) {
+      if (err)
+          console.log(err);
+      else
+          console.log("Successfully deleted.");
+      console.log(data);
+  });
+
+}
 function determinePrinterForJob() {
   const randomNumber = Math.random();
   if (randomNumber < 0.5) {
@@ -69,10 +84,11 @@ setInterval(async () => {
           QueueUrl: queueUrl,
           ReceiptHandle: data.ReceiptHandle,
         };
-
+        deleteFile();
         sqs.deleteMessage(deleteParams, (err) => {
           if (err) throw err;
         });
       });
   });
 }, 10000);
+
