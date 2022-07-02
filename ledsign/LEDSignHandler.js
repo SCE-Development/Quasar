@@ -12,6 +12,7 @@ AWS.config.update({
 });
 
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
+
 const queueUrl = `https://sqs.us-west-2.amazonaws.com/${ACCOUNT_ID}/${LED_QUEUE_NAME}`;
 
 const params = {
@@ -26,10 +27,15 @@ setInterval(async () => {
   if (!data) {
     return;
   }
-  await axios.post(LED_URL + 'api/update-sign', data.Body);
+
+  if (data.Body.ledIsOff && data.Body.ledIsOff != undefined) {
+    await axios.get(LED_URL + 'api/turn-off');
+  } else {
+    await axios.post(LED_URL + 'api/update-sign', data.Body);
+  }
   const deleteParams = {
     QueueUrl: queueUrl,
     ReceiptHandle: data.ReceiptHandle,
   };
-  sqs.deleteMessage(deleteParams, () => { });
+  sqs.deleteMessage(deleteParams, () => {});
 }, 10000);
