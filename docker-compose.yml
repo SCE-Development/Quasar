@@ -5,31 +5,77 @@ services:
     build:
       context: .
       dockerfile: ./ledsign/Dockerfile
-    networks:
-      - quasar-local
   sce-printer:
     container_name: sce-printer
     build:
       context: .
       dockerfile: ./printer/Dockerfile
     privileged: true
-    environment:
-      - LEFT_PRINTER_NAME=${LEFT_PRINTER_NAME}
-      - RIGHT_PRINTER_NAME=${RIGHT_PRINTER_NAME}
-      - LEFT_PRINTER_IP=${LEFT_PRINTER_IP}
-      - RIGHT_PRINTER_IP=${RIGHT_PRINTER_IP}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
     volumes:
       - "/etc/cups/ppd/:/etc/cups/ppd"
-    networks:
-      - quasar-local
+  health_check_tunnel:
+    build:
+      context: .
+      dockerfile: ./healthcheck/Dockerfile
+    volumes:
+      - ~/.ssh/id_rsa.pub:/app/test_keys.pub
+      - ~/.ssh/id_rsa:/app/test_keys
+      - ~/.ssh/known_hosts:/app/known_hosts
+    tty: true
+  quasar_cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: quasar_cadvisor
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    depends_on:
+      - sce-ledsign
+      - sce-printer
+  nginx:
+    image: 'nginx'
+    container_name: arcam_nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    command: [nginx-debug, '-g', 'daemon off;']
+    ports:
+      - '80:80'
+    restart: 'on-failure'
+  quasar_prometheus:
+    image: prom/prometheus:latest
+    container_name: quasar_prometheus
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - sce-ledsign
+      - sce-printer
+  quasar_grafana:
+    image: grafana/grafana:latest
+    container_name: quasar_grafana
+    restart: always
+    environment:
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - quasar_grafana_data:/var/lib/grafana
+    user: "1000"
+    depends_on:
+      - quasar_prometheus
 
-networks:
-  quasar-local:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.100.0.0/24
-          gateway: 172.100.0.254
+volumes:
+  quasar_grafana_data:
