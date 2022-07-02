@@ -29,18 +29,18 @@ const params = {
   WaitTimeSeconds: 0,
 };
 
-function deleteFile() {
+function deleteFile(fileNo) {
   const paramers = {
-      Bucket: PRINTING_BUCKET_NAME,
-      Key: `folder/${fileNo}.pdf`,
+    Bucket: PRINTING_BUCKET_NAME,
+    Key: `folder/${fileNo}.pdf`,
   };
 
   s3.deleteObject(paramers, function (err, data) {
-      if (err)
-          console.log(err);
-      else
-          console.log("Successfully deleted.");
-      console.log(data);
+    if (err)
+      console.log(err);
+    else
+      console.log("Successfully deleted.");
+    console.log(data);
   });
 
 }
@@ -84,7 +84,7 @@ setInterval(async () => {
           QueueUrl: queueUrl,
           ReceiptHandle: data.ReceiptHandle,
         };
-        deleteFile();
+        deleteFile(fileNo);
         sqs.deleteMessage(deleteParams, (err) => {
           if (err) throw err;
         });
