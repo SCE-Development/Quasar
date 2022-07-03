@@ -22,6 +22,14 @@ services:
       - ~/.ssh/id_rsa:/app/test_keys
       - ~/.ssh/known_hosts:/app/known_hosts
     tty: true
+  influxDB:
+    container_name: influxDB
+    image: influxdb:1.8
+    restart: 'on-failure'
+    volumes:
+      - /:/var/lib/docker/volumes/influxdb/_data
+    ports:
+      - '8086:8086'    
   quasar_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: quasar_cadvisor
