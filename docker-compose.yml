@@ -28,6 +28,7 @@ services:
     restart: 'on-failure'
     volumes:
       - /:/var/lib/docker/volumes/influxdb/_data
+      - quasar_influx_data:/var/lib/influxdb
     ports:
       - '8086:8086'    
   quasar_cadvisor:
@@ -87,3 +88,4 @@ services:
 
 volumes:
   quasar_grafana_data:
+  quasar_influx_data:
