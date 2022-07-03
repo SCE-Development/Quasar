@@ -34,23 +34,23 @@ class InfluxHandler{
     */
   formatForInflux(snmpData){
     logger.info('Formatted SNMP data');
-    let bodyData = `laserJet,tag=${snmpData.modelNumber} inkLevel=`/
+    let bodyData = `laserJet,tag=${snmpData.serialNumber} inkLevel=`/
      + String(snmpData.inkLevel) + '\n';
-    bodyData += `laserJet,tag=${snmpData.modelNumber} macAddy="`/
+    bodyData += `laserJet,tag=${snmpData.serialNumber} macAddy="`/
       + String(snmpData.macAddy) + '"' + '\n';
-    bodyData+=`laserJet,tag=${snmpData.modelNumber} currentTonerLevel=`/
+    bodyData+=`laserJet,tag=${snmpData.serialNumber} currentTonerLevel=`/
       + String(snmpData.currentTonerLevel)+'\n';
-    bodyData += `laserJet,tag=${snmpData.modelNumber} memorySize=`/
+    bodyData += `laserJet,tag=${snmpData.serialNumber} memorySize=`/
       + String(snmpData.memorySize) + '\n';
-    bodyData += `laserJet,tag=${snmpData.modelNumber} memoryUsed=`/
+    bodyData += `laserJet,tag=${snmpData.serialNumber} memoryUsed=`/
       + String(snmpData.memoryUsed) + '\n';
-    bodyData += `laserJet,tag=${snmpData.modelNumber} pagesPrinted=`/
+    bodyData += `laserJet,tag=${snmpData.serialNumber} pagesPrinted=`/
       + String(snmpData.pagesPrinted) + '\n';
-    bodyData+=`laserJet,tag=${snmpData.modelNumber} serialNumber="`/
+    bodyData+=`laserJet,tag=${snmpData.serialNumber} serialNumber="`/
       + String(snmpData.serialNumber)+'"'+'\n';
-    bodyData += `laserJet,tag=${snmpData.modelNumber} modelNumber="`/
+    bodyData += `laserJet,tag=${snmpData.serialNumber} modelNumber="`/
       + String(snmpData.modelNumber) + '"' + '\n';
-    bodyData += `laserJet,tag=${snmpData.modelNumber} tonerCapacity=`/
+    bodyData += `laserJet,tag=${snmpData.serialNumber} tonerCapacity=`/
       + String(snmpData.tonerCapacity);
     return bodyData;
   }
