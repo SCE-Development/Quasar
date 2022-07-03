@@ -38,9 +38,9 @@ function deleteFile(fileNo) {
 
   s3.deleteObject(paramers, function (err, data) {
     if (err)
-      logger.error("error", err);
+      logger.error('error', err);
     else
-      console.log("Successfully deleted.");
+      console.log('Successfully deleted.');
     console.log(data);
   });
 
