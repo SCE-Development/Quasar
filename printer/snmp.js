@@ -136,34 +136,34 @@ class HpLaserJetP2015 {
     ]);
   }
 
-/**
+  /**
      * gets the Data that can be received from the printer.
      * returns an object with the values being in the format to be writeable to influxDB.
      * @returns an object, snmpData
      */
- async getSnmpData(){
-  const inkLevel = await this.getInkLevel();
-  const macAddy = await this.getMacAddy();
-  const currentTonerLevel = await this.getCurrentTonerLevel();
-  const memorySize = await this.getMemorySize();
-  const memoryUsed = await this.getMemoryUsed();
-  const pagesPrinted = await this.getPagesPrinted();
-  const serialNumber = await this.getSerialNumber();
-  const modelNumber = await this.getModelNumber();
-  const tonerCapacity = await this.getTonerCapacity();
-  let snmpData = {
-    inkLevel,
-    macAddy,
-    currentTonerLevel,
-    memorySize,
-    memoryUsed,
-    pagesPrinted,
-    serialNumber,
-    modelNumber,
-    tonerCapacity,
-  };
-  return await snmpData;
-}
+  async getSnmpData(){
+    const inkLevel = await this.getInkLevel();
+    const macAddy = await this.getMacAddy();
+    const currentTonerLevel = await this.getCurrentTonerLevel();
+    const memorySize = await this.getMemorySize();
+    const memoryUsed = await this.getMemoryUsed();
+    const pagesPrinted = await this.getPagesPrinted();
+    const serialNumber = await this.getSerialNumber();
+    const modelNumber = await this.getModelNumber();
+    const tonerCapacity = await this.getTonerCapacity();
+    let snmpData = {
+      inkLevel,
+      macAddy,
+      currentTonerLevel,
+      memorySize,
+      memoryUsed,
+      pagesPrinted,
+      serialNumber,
+      modelNumber,
+      tonerCapacity,
+    };
+    return await snmpData;
+  }
 
 
   /**
