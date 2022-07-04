@@ -38,7 +38,7 @@ class PrinterScraper {
   */
   startScraper() {
     this.influxHandler.initializeInfluxDb();
-    logger.warn(String(`Starting Query with Interval ${this.intervalSeconds} seconds`));
+    logger.info(`Starting Query with Interval ${this.intervalSeconds} seconds`);
     setInterval(() => {
       this.handleScrape(this);
     }, this.intervalSeconds * 1000);
