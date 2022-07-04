@@ -36,7 +36,7 @@ function deleteFile(fileNo) {
     Key: `folder/${fileNo}.pdf`,
   };
 
-  s3.deleteObject(paramers, function (err, data) {
+  s3.deleteObject(paramers, function (err) {
     if (err) {
       logger.error('unable to delete file!');
     } else {
