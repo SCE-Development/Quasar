@@ -141,27 +141,30 @@ class HpLaserJetP2015 {
      * returns an object with the values being in the format to be writeable to influxDB.
      * @returns an object, snmpData
      */
-  async getSnmpData(){
-    const inkLevel = await this.getInkLevel();
-    const macAddy = await this.getMacAddy();
-    const currentTonerLevel = await this.getCurrentTonerLevel();
-    const memorySize = await this.getMemorySize();
-    const memoryUsed = await this.getMemoryUsed();
-    const pagesPrinted = await this.getPagesPrinted();
-    const serialNumber = await this.getSerialNumber();
-    const modelNumber = await this.getModelNumber();
-    const tonerCapacity = await this.getTonerCapacity();
-    let snmpData = {
-      inkLevel,
-      macAddy,
-      currentTonerLevel,
-      memorySize,
-      memoryUsed,
-      pagesPrinted,
-      serialNumber,
-      modelNumber,
-      tonerCapacity,
+  async getSnmpData() {
+    const dataToQuery = {
+      inkLevel: this.getInkLevel,
+      macAddy: this.getMacAddy,
+      currentTonerLevel: this.getCurrentTonerLevel,
+      memorySize: this.getMemorySize,
+      memoryUsed: this.getMemoryUsed,
+      pagesPrinted: this.getPagesPrinted,
+      serialNumber: this.getSerialNumber,
+      modelNumber: this.getModelNumber,
+      tonerCapacity: this.getTonerCapacity,
     };
+
+    let snmpData = {};
+    Object.keys(dataToQuery).forEach(async (key) => {
+      try {
+        const functionToCall = dataToQuery[key];
+        const value = await functionToCall();
+        if (String(value) === '') {
+          snmpData[key] = value;
+        }
+      } catch (e) { }
+    });
+
     return await snmpData;
   }
 
@@ -194,9 +197,9 @@ class HpLaserJetP2015 {
       }
     });
   }
-  
+
 
 }
 
 
-module.exports = {HpLaserJetP2015};
+module.exports = { HpLaserJetP2015 };
