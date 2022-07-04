@@ -137,6 +137,39 @@ class HpLaserJetP2015 {
   }
 
   /**
+     * gets the Data that can be received from the printer.
+     * returns an object with the values being in the format to be writeable to influxDB.
+     * @returns an object, snmpData
+     */
+  async getSnmpData() {
+    const dataToQuery = {
+      inkLevel: this.getInkLevel,
+      macAddy: this.getMacAddy,
+      currentTonerLevel: this.getCurrentTonerLevel,
+      memorySize: this.getMemorySize,
+      memoryUsed: this.getMemoryUsed,
+      pagesPrinted: this.getPagesPrinted,
+      serialNumber: this.getSerialNumber,
+      modelNumber: this.getModelNumber,
+      tonerCapacity: this.getTonerCapacity,
+    };
+
+    let snmpData = {};
+    Object.keys(dataToQuery).forEach(async (key) => {
+      try {
+        const functionToCall = dataToQuery[key];
+        const value = await functionToCall();
+        if (String(value) === '') {
+          snmpData[key] = value;
+        }
+      } catch (e) { }
+    });
+
+    return await snmpData;
+  }
+
+
+  /**
    * executreSNMPRequest makes a snmp query against the given OID
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
@@ -164,9 +197,9 @@ class HpLaserJetP2015 {
       }
     });
   }
-  
+
 
 }
 
 
-module.exports = {HpLaserJetP2015};
+module.exports = { HpLaserJetP2015 };
