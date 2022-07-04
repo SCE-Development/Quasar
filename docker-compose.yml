@@ -23,14 +23,11 @@ services:
       - ~/.ssh/known_hosts:/app/known_hosts
     tty: true
   influxDB:
-    container_name: influxDB
+    container_name: quasar_influx
     image: influxdb:1.8
     restart: 'on-failure'
     volumes:
-      - /:/var/lib/docker/volumes/influxdb/_data
-      - quasar_influx_data:/var/lib/influxdb
-    ports:
-      - '8086:8086'    
+      - quasar_influx_data:/var/lib/influxdb   
   quasar_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: quasar_cadvisor
