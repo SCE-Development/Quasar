@@ -1,4 +1,5 @@
 const snmp = require('net-snmp');
+const logger = require('../util/logger');
 
 
 // see https://github.com/remetremet/SNMP-OIDs/blob/master/OIDs/Printer-HP-LaserJet-P2055.md
@@ -143,29 +144,33 @@ class HpLaserJetP2015 {
      */
   async getSnmpData() {
     const dataToQuery = {
-      inkLevel: this.getInkLevel,
-      macAddy: this.getMacAddy,
-      currentTonerLevel: this.getCurrentTonerLevel,
-      memorySize: this.getMemorySize,
-      memoryUsed: this.getMemoryUsed,
-      pagesPrinted: this.getPagesPrinted,
-      serialNumber: this.getSerialNumber,
-      modelNumber: this.getModelNumber,
-      tonerCapacity: this.getTonerCapacity,
+      inkLevel: this.getInkLevel.bind(this),
+      macAddy: this.getMacAddy.bind(this),
+      currentTonerLevel: this.getCurrentTonerLevel.bind(this),
+      memorySize: this.getMemorySize.bind(this),
+      memoryUsed: this.getMemoryUsed.bind(this),
+      pagesPrinted: this.getPagesPrinted.bind(this),
+      serialNumber: this.getSerialNumber.bind(this),
+      modelNumber: this.getModelNumber.bind(this),
+      tonerCapacity: this.getTonerCapacity.bind(this),
     };
 
     let snmpData = {};
-    Object.keys(dataToQuery).forEach(async (key) => {
+    const snmpQueries = Object.keys(dataToQuery).map(async (key) => {
       try {
         const functionToCall = dataToQuery[key];
         const value = await functionToCall();
-        if (String(value) === '') {
+        if (String(value) !== '') {
           snmpData[key] = value;
         }
-      } catch (e) { }
+      } catch (e) {
+        logger.error('unable to query data for ' + key + ': ' + e);
+      }
     });
 
-    return await snmpData;
+    await Promise.all(snmpQueries);
+    logger.info('Got data for fields ' + Object.keys(snmpData));
+    return snmpData;
   }
 
 
