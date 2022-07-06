@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, jsonify
+import requests
 import json
 import sys
 
@@ -10,7 +11,15 @@ def api():
 
 @app.route("/healthcheck/ledsign")
 def ledsign_health_api():
-    return "ledsign is up!"
+    with open("/app/config/config.json", "r") as file:
+        led_url = json.load(file)["LED_URL"]
+
+    try:
+        resp = requests.get(led_url + "/api/health-check")
+    except requests.exceptions.ConnectionError:
+        return jsonify({"success" : False})
+
+    return (resp.text, resp.status_code, resp.headers.items())
         
 
 if __name__ == "__main__":
