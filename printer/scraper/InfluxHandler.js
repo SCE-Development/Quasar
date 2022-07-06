@@ -32,14 +32,16 @@ class InfluxHandler {
     * @returns string object bodyData, to pass to body for influxDB
     */
   formatForInflux(snmpData) {
-    logger.info('Formatted SNMP data');
     let bodyData = '';
     Object.keys(snmpData).forEach(key => {
       let value = snmpData[key];
-      if (typeof value === 'string') {
-        value = `"${value}"`;
+      if (String(value) !== '') {
+        // Any non numeric values are returned as a buffer
+        if (typeof value !== 'number') {
+          value = `\"${value}\"`;
+        }
+        bodyData += `laserJet,tag=${this.printerName} ${key}=${value}\n`;
       }
-      bodyData += `laserJet,tag=${this.printerName} ${key}=${value}\n`;
     });
     return bodyData;
   }
@@ -49,7 +51,6 @@ class InfluxHandler {
   * @param {bodyData} bodyData
   */
   async writeToInflux(bodyData) {
-    logger.info('Writing to influxDB');
     try {
       const response = await fetch(`${this.influxBaseUrl}/write?db=quasar_data`, {
         body: bodyData,
@@ -58,9 +59,10 @@ class InfluxHandler {
         },
         method: 'POST'
       });
-      return await response;
+      logger.info("Wrote to influx, got back " + response.status)
+      return response;
     } catch (error) {
-      logger.error('Error Writing to influx.');
+      logger.error('Unable to write to Influx: ' + error);
     }
   }
 }
