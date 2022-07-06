@@ -38,7 +38,7 @@ class InfluxHandler {
       if (String(value) !== '') {
         // Any non numeric values are returned as a buffer
         if (typeof value !== 'number') {
-          value = `\"${value}\"`;
+          value = `"${value}"`;
         }
         bodyData += `laserJet,tag=${this.printerName} ${key}=${value}\n`;
       }
@@ -59,7 +59,7 @@ class InfluxHandler {
         },
         method: 'POST'
       });
-      logger.info("Wrote to influx, got back " + response.status)
+      logger.info('Wrote to influx, got back ' + response.status);
       return response;
     } catch (error) {
       logger.error('Unable to write to Influx: ' + error);

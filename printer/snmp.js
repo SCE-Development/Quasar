@@ -1,5 +1,5 @@
 const snmp = require('net-snmp');
-const logger = require('../util/logger')
+const logger = require('../util/logger');
 
 
 // see https://github.com/remetremet/SNMP-OIDs/blob/master/OIDs/Printer-HP-LaserJet-P2055.md
@@ -164,12 +164,12 @@ class HpLaserJetP2015 {
           snmpData[key] = value;
         }
       } catch (e) {
-        logger.error("unable to query data for " + key + ": " + e)
+        logger.error('unable to query data for ' + key + ': ' + e);
       }
     });
 
-    await Promise.all(snmpQueries)
-    logger.info('Got data for fields ' + Object.keys(snmpData))
+    await Promise.all(snmpQueries);
+    logger.info('Got data for fields ' + Object.keys(snmpData));
     return snmpData;
   }
 

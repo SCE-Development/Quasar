@@ -3,8 +3,8 @@ const { InfluxHandler } = require('./InfluxHandler');
 const { HpLaserJetP2015 } = require('../snmp.js');
 
 function printUsage() {
-  console.log("usage: node main.js --printer_ip <ip address> --fetch_interval_seconds <seconds>\
-  --printer_name <name> --influx_url <url>")
+  console.log('usage: node main.js --printer_ip <ip address> --fetch_interval_seconds <seconds>\
+  --printer_name <name> --influx_url <url>');
 }
 
 function main() {
@@ -48,8 +48,8 @@ function main() {
   let influxHandler = new InfluxHandler(influxUrl, printerName);
   setInterval(async () => {
     const bodyData = await snmpHandler.getSnmpData();
-    const dataForInflux = await influxHandler.formatForInflux(bodyData)
-    await influxHandler.writeToInflux(dataForInflux)
+    const dataForInflux = await influxHandler.formatForInflux(bodyData);
+    await influxHandler.writeToInflux(dataForInflux);
   }, intervalSeconds * 1000);
 }
 
