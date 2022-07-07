@@ -43,7 +43,7 @@ function sendQueue(fileNo) {
     const sqsParams = {
         MessageBody: JSON.stringify({
             location: QueueUrl,
-            fileName: fileNo,
+            fileName: fileNo
         }),
         QueueUrl
     };
