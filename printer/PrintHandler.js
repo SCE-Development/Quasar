@@ -40,7 +40,7 @@ function deleteFile(fileNo) {
     if (err) {
       logger.error('unable to delete file with name ' + fileNo);
     } else {
-      logger.info('Successfully deleted user file from S3');
+      logger.info('Successfully deleted file from S3 with name ' + fileNo);
     }
   });
 
