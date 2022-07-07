@@ -31,12 +31,12 @@ const params = {
 };
 
 function deleteFile(fileNo) {
-  const paramers = {
+  const parms = {
     Bucket: PRINTING_BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
 
-  s3.deleteObject(paramers, function (err) {
+  s3.deleteObject(parms, function (err) {
     if (err) {
       logger.error('unable to delete file with name ' + fileNo);
     } else {
