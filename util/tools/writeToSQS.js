@@ -14,7 +14,7 @@ AWS.config.update({
   endpoint: 'https://s3.amazonaws.com',
   credentials: creds
 });
-//upload file to s3 
+//  upload file to s3
 const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
 const fileNo = Math.random();
 const uploadFile = (fileNo) => {
@@ -36,7 +36,7 @@ const uploadFile = (fileNo) => {
 
 uploadFile(fileNo);
 
-//send queue to sqs
+//  send queue to sqs
 function sendQueue(fileNo) {
   const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
   const queueName = PRINTING_QUEUE_NAME;
