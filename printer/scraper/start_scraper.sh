@@ -12,7 +12,7 @@ export PRINTER_LEFT_NAME=$(jq -r '.PRINTING.LEFT.NAME' config/config.json)
 export RIGHT_PRINTER_IP=$(jq -r '.PRINTING.RIGHT.IP' config/config.json)
 export PRINTER_RIGHT_NAME=$(jq -r '.PRINTING.RIGHT.NAME' config/config.json) 
 
-node ./printer/scraperPrinter/main.js --printer_ip $LEFT_PRINTER_IP\
+node ./printer/scraper/main.js --printer_ip $LEFT_PRINTER_IP\
     --fetch_interval_seconds $FETCH_INTERVAL_SECONDS\
     --printer_name $PRINTER_LEFT_NAME\
     --influx_url $INFLUX_URL
