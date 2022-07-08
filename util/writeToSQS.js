@@ -1,3 +1,4 @@
+const logger = require('../util/logger.js');
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const {
@@ -24,7 +25,7 @@ const uploadFile = (fileNo) => {
     };
     s3.upload(params, function (err) {
         if (err) {
-            console.log(err);
+            logger.error('Unable to upload file ' + fileNo + "successfully");
         }
         else {
             console.log('File uploaded successfully.');
@@ -49,14 +50,16 @@ function sendQueue(fileNo) {
     };
 
     sqs.sendMessage(sqsParams, function (err) {
-        if (err)
-            console.log(err);
-        else
+        if (err) {
+            logger.error('Unable to send queue message');
+        }
+        else {
             console.log('Successfull queue message sent');
-        console.log("URL: ", QueueUrl);
-        console.log("File Number: ", fileNo);
+            console.log("URL: ", QueueUrl);
+            console.log("File Number: ", fileNo);
+        }
 
         sqsParams.QueueUrl;
-    })
+    });
 }
 sendQueue(fileNo);
