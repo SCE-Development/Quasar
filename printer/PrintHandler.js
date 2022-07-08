@@ -1,26 +1,23 @@
 const {
-  ACCESS_ID,
-  SECRET_KEY,
-  ACCOUNT_ID,
-  PRINTING_QUEUE_NAME,
-  PRINTING_BUCKET_NAME,
+  AWS,
+  PRINTING
 } = require('../config/config.json');
-const AWS = require('aws-sdk');
+const awsSDK = require('aws-sdk');
 const fs = require('fs');
-const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
-const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
+const s3 = new awsSDK.S3({ apiVersion: '2012-11-05' });
+const creds = new AWS.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
 const exec = require('exec');
 const { readMessageFromSqs } = require('../util/SqsMessageHandler');
 
-AWS.config.update({
+awsSDK.config.update({
   region: 'us-west-1',
   endpoint: 'https://s3.amazonaws.com',
   credentials: creds,
 });
 
-const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
+const sqs = new awsSDK.SQS({ apiVersion: '2012-11-05' });
 
-const queueUrl = `https://sqs.us-west-2.amazonaws.com/${ACCOUNT_ID}/${PRINTING_QUEUE_NAME}`;
+const queueUrl = `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${PRINTING.QUEUE_NAME}`;
 
 const params = {
   QueueUrl: queueUrl,
@@ -50,7 +47,7 @@ setInterval(async () => {
   const path = `/tmp/${fileNo}.pdf`;
 
   const paramers = {
-    Bucket: PRINTING_BUCKET_NAME,
+    Bucket: PRINTING.BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
 
