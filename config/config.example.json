@@ -12,6 +12,7 @@
     "PRINTING": {
         "QUEUE_NAME": "XXXXXXXXXXXXXXXXXX",
         "BUCKET_NAME": "XXXXXXXXXXXXXXXXXX",
+        "INTERVAL_SECONDS": "XXXXXXXXXXXXXXXXXX",
         "LEFT": {
             "ENABLED": true,
             "NAME": "XXXXXXXXXXXXXXXXXX",
