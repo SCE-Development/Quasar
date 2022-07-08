@@ -25,7 +25,7 @@ const uploadFile = (fileNo) => {
     };
     s3.upload(params, function (err) {
         if (err) {
-            logger.error('Unable to upload file ' + fileNo + "successfully");
+            logger.error('Unable to upload file ' + fileNo + 'successfully');
         }
         else {
             console.log('File uploaded successfully.');
@@ -40,7 +40,7 @@ uploadFile(fileNo);
 function sendQueue(fileNo) {
     const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
     const queueName = PRINTING_QUEUE_NAME;
-    const QueueUrl = `https://sqs.us-west-2.amazonaws.com/${ACCOUNT_ID}/${queueName}`
+    const QueueUrl = `https://sqs.us-west-2.amazonaws.com/${ACCOUNT_ID}/${queueName}`;
     const sqsParams = {
         MessageBody: JSON.stringify({
             location: QueueUrl,
@@ -55,11 +55,12 @@ function sendQueue(fileNo) {
         }
         else {
             console.log('Successfull queue message sent');
-            console.log("URL: ", QueueUrl);
-            console.log("File Number: ", fileNo);
+            console.log('URL: ', QueueUrl);
+            console.log('File Number: ', fileNo);
         }
 
         sqsParams.QueueUrl;
     });
 }
+
 sendQueue(fileNo);
