@@ -1,4 +1,4 @@
-const logger = require('../util/logger.js');
+const logger = require('../logger.js');
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const {
@@ -7,7 +7,7 @@ const {
     SECRET_KEY,
     PRINTING_QUEUE_NAME,
     PRINTING_BUCKET_NAME,
-} = require('../config/config.json');
+} = require('../../config/config.json');
 let creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 AWS.config.update({
     region: 'us-west-2',
@@ -44,7 +44,7 @@ function sendQueue(fileNo) {
     const sqsParams = {
         MessageBody: JSON.stringify({
             location: QueueUrl,
-            fileName: fileNo
+            fileName: fileNo,
         }),
         QueueUrl
     };
