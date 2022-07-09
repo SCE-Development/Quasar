@@ -1,7 +1,6 @@
 const {
-  AWS
+  AWS, PRINTING
 } = require('../config/config.json');
-const { BUCKET_NAME, QUEUE_NAME } =  require('../config/config.json').PRINTING;
 const awsSDK = require('aws-sdk');
 const fs = require('fs');
 const s3 = new awsSDK.S3({ apiVersion: '2012-11-05' });
@@ -17,7 +16,7 @@ awsSDK.config.update({
 
 const sqs = new awsSDK.SQS({ apiVersion: '2012-11-05' });
 
-const queueUrl = `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${QUEUE_NAME}`;
+const queueUrl = `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${PRINTING.QUEUE_NAME}`;
 
 const params = {
   QueueUrl: queueUrl,
@@ -46,9 +45,9 @@ setInterval(async () => {
   const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
   const path = `/tmp/${fileNo}.pdf`;
 
-  //test
+  // test
   const paramers = {
-    Bucket: BUCKET_NAME,
+    Bucket: PRINTING.BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
 
