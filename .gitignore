@@ -6,4 +6,5 @@ config.json
 
 # pdfs
 *.pdf
+!blank.pdf
 *.env

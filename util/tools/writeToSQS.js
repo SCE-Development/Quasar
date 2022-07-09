@@ -14,27 +14,24 @@ AWS.config.update({
   endpoint: 'https://s3.amazonaws.com',
   credentials: creds
 });
-//  upload file to s3
 const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
+
+
 const uploadFile = (fileNo) => {
   const params = {
     Bucket: PRINTING_BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
-    Body: fs.readFileSync('./blank.pdf')
+    Body: fs.readFileSync(`${process.cwd()}/util/tools/blank.pdf`)
   };
   s3.upload(params, function (err) {
     if (err) {
       logger.info('Unable to upload file ' + fileNo + 'successfully');
-    }
-    else {
+    } else {
       logger.info('File uploaded successfully.');
-
     }
   });
 };
 
-
-//  send queue to sqs
 function sendQueue(fileNo) {
   const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
   const queueName = PRINTING_QUEUE_NAME;
@@ -50,13 +47,11 @@ function sendQueue(fileNo) {
   sqs.sendMessage(sqsParams, function (err) {
     if (err) {
       logger.error('Unable to send queue message');
-    }
-    else {
+    } else {
       logger.info('Successfull queue message sent');
       logger.info('URL: ', QueueUrl);
       logger.info('File Number: ', fileNo);
     }
-
     sqsParams.QueueUrl;
   });
 }
