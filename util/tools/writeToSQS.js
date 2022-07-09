@@ -16,7 +16,6 @@ AWS.config.update({
 });
 //  upload file to s3
 const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
-const fileNo = Math.random();
 const uploadFile = (fileNo) => {
   const params = {
     Bucket: PRINTING_BUCKET_NAME,
@@ -25,7 +24,7 @@ const uploadFile = (fileNo) => {
   };
   s3.upload(params, function (err) {
     if (err) {
-      logger.error('Unable to upload file ' + fileNo + 'successfully');
+      logger.info('Unable to upload file ' + fileNo + 'successfully');
     }
     else {
       logger.info('File uploaded successfully.');
@@ -34,7 +33,6 @@ const uploadFile = (fileNo) => {
   });
 };
 
-uploadFile(fileNo);
 
 //  send queue to sqs
 function sendQueue(fileNo) {
@@ -63,4 +61,9 @@ function sendQueue(fileNo) {
   });
 }
 
-sendQueue(fileNo);
+function main() {
+  const fileNo = Math.random();
+  uploadFile(fileNo);
+  sendQueue(fileNo);
+}
+main();
