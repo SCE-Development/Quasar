@@ -28,7 +28,7 @@ const uploadFile = (fileNo) => {
       logger.error('Unable to upload file ' + fileNo + 'successfully');
     }
     else {
-      console.log('File uploaded successfully.');
+      logger.info('File uploaded successfully.');
 
     }
   });
@@ -54,9 +54,9 @@ function sendQueue(fileNo) {
       logger.error('Unable to send queue message');
     }
     else {
-      console.log('Successfull queue message sent');
-      console.log('URL: ', QueueUrl);
-      console.log('File Number: ', fileNo);
+      logger.info('Successfull queue message sent');
+      logger.info('URL: ', QueueUrl);
+      logger.info('File Number: ', fileNo);
     }
 
     sqsParams.QueueUrl;
