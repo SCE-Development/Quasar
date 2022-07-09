@@ -1,4 +1,5 @@
 const snmp = require('net-snmp');
+const logger = require('../util/logger');
 
 
 // see https://github.com/remetremet/SNMP-OIDs/blob/master/OIDs/Printer-HP-LaserJet-P2055.md
@@ -137,6 +138,43 @@ class HpLaserJetP2015 {
   }
 
   /**
+     * gets the Data that can be received from the printer.
+     * returns an object with the values being in the format to be writeable to influxDB.
+     * @returns an object, snmpData
+     */
+  async getSnmpData() {
+    const dataToQuery = {
+      inkLevel: this.getInkLevel.bind(this),
+      macAddy: this.getMacAddy.bind(this),
+      currentTonerLevel: this.getCurrentTonerLevel.bind(this),
+      memorySize: this.getMemorySize.bind(this),
+      memoryUsed: this.getMemoryUsed.bind(this),
+      pagesPrinted: this.getPagesPrinted.bind(this),
+      serialNumber: this.getSerialNumber.bind(this),
+      modelNumber: this.getModelNumber.bind(this),
+      tonerCapacity: this.getTonerCapacity.bind(this),
+    };
+
+    let snmpData = {};
+    const snmpQueries = Object.keys(dataToQuery).map(async (key) => {
+      try {
+        const functionToCall = dataToQuery[key];
+        const value = await functionToCall();
+        if (String(value) !== '') {
+          snmpData[key] = value;
+        }
+      } catch (e) {
+        logger.error('unable to query data for ' + key + ': ' + e);
+      }
+    });
+
+    await Promise.all(snmpQueries);
+    logger.info('Got data for fields ' + Object.keys(snmpData));
+    return snmpData;
+  }
+
+
+  /**
    * executreSNMPRequest makes a snmp query against the given OID
    * @param {String} objectIdentifier OID to query
    * @returns value corresponding to OID, or false on error
@@ -164,9 +202,9 @@ class HpLaserJetP2015 {
       }
     });
   }
-  
+
 
 }
 
 
-module.exports = {HpLaserJetP2015};
+module.exports = { HpLaserJetP2015 };

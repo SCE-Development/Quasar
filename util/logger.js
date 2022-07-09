@@ -6,9 +6,8 @@ const consoleColors = {
   default: '\x1b[0m',
 };
 
-const { win32 } = require('path');
 const util = require('util');
-
+  
 const LOG_LEVELS = {
   DEBUG: 'DEBUG',
   INFO: 'INFO',
@@ -46,17 +45,17 @@ function printToConsole(level, ...message) {
   } else if (level === LOG_LEVELS.WARNING) {
     formattedMessage = `${consoleColors.yellow}${formattedMessage}${consoleColors.default}`;
   }
-  console.log(formattedMessage);
+  console.log(formattedMessage, args);
 }
-
+  
 function debug(...message) {
   printToConsole(LOG_LEVELS.DEBUG, ...message);
 }
-
+  
 function info(...message) {
   printToConsole(LOG_LEVELS.INFO, ...message);
 }
-
+  
 function warn(...message) {
   printToConsole(LOG_LEVELS.WARNING, ...message);
 }
