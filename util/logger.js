@@ -5,6 +5,8 @@ const consoleColors = {
   yellow: '\x1b[33m',
   default: '\x1b[0m',
 };
+
+const util = require('util');
   
 const LOG_LEVELS = {
   DEBUG: 'DEBUG',
@@ -27,8 +29,9 @@ function getLineOfCode() {
   
 // Do not call this function directly! Use the below factory
 // functions instead
-function printToConsole(level, message) {
+function printToConsole(level, ...message) {
   let formattedMessage = new Date().toISOString();
+  const args = util.format(...message);
   formattedMessage += ` ${getLineOfCode()}`;
   formattedMessage += ` ${level}`;
   formattedMessage += ` ${message}`;
@@ -38,19 +41,19 @@ function printToConsole(level, message) {
   } else if (level === LOG_LEVELS.WARNING) {
     formattedMessage = `${consoleColors.yellow}${formattedMessage}${consoleColors.default}`;
   }
-  console.log(formattedMessage);
+  console.log(formattedMessage, args);
 }
   
-function debug(message) {
-  printToConsole(LOG_LEVELS.DEBUG, message);
+function debug(...message) {
+  printToConsole(LOG_LEVELS.DEBUG, ...message);
 }
   
-function info(message) {
-  printToConsole(LOG_LEVELS.INFO, message);
+function info(...message) {
+  printToConsole(LOG_LEVELS.INFO, ...message);
 }
   
-function warn(message) {
-  printToConsole(LOG_LEVELS.WARNING, `${message}`);
+function warn(...message) {
+  printToConsole(LOG_LEVELS.WARNING, ...message);
 }
   
 function error(message) {
