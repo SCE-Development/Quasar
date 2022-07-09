@@ -1,7 +1,7 @@
 const {
-  AWS,
-  PRINTING
+  AWS
 } = require('../config/config.json');
+const { BUCKET_NAME } =  require('../config/config.json').PRINTING;
 const awsSDK = require('aws-sdk');
 const fs = require('fs');
 const s3 = new awsSDK.S3({ apiVersion: '2012-11-05' });
@@ -47,7 +47,7 @@ setInterval(async () => {
   const path = `/tmp/${fileNo}.pdf`;
 
   const paramers = {
-    Bucket: PRINTING.BUCKET_NAME,
+    Bucket: BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
 
