@@ -6,7 +6,7 @@ RUN pip install flask
 RUN apt-get update
 RUN apt-get install -y jq ssh
 
-COPY ./tunnel/* /app/tunnel/
+COPY ./healtcheck/* /app/healtcheck/
 COPY ./config/config.json /app/config/
 
-ENTRYPOINT ["/app/tunnel/tun.sh"]
+ENTRYPOINT ["/app/healtcheck/tun.sh"]
