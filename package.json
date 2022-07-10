@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "./node_modules/.bin/eslint ./",
-    "upload-file": "node ./util/tools/writeToSQS.js"
+    "upload-file": "node ./tools/writeToSQS.js"
   },
   "repository": {
     "type": "git",

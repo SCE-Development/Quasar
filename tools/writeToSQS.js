@@ -1,4 +1,4 @@
-const logger = require('../logger.js');
+const logger = require('../util/logger.js');
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const {
@@ -7,7 +7,7 @@ const {
   SECRET_KEY,
   PRINTING_QUEUE_NAME,
   PRINTING_BUCKET_NAME,
-} = require('../../config/config.json');
+} = require('../config/config.json');
 let creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 AWS.config.update({
   region: 'us-west-2',
@@ -21,7 +21,7 @@ const uploadFile = (fileNo) => {
   const params = {
     Bucket: PRINTING_BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
-    Body: fs.readFileSync(`${process.cwd()}/util/tools/blank.pdf`)
+    Body: fs.readFileSync(`${process.cwd()}/tools/blank.pdf`)
   };
   s3.upload(params, function (err) {
     if (err) {
