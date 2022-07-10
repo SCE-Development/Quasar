@@ -19,7 +19,7 @@ function getLineOfCode() {
   const e = new Error();
   // point out that 2 is for parent, 3 for grandparent etc...
   // yields "at Object.<anonymous> (/path/to/file.js:7:1)"
-  const backslash = '/';
+  let backslash = '/';
   if (process.platform === 'win32') {
     backslash = '\\';
   }
