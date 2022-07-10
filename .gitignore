@@ -8,3 +8,5 @@ config.json
 *.pdf
 !blank.pdf
 *.env
+
+.DS_Store

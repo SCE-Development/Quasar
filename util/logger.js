@@ -45,7 +45,7 @@ function printToConsole(level, ...message) {
   } else if (level === LOG_LEVELS.WARNING) {
     formattedMessage = `${consoleColors.yellow}${formattedMessage}${consoleColors.default}`;
   }
-  console.log(formattedMessage, args);
+  console.log(formattedMessage);
 }
   
 function debug(...message) {
