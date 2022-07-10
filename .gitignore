@@ -6,4 +6,7 @@ config.json
 
 # pdfs
 *.pdf
+!blank.pdf
 *.env
+
+.DS_Store
