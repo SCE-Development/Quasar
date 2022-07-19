@@ -61,7 +61,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/:/etc/prometheus:ro
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     depends_on:
