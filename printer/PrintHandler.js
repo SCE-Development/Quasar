@@ -69,27 +69,36 @@ setInterval(async () => {
     Bucket: PRINTING_BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
+});
 
-  s3.getObject(paramers, (err, dataFromS3) => {
-    if (err) console.error(err);
-    fs.writeFileSync(path, dataFromS3.Body, 'binary');
-    const printer = determinePrinterForJob();
-    exec(
-      `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
-      `HP-LaserJet-p2015dn-${printer} ${path}`,
-      (error, stdout, stderr) => {
-        if (error) throw error;
-        if (stderr) throw stderr;
-        exec(`rm ${path}`, () => { });
-        const deleteParams = {
-          QueueUrl: queueUrl,
-          ReceiptHandle: data.ReceiptHandle,
-        };
-        deleteFile(fileNo);
-        sqs.deleteMessage(deleteParams, (err) => {
-          if (err) throw err;
-        });
-      });
+
+async function downloads3FileReal(fileNo){
+  //Access bucket 
+  const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
+  const params = {
+    Bucket: PRINTING_BUCKET_NAME,
+    Key: `folder/${fileNo}.pdf`,
+  };
+  return new Promise((resolve) => {
+    try {
+      s3.getObject(params, function (err, dataFromS3) {
+        if (err) {
+          logger.info('File does not exist');
+          resolve(false);
+        } else {
+          logger.info('File exists');
+          resolve(dataFromS3);
+        }
+      })
+    } catch (e) {
+      resolve(false);
+    }
   });
-}, 10000);
+}
 
+async function temp(){
+  //downloads3File(0.14602026812114755);
+  return await downloads3FileReal(0.14602026812114755);
+}
+
+temp();
