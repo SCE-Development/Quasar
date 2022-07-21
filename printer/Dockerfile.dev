@@ -1,0 +1,19 @@
+FROM node:14.10.0-alpine
+
+WORKDIR /app
+
+COPY ./package.json .
+
+COPY ./package-lock.json .
+
+RUN npm install
+
+COPY ./config/config.json /app/config/config.json
+
+COPY ./printer /app/printer
+
+COPY ./util /app/util
+
+ENV NODE_ENV="dev"
+
+ENTRYPOINT [ "sleep", "300" ]
