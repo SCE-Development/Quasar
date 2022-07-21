@@ -91,8 +91,7 @@ setInterval(async () => {
   const path = `./${fileNo}.pdf`;
   logger.info('Attempting to download fileNo', fileNo);
   const dataFromS3 = await downloads3FileReal(fileNo);
-  if(dataFromS3 == false)
-  {
+  if (dataFromS3 == false) {
     return false;
   }
   fs.writeFileSync(path, dataFromS3.Body, 'binary');
@@ -112,5 +111,5 @@ setInterval(async () => {
       sqs.deleteMessage(deleteParams, (err) => {
         if (err) throw err;
       });
-});
+    });
 }, 10000);
