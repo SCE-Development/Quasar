@@ -2,11 +2,15 @@ FROM node:14.10.0-alpine
 
 WORKDIR /app
 
+RUN apk add jq
+
 COPY ./package.json .
 
 COPY ./package-lock.json .
 
 RUN npm install
+
+RUN npm i -g nodemon
 
 COPY ./config/config.json /app/config/config.json
 
@@ -16,4 +20,4 @@ COPY ./util /app/util
 
 ENV NODE_ENV="dev"
 
-ENTRYPOINT [ "sleep", "300" ]
+ENTRYPOINT [ "./printer/run_dev_container.sh" ]

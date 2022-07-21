@@ -4,7 +4,7 @@ services:
     container_name: sce-ledsign
     build:
       context: .
-      dockerfile: ./ledsign/Dockerfile
+      dockerfile: ./ledsign/Dockerfile.dev
     volumes:
       - ./package.json:/app/package.json
       - ./package-lock.json:/app/package-lock.json
@@ -15,7 +15,7 @@ services:
     container_name: sce-printer
     build:
       context: .
-      dockerfile: ./printer/Dockerfile
+      dockerfile: ./printer/Dockerfile.dev
     privileged: true
     volumes:
       - ./package.json:/app/package.json
