@@ -8,7 +8,6 @@ const {
   PRINTING_QUEUE_NAME,
   PRINTING_BUCKET_NAME,
 } = require('../../config/config.json');
-const { resolve } = require('path');
 let creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 AWS.config.update({
   region: 'us-west-2',
