@@ -47,7 +47,7 @@ services:
       - sce-printer
   nginx:
     image: 'nginx'
-    container_name: arcam_nginx
+    container_name: quasar_nginx
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     command: [nginx-debug, '-g', 'daemon off;']

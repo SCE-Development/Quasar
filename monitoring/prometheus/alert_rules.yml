@@ -6,7 +6,7 @@ groups:
         expr: |
           time() - container_last_seen{name="quasar_grafana"} > 10
             or
-          time() - container_last_seen{name="arcam_nginx"} > 10
+          time() - container_last_seen{name="quasar_nginx"} > 10
             or
           time() - container_last_seen{name="sce-ledsign"} > 10
             or
