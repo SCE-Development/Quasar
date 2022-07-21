@@ -1,6 +1,6 @@
 groups: 
   - name: alert_rules
-    interval: 1s
+    interval: 15s
     rules: 
       - alert: container_not_running
         expr: |
