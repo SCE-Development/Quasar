@@ -55,31 +55,6 @@ function determinePrinterForJob() {
   }
 }
 
-async function downloads3FileReal(fileNo) {
-  //  Access bucket 
-  const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
-  const params = {
-    Bucket: PRINTING_BUCKET_NAME,
-    Key: `folder/${fileNo}.pdf`,
-  };
-  return new Promise((resolve) => {
-    try {
-      s3.getObject(params, function (err, dataFromS3) {
-        if (err) {
-          logger.error('File does not exist', err);
-          resolve(false);
-        } else {
-          logger.info('File exists');
-          resolve(dataFromS3);
-        }
-      });
-    } catch (e) {
-      logger.error('Error download', e);
-      resolve(false);
-    }
-  });
-}
-
 setInterval(async () => {
   const data = await readMessageFromSqs(params, sqs);
   if (!data) {
@@ -88,28 +63,33 @@ setInterval(async () => {
 
   const { fileNo, copies, pageRanges } = data.Body;
   const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
-  const path = `./${fileNo}.pdf`;
-  logger.info('Attempting to download fileNo', fileNo);
-  const dataFromS3 = await downloads3FileReal(fileNo);
-  if (dataFromS3 == false) {
-    return false;
-  }
-  fs.writeFileSync(path, dataFromS3.Body, 'binary');
-  const printer = determinePrinterForJob();
-  exec(
-    `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
-    `HP-LaserJet-p2015dn-${printer} ${path}`,
-    (error, stdout, stderr) => {
-      if (error) throw error;
-      if (stderr) throw stderr;
-      exec(`rm ${path}`, () => { });
-      const deleteParams = {
-        QueueUrl: queueUrl,
-        ReceiptHandle: data.ReceiptHandle,
-      };
-      deleteFile(fileNo);
-      sqs.deleteMessage(deleteParams, (err) => {
-        if (err) throw err;
+  const path = `/tmp/${fileNo}.pdf`;
+
+  const paramers = {
+    Bucket: PRINTING_BUCKET_NAME,
+    Key: `folder/${fileNo}.pdf`,
+  };
+
+  s3.getObject(paramers, (err, dataFromS3) => {
+    if (err) console.error(err);
+    fs.writeFileSync(path, dataFromS3.Body, 'binary');
+    const printer = determinePrinterForJob();
+    exec(
+      `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
+      `HP-LaserJet-p2015dn-${printer} ${path}`,
+      (error, stdout, stderr) => {
+        if (error) throw error;
+        if (stderr) throw stderr;
+        exec(`rm ${path}`, () => { });
+        const deleteParams = {
+          QueueUrl: queueUrl,
+          ReceiptHandle: data.ReceiptHandle,
+        };
+        deleteFile(fileNo);
+        sqs.deleteMessage(deleteParams, (err) => {
+          if (err) throw err;
+        });
       });
-    });
+  });
 }, 10000);
+
