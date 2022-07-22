@@ -1,0 +1,24 @@
+#gets the base linux image
+FROM node:14.10.0-alpine 
+
+#all commands will run in this directory
+WORKDIR /app
+
+#copies all the dependenices into work directory (./app) (since you set the work dir before)
+COPY ./package.json .
+
+COPY ./package-lock.json .
+
+#installs packages
+RUN npm install 
+
+RUN npm i -g nodemon
+
+COPY ./config/config.json /app/config/config.json
+
+#copies this file to the desination
+COPY ./ledsign /app/ledsign
+
+COPY ./util /app/util
+
+CMD [ "nodemon", "./ledsign/LEDSignHandler.js" ]
