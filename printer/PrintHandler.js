@@ -12,29 +12,30 @@ const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
 const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 const exec = require('exec');
 const { readMessageFromSqs } = require('../util/SqsMessageHandler');
+
 AWS.config.update({
   region: 'us-west-1',
   endpoint: 'https://s3.amazonaws.com',
   credentials: creds,
 });
- 
+
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
- 
+
 const queueUrl = `https://sqs.us-west-2.amazonaws.com/${ACCOUNT_ID}/${PRINTING_QUEUE_NAME}`;
- 
+
 const params = {
   QueueUrl: queueUrl,
   MaxNumberOfMessages: 1,
   VisibilityTimeout: 0,
   WaitTimeSeconds: 0,
 };
- 
+
 function deleteFile(fileNo) {
   const parms = {
     Bucket: PRINTING_BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
- 
+
   s3.deleteObject(parms, function (err) {
     if (err) {
       logger.error('unable to delete file with name ' + fileNo);
@@ -42,7 +43,7 @@ function deleteFile(fileNo) {
       logger.info('Successfully deleted file from S3 with name ' + fileNo);
     }
   });
- 
+
 }
 function determinePrinterForJob() {
   const randomNumber = Math.random();
@@ -53,7 +54,7 @@ function determinePrinterForJob() {
     return 'right';
   }
 }
- 
+
 async function downloadFileFromS3(fileNo) {
   const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
   const params = {
@@ -72,7 +73,7 @@ async function downloadFileFromS3(fileNo) {
         }
       });
     } catch (e) {
-      logger.error('Error download', e);
+      logger.error('downloadFileFromS3 had an error:', e);
       resolve(false);
     }
   });
@@ -83,14 +84,14 @@ setInterval(async () => {
   if (!data) {
     return;
   }
- 
+
   const { fileNo, copies, pageRanges } = data.Body;
   const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
   const path = `./${fileNo}.pdf`;
   logger.info('Attempting to download fileNo', fileNo);
   const dataFromS3 = await downloadFileFromS3(fileNo);
   if (dataFromS3 === false) {
-    return false;
+    return;
   }
   fs.writeFileSync(path, dataFromS3.Body, 'binary');
   const printer = determinePrinterForJob();
@@ -108,6 +109,6 @@ setInterval(async () => {
       deleteFile(fileNo);
       sqs.deleteMessage(deleteParams, (err) => {
         if (err) throw err;
-      });
+    });
     });
 }, 10000);
