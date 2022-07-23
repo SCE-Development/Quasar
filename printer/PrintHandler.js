@@ -87,7 +87,7 @@ setInterval(async () => {
 
   const { fileNo, copies, pageRanges } = data.Body;
   const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
-  const path = `./${fileNo}.pdf`;
+  const path = `/tmp/${fileNo}.pdf`;
   logger.info('Attempting to download fileNo', fileNo);
   const dataFromS3 = await downloadFileFromS3(fileNo);
   if (dataFromS3 === false) {
