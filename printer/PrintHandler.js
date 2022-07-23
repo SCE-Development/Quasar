@@ -109,6 +109,6 @@ setInterval(async () => {
       deleteFile(fileNo);
       sqs.deleteMessage(deleteParams, (err) => {
         if (err) throw err;
-    });
+      });
     });
 }, 10000);
