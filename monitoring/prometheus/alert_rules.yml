@@ -1,0 +1,25 @@
+groups: 
+  - name: alert_rules
+    interval: 15s
+    rules: 
+      - alert: container_not_running
+        expr: |
+          time() - container_last_seen{name="quasar_grafana"} > 10
+            or
+          time() - container_last_seen{name="quasar_nginx"} > 10
+            or
+          time() - container_last_seen{name="sce-ledsign"} > 10
+            or
+          time() - container_last_seen{name="sce-printer"} > 10
+            or
+          time() - container_last_seen{name="quasar_influx"} > 10
+            or
+          time() - container_last_seen{name="quasar_cadvisor"} > 10
+            or
+          time() - container_last_seen{name="quasar_grafana"} > 10
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Container "{{ $labels.name }}" is not running
+          description: 'container "{{ $labels.name }}" has been down for more than {{ $value | printf "%.0f" }}'
