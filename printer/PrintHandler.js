@@ -12,7 +12,6 @@ const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
 const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
 const exec = require('exec');
 const { readMessageFromSqs } = require('../util/SqsMessageHandler');
- 
 AWS.config.update({
   region: 'us-west-1',
   endpoint: 'https://s3.amazonaws.com',
@@ -91,7 +90,7 @@ setInterval(async () => {
   const path = `./${fileNo}.pdf`;
   logger.info('Attempting to download fileNo', fileNo);
   const dataFromS3 = await downloadFileFromS3(fileNo);
-  if (dataFromS3 == false) {
+  if (dataFromS3 === false) {
     return false;
   }
   fs.writeFileSync(path, dataFromS3.Body, 'binary');
