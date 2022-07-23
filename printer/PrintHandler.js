@@ -55,7 +55,6 @@ function determinePrinterForJob() {
 }
  
 async function downloadFileFromS3(fileNo) {
-  //  Access bucket
   const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
   const params = {
     Bucket: PRINTING_BUCKET_NAME,
