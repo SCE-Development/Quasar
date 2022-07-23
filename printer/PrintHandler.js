@@ -68,7 +68,7 @@ async function downloadFileFromS3(fileNo) {
           logger.error(`Unable to download file with id ${fileNo} :`, err);
           resolve(false);
         } else {
-          logger.info('File exists');
+          logger.info(`Successfully downloaded file with id ${fileNo}`);
           resolve(dataFromS3);
         }
       });
