@@ -65,7 +65,7 @@ async function downloadFileFromS3(fileNo) {
     try {
       s3.getObject(params, function (err, dataFromS3) {
         if (err) {
-          logger.error('File does not exist', err);
+          logger.error(`Unable to download file with id ${fileNo} :`, err);
           resolve(false);
         } else {
           logger.info('File exists');
