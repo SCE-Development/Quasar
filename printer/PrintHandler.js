@@ -90,7 +90,7 @@ setInterval(async () => {
   const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
   const path = `./${fileNo}.pdf`;
   logger.info('Attempting to download fileNo', fileNo);
-  const dataFromS3 = await downloads3FileReal(fileNo);
+  const dataFromS3 = await downloadFileFromS3(fileNo);
   if (dataFromS3 == false) {
     return false;
   }
