@@ -6,7 +6,7 @@ const {
 const awsSDK = require('aws-sdk');
 const fs = require('fs');
 const s3 = new awsSDK.S3({ apiVersion: '2012-11-05' });
-const creds = new AWS.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
+const creds = new awsSDK.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
 const exec = require('exec');
 const { readMessageFromSqs } = require('../util/SqsMessageHandler');
 
