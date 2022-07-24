@@ -42,14 +42,24 @@ function deleteFile(fileNo) {
   });
 
 }
+
 function determinePrinterForJob() {
-  const randomNumber = Math.random();
-  if (randomNumber < 0.5) {
+  if(PRINTING.LEFT.ENABLED && PRINTING.RIGHT.ENABLED) {
+    const randomNumber = Math.random();
+    if (randomNumber < 0.5) {
+      return 'left';
+    }
+    else {
+      return 'right';
+    }
+  } else if (PRINTING.LEFT.ENABLED) {
+    logger.info('Choosing left printer because right is disabled');
     return 'left';
-  }
-  else {
+  } else if (PRINTING.RIGHT.ENABLED) {
+    logger.info('Choosing right printer because left is disabled');
     return 'right';
   }
+  logger.error('No printer enabled');
 }
 
 setInterval(async () => {

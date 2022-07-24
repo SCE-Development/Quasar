@@ -23,25 +23,25 @@ create_and_enable_printer() {
 # script hangs out for 10 seconds.
 sleep 10
 
-# use jq to parse various config.json variables
-
-export LEFT_PRINTER_NAME=$(jq -r '.PRINTING.LEFT.NAME' config/config.json)
-export LEFT_PRINTER_IP=$(jq -r '.PRINTING.LEFT.IP' config/config.json)
-
-export RIGHT_PRINTER_NAME=$(jq -r '.PRINTING.RIGHT.NAME' config/config.json)
-export RIGHT_PRINTER_IP=$(jq -r '.PRINTING.RIGHT.IP' config/config.json)
-
 # we set these environment variables as the AWS S3 node library will
 # throw errors otherwise.
 export AWS_ACCESS_KEY_ID=$(jq -r '.AWS.ACCESS_ID' config/config.json)
 export AWS_SECRET_ACCESS_KEY=$(jq -r '.AWS.SECRET_KEY' config/config.json)
 export AWS_DEFAULT_REGION=$(jq -r '.AWS.DEFAULT_REGION' config/config.json)
 
-
 # Call the above function for the left and right printers, both values
 # defined in an .env file. See this repo's README.md for more info.
-create_and_enable_printer $LEFT_PRINTER_NAME $LEFT_PRINTER_IP
-create_and_enable_printer $RIGHT_PRINTER_NAME $RIGHT_PRINTER_IP
+if [ $(cat config/config.json | jq ".PRINTING.LEFT.ENABLED") = "true"  ]; then
+    export LEFT_PRINTER_NAME=$(jq -r '.PRINTING.LEFT.NAME' config/config.json)
+    export LEFT_PRINTER_IP=$(jq -r '.PRINTING.LEFT.IP' config/config.json)                                                                                ─╯
+    create_and_enable_printer $LEFT_PRINTER_NAME $LEFT_PRINTER_IP
+fi
+
+if [ $(cat config/config.json | jq ".PRINTING.RIGHT.ENABLED") = "true"  ]; then
+    export RIGHT_PRINTER_NAME=$(jq -r '.PRINTING.RIGHT.NAME' config/config.json)
+    export RIGHT_PRINTER_IP=$(jq -r '.PRINTING.RIGHT.IP' config/config.json)                                                                             ─╯
+    create_and_enable_printer $RIGHT_PRINTER_NAME $RIGHT_PRINTER_IP
+fi
 
 echo Starting print server...
 
