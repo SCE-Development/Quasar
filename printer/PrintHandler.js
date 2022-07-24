@@ -1,3 +1,4 @@
+const { logger } = require('../util/logger');
 const {
   AWS,
   PRINTING
@@ -28,7 +29,7 @@ const params = {
 
 function deleteFile(fileNo) {
   const parms = {
-    Bucket: PRINTING_BUCKET_NAME,
+    Bucket: PRINTING.BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
 
