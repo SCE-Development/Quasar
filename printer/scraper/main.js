@@ -15,30 +15,36 @@ function main() {
   if (rawArgs.length != 8) {
     return printUsage();
   }
-
-  let printerIP = [];
+  console.log(rawArgs)
+  let printerIPs = [];
   let intervalSeconds = 0;
-  let printerName = [];
+  let printerNames = [];
   let influxUrl = '';
 
   // perform argument checks before continuing with program
   for (let i = 0; i < rawArgs.length; i += 2) {
     switch (rawArgs[i]) {
-      case '--printer_ip':
-        printerIP[0] = rawArgs[i + 1].split(',')[0];
+      case '--printer_ips':
+        printerIPs[0] = rawArgs[i + 1];
         if(rawArgs[i + 1].includes(','))
         {
-          printerIP[1] = rawArgs[i + 1].split(',')[1];
+          for(let j  = 0; j < rawArgs[i + 1].split(',').length; j++)
+          {
+            printerIPs[j] = rawArgs[i + 1].split(',')[j];
+          }
         }
         break;
       case '--fetch_interval_seconds':
         intervalSeconds = rawArgs[i + 1];
         break;
-      case '--printer_name':
-        printerName[0] = rawArgs[i + 1];
+      case '--printer_names':
+        printerNames[0] = rawArgs[i + 1];
         if(rawArgs[i + 1].includes(','))
         {
-          printerName[1] = rawArgs[i + 1].split(',')[1];
+          for(let j  = 0; j < rawArgs[i + 1].split(',').length; j++)
+          {
+            printerNames[j] = rawArgs[i + 1].split(',')[j];
+          }
         }
         break;
       case '--influx_url':
@@ -52,9 +58,9 @@ function main() {
   let snmpArray = [];
   let influxHandlerArray = [];
 
-  for(let i = 0; i < printerIP.length; i++){
-    let ipAddress = printerIP[i];
-    let theName = printerName[i];
+  for(let i = 0; i < printerIPs.length; i++){
+    let ipAddress = printerIPs[i];
+    let theName = printerNames[i];
     snmpArray[i] = new HpLaserJetP2015(ipAddress);
     influxHandlerArray[i] = new InfluxHandler(influxUrl, theName);
     logger.info(`Printer IP: ${ipAddress}\
@@ -63,11 +69,15 @@ function main() {
             Influx URL: ${influxUrl}`);
   }
 
+  //make the db
+  influxHandlerArray[0].initializeInfluxDb();
+
   setInterval(async () => {
-    for(let i = 0; i < printerIP.length; i++){
+    for(let i = 0; i < printerIPs.length; i++){
       const bodyData = await snmpArray[i].getSnmpData();
       const dataForInflux = await influxHandlerArray[i].formatForInflux(bodyData);
       await influxHandlerArray[i].writeToInflux(dataForInflux); 
+      console.log("WITH IP ADDRESS: " + printerIPs[i]);
     } 
   }, intervalSeconds * 1000);
 }
