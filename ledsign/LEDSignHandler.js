@@ -1,7 +1,6 @@
 const axios = require('axios');
-const config = require('../config/config.json');
 const awsSDK = require('aws-sdk');
-const {LED_SIGN, AWS} = config;
+const {LED_SIGN, AWS} = require('../config/config.json');
 const creds = new AWS.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
 const { readMessageFromSqs } = require('../util/SqsMessageHandler');
 
