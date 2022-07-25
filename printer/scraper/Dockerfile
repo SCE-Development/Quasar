@@ -1,22 +1,23 @@
 FROM node:14.10.0-alpine
 #gets the base linux image
 
-WORKDIR /app
 #all commands will run in this directory
+WORKDIR /app
 
-COPY ./package.json .
 #copies all the dependenices into work directory (./app) (since you set the work dir before)
+COPY ./package.json .
 
-RUN npm install
 #installs packages
+RUN npm install
+RUN npm i -g nodemon 
 
 RUN apk add jq
 
+#copies this file to the desination
 COPY ./printer /app/printer
-#copies this file to the desination
 
-COPY ./util /app/util
 #copies this file to the desination
+COPY ./util /app/util
 
 COPY ./config /app/config
 
