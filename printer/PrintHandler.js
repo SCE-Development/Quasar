@@ -44,7 +44,7 @@ function deleteFile(fileNo) {
 }
 
 function determinePrinterForJob() {
-  if(PRINTING.LEFT.ENABLED && PRINTING.RIGHT.ENABLED) {
+  if (PRINTING.LEFT.ENABLED && PRINTING.RIGHT.ENABLED) {
     const randomNumber = Math.random();
     if (randomNumber < 0.5) {
       return PRINTING.LEFT.NAME;
