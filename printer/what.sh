@@ -33,14 +33,14 @@ export AWS_DEFAULT_REGION=$(jq -r '.AWS.DEFAULT_REGION' config/config.json)
 # defined in an .env file. See this repo's README.md for more info.
 if [ $(cat config/config.json | jq ".PRINTING.LEFT.ENABLED") = "true"  ]; then
     export LEFT_PRINTER_NAME=$(jq -r '.PRINTING.LEFT.NAME' config/config.json)
-    export LEFT_PRINTER_IP=$(jq -r '.PRINTING.LEFT.IP' config/config.json)                                                                                ─╯
-    create_and_enable_printer $LEFT_PRINTER_NAME $LEFT_PRINTER_IP
+    export LEFT_PRINTER_LPD_URL=$(jq -r '.PRINTING.LEFT.LPD_URL' config/config.json)                                                                                ─╯
+    create_and_enable_printer $LEFT_PRINTER_NAME $LEFT_PRINTER_LPD_URL
 fi
 
 if [ $(cat config/config.json | jq ".PRINTING.RIGHT.ENABLED") = "true"  ]; then
     export RIGHT_PRINTER_NAME=$(jq -r '.PRINTING.RIGHT.NAME' config/config.json)
-    export RIGHT_PRINTER_IP=$(jq -r '.PRINTING.RIGHT.IP' config/config.json)                                                                             ─╯
-    create_and_enable_printer $RIGHT_PRINTER_NAME $RIGHT_PRINTER_IP
+    export RIGHT_PRINTER_LPD_URL=$(jq -r '.PRINTING.RIGHT.LPD_URL' config/config.json)                                                                             ─╯
+    create_and_enable_printer $RIGHT_PRINTER_NAME $RIGHT_PRINTER_LPD_URL
 fi
 
 echo Starting print server...
