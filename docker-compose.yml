@@ -13,20 +13,20 @@ services:
     privileged: true
     volumes:
       - "/etc/cups/ppd/:/etc/cups/ppd"
-  health_check_tunnel:
-    build:
-      context: .
-      dockerfile: ./healthcheck/Dockerfile
-    volumes:
-      - ~/.ssh/id_rsa.pub:/app/test_keys.pub
-      - ~/.ssh/id_rsa:/app/test_keys
-      - ~/.ssh/known_hosts:/app/known_hosts
-    tty: true
+  # health_check_tunnel:
+  #   build:
+  #     context: .
+  #     dockerfile: ./healthcheck/Dockerfile
+  #   volumes:
+  #     - ~/.ssh/id_rsa.pub:/app/test_keys.pub
+  #     - ~/.ssh/id_rsa:/app/test_keys
+  #     - ~/.ssh/known_hosts:/app/known_hosts
+  #   tty: true
   printing_scraper:
     container_name: printing_scraper
     build:
       context: .
-      dockerfile: ./printer/scraperPrinter/Dockerfile
+      dockerfile: ./printer/scraper/Dockerfile
     privileged: true
     depends_on:
       - influxDB  
