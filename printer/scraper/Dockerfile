@@ -21,6 +21,8 @@ COPY ./util /app/util
 
 COPY ./config /app/config
 
+EXPOSE 5000
+
 RUN  chmod +x ./printer/scraper/start_scraper.sh
 
 ENTRYPOINT ["./printer/scraper/start_scraper.sh"]
