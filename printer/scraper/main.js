@@ -2,7 +2,6 @@ const logger = require('../../util/logger.js');
 const { InfluxHandler } = require('./InfluxHandler');
 const { HpLaserJetP2015 } = require('../snmp.js');
 const client = require('prom-client');
-const { request } = require('express');
 const express = require('express');
 const app = express();
 let register = new client.Registry();
@@ -29,12 +28,12 @@ function main() {
   for (let i = 0; i < rawArgs.length; i += 2) {
     switch (rawArgs[i]) {
       case '--printer_ips':
-        printerIPs[0] = rawArgs[i + 1].replace(/["']/g, "");
+        printerIPs[0] = rawArgs[i + 1].replace(/["']/g, '');
         if(rawArgs[i + 1].includes(','))
         {
           for(let j  = 0; j < rawArgs[i + 1].split(',').length; j++)
           {
-            printerIPs[j] = rawArgs[i + 1].split(',')[j].replace(/["']/g, "");
+            printerIPs[j] = rawArgs[i + 1].split(',')[j].replace(/["']/g, '');
           }
         }
         break;
@@ -42,12 +41,12 @@ function main() {
         intervalSeconds = rawArgs[i + 1];
         break;
       case '--printer_names':
-        printerNames[0] = rawArgs[i + 1].replace(/["']/g, "");
+        printerNames[0] = rawArgs[i + 1].replace(/["']/g, '');
         if(rawArgs[i + 1].includes(','))
         {
           for(let j  = 0; j < rawArgs[i + 1].split(',').length; j++)
           {
-            printerNames[j] = rawArgs[i + 1].split(',')[j].replace(/["']/g, "");
+            printerNames[j] = rawArgs[i + 1].split(',')[j].replace(/["']/g, '');
           }
         }
         break;
@@ -69,7 +68,7 @@ function main() {
 
   register.setDefaultLabels ({
     app: 'printer-temp'
-  })
+  });
 
   client.collectDefaultMetrics({ register });
 
@@ -77,11 +76,11 @@ function main() {
   app.get('/metrics', async (request, response) => {
     response.setHeader('Content-Type', register.contentType);
     response.end(await register.metrics());
-  })
+  });
   
   app.listen(5000, () =>{
     console.log('Started server on port 5000');
-  })
+  });
 
   let snmpArray = [];
   let influxHandlerArray = [];
@@ -97,7 +96,7 @@ function main() {
             Influx URL: ${influxUrl}`);
   }
 
-  //make the db
+  // make the db
   influxHandlerArray[0].initializeInfluxDb();
 
   setInterval(async () => {
@@ -107,7 +106,7 @@ function main() {
       end();
       const dataForInflux = await influxHandlerArray[i].formatForInflux(bodyData);
       await influxHandlerArray[i].writeToInflux(dataForInflux); 
-      console.log("WITH IP ADDRESS: " + printerIPs[i]);
+      console.log('WITH IP ADDRESS: ' + printerIPs[i]);
     } 
   }, intervalSeconds * 1000);
 }
