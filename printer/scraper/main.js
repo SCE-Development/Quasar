@@ -2,6 +2,7 @@ const logger = require('../../util/logger.js');
 const { InfluxHandler } = require('./InfluxHandler');
 const { HpLaserJetP2015 } = require('../snmp.js');
 const client = require('prom-client');
+const { request } = require('express');
 const express = require('express');
 const app = express();
 let register = new client.Registry();
@@ -28,12 +29,12 @@ function main() {
   for (let i = 0; i < rawArgs.length; i += 2) {
     switch (rawArgs[i]) {
       case '--printer_ips':
-        printerIPs[0] = rawArgs[i + 1].replace(/["']/g, '');
+        printerIPs[0] = rawArgs[i + 1].replace(/["']/g, "");
         if(rawArgs[i + 1].includes(','))
         {
           for(let j  = 0; j < rawArgs[i + 1].split(',').length; j++)
           {
-            printerIPs[j] = rawArgs[i + 1].split(',')[j].replace(/["']/g, '');
+            printerIPs[j] = rawArgs[i + 1].split(',')[j].replace(/["']/g, "");
           }
         }
         break;
@@ -41,12 +42,12 @@ function main() {
         intervalSeconds = rawArgs[i + 1];
         break;
       case '--printer_names':
-        printerNames[0] = rawArgs[i + 1].replace(/["']/g, '');
+        printerNames[0] = rawArgs[i + 1].replace(/["']/g, "");
         if(rawArgs[i + 1].includes(','))
         {
           for(let j  = 0; j < rawArgs[i + 1].split(',').length; j++)
           {
-            printerNames[j] = rawArgs[i + 1].split(',')[j].replace(/["']/g, '');
+            printerNames[j] = rawArgs[i + 1].split(',')[j].replace(/["']/g, "");
           }
         }
         break;
@@ -57,33 +58,11 @@ function main() {
         return printUsage();
     }
   }
-
-
-
-  const gauge = new client.Gauge({
-    name: 'time_spent_querying_data',
-    help: 'time_gauge_help',
-  });
-  register.registerMetric(gauge);
-
-  register.setDefaultLabels ({
-    app: 'printer-temp'
-  });
-
-  client.collectDefaultMetrics({ register });
-
-
-  app.get('/metrics', async (request, response) => {
-    response.setHeader('Content-Type', register.contentType);
-    response.end(await register.metrics());
-  });
-  
-  app.listen(5000, () =>{
-    console.log('Started server on port 5000');
-  });
-
+ 
   let snmpArray = [];
   let influxHandlerArray = [];
+  let gaugeArrayLatency = [];
+  let gaugeArrayLastSeen = []
 
   for(let i = 0; i < printerIPs.length; i++){
     let ipAddress = printerIPs[i];
@@ -94,19 +73,46 @@ function main() {
             Interval: ${intervalSeconds}\
             Printer Name: ${theName}\
             Influx URL: ${influxUrl}`);
+    gaugeArrayLatency[i] = new client.Gauge({
+      name: `time_spent_querying_data_${theName}`,
+      help: `time_gauge_help_${theName}`,
+    });
+    gaugeArrayLastSeen[i] = new client.Gauge({
+      name: `${theName}_last_seen`,
+      help: `${theName}_last_seen_help`,
+    });
+    register.registerMetric(gaugeArrayLatency[i]);
+    register.registerMetric(gaugeArrayLastSeen[i]);
   }
 
-  // make the db
+  register.setDefaultLabels ({
+    app: 'printer-temp'
+  })
+
+  client.collectDefaultMetrics({ register });
+
+
+  app.get('/metrics', async (request, response) => {
+    response.setHeader('Content-Type', register.contentType);
+    response.end(await register.metrics());
+  })
+  
+  app.listen(5000, () =>{
+    console.log('Started server on port 5000');
+  })
+
+
+  //make the db
   influxHandlerArray[0].initializeInfluxDb();
 
   setInterval(async () => {
     for(let i = 0; i < printerIPs.length; i++){
-      const end = gauge.startTimer();
+      const end = gaugeArrayLatency[i].startTimer();
+      gaugeArrayLastSeen[i].set(Date.now())
       const bodyData = await snmpArray[i].getSnmpData();
       end();
       const dataForInflux = await influxHandlerArray[i].formatForInflux(bodyData);
       await influxHandlerArray[i].writeToInflux(dataForInflux); 
-      console.log('WITH IP ADDRESS: ' + printerIPs[i]);
     } 
   }, intervalSeconds * 1000);
 }
