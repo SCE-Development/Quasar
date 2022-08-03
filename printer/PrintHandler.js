@@ -63,7 +63,7 @@ function determinePrinterForJob() {
 }
 
 /*
-This function downloads any file within our SCE AWS S3 'printing dev' bucket.
+This function downloads any file within our SCE AWS S3 'printing dev' bucket. 
 All that is needed is to pass the file number of file of choice within the S3 bucket
 Using a promise function, the file number is passed as a param and if the file exists, the file is downloaded to the path below
 If the file isn't there, using our logger functions it is returned that it was unable to download the file with the specified ID
