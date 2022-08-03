@@ -62,21 +62,51 @@ function determinePrinterForJob() {
   logger.error('No printer enabled');
 }
 
+/*
+This function downloads any file within our SCE AWS S3 'printing dev' bucket.
+All that is needed is to pass the file number of file of choice within the S3 bucket
+Using a promise function, the file number is passed as a param and if the file exists, the file is downloaded to the path below
+If the file isn't there, using our logger functions it is returned that it was unable to download the file with the specified ID
+ */
+async function downloadFileFromS3(fileNo) {
+  const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
+  const params = {
+    Bucket: PRINTING_BUCKET_NAME,
+    Key: `folder/${fileNo}.pdf`,
+  };
+  return new Promise((resolve) => {
+    try {
+      s3.getObject(params, function (err, dataFromS3) {
+        if (err) {
+          logger.error(`Unable to download file with id ${fileNo} :`, err);
+          resolve(false);
+        } else {
+          logger.info(`Successfully downloaded file with id ${fileNo}`);
+          resolve(dataFromS3);
+        }
+      });
+    } catch (e) {
+      logger.error('downloadFileFromS3 had an error:', e);
+      resolve(false);
+    }
+  });
+}
+ 
 setInterval(async () => {
   const data = await readMessageFromSqs(params, sqs);
   if (!data) {
     return;
   }
-
+ 
   const { fileNo, copies, pageRanges } = data.Body;
   const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
   const path = `/tmp/${fileNo}.pdf`;
-
+ 
   const paramers = {
     Bucket: PRINTING.BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
-
+ 
   s3.getObject(paramers, (err, dataFromS3) => {
     if (err) console.error(err);
     fs.writeFileSync(path, dataFromS3.Body, 'binary');
@@ -97,5 +127,7 @@ setInterval(async () => {
           if (err) throw err;
         });
       });
-  });
+    });
 }, 10000);
+ 
+
