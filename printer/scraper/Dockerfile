@@ -9,7 +9,8 @@ COPY ./package.json .
 
 #installs packages
 RUN npm install
-RUN npm i -g nodemon 
+
+RUN apk add jq
 
 #copies this file to the desination
 COPY ./printer /app/printer
@@ -19,4 +20,8 @@ COPY ./util /app/util
 
 COPY ./config /app/config
 
-CMD ["nodemon","--legacy-watch", "./printer/scraper/ipAddress.js"]
+EXPOSE 5000
+
+RUN  chmod +x ./printer/scraper/start_scraper.sh
+
+ENTRYPOINT ["./printer/scraper/start_scraper.sh"]

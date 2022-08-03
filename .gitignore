@@ -9,4 +9,4 @@ config.json
 !blank.pdf
 *.env
 
-.DS_Store
+**/.DS_Store
