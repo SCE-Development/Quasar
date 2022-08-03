@@ -13,6 +13,14 @@ services:
     privileged: true
     volumes:
       - "/etc/cups/ppd/:/etc/cups/ppd"
+  printing_scraper:
+    container_name: printing_scraper
+    build:
+      context: .
+      dockerfile: ./printer/scraper/Dockerfile
+    privileged: true
+    volumes:
+      - ./printer/scraper/ipAddress.js:/app/printer/scraper/ipAddress.js
   health_check_tunnel:
     build:
       context: .
