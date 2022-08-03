@@ -1,27 +1,24 @@
-const logger = require('../util/logger.js');
+const { logger } = require('../util/logger');
 const {
-  ACCESS_ID,
-  SECRET_KEY,
-  ACCOUNT_ID,
-  PRINTING_QUEUE_NAME,
-  PRINTING_BUCKET_NAME,
+  AWS,
+  PRINTING
 } = require('../config/config.json');
-const AWS = require('aws-sdk');
+const awsSDK = require('aws-sdk');
 const fs = require('fs');
-const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
-const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
+const s3 = new awsSDK.S3({ apiVersion: '2012-11-05' });
+const creds = new awsSDK.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
 const exec = require('exec');
 const { readMessageFromSqs } = require('../util/SqsMessageHandler');
 
-AWS.config.update({
+awsSDK.config.update({
   region: 'us-west-1',
   endpoint: 'https://s3.amazonaws.com',
   credentials: creds,
 });
 
-const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
+const sqs = new awsSDK.SQS({ apiVersion: '2012-11-05' });
 
-const queueUrl = `https://sqs.us-west-2.amazonaws.com/${ACCOUNT_ID}/${PRINTING_QUEUE_NAME}`;
+const queueUrl = `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${PRINTING.QUEUE_NAME}`;
 
 const params = {
   QueueUrl: queueUrl,
@@ -32,7 +29,7 @@ const params = {
 
 function deleteFile(fileNo) {
   const parms = {
-    Bucket: PRINTING_BUCKET_NAME,
+    Bucket: PRINTING.BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
 
@@ -45,14 +42,24 @@ function deleteFile(fileNo) {
   });
 
 }
+
 function determinePrinterForJob() {
-  const randomNumber = Math.random();
-  if (randomNumber < 0.5) {
-    return 'left';
+  if (PRINTING.LEFT.ENABLED && PRINTING.RIGHT.ENABLED) {
+    const randomNumber = Math.random();
+    if (randomNumber < 0.5) {
+      return PRINTING.LEFT.NAME;
+    }
+    else {
+      return PRINTING.RIGHT.NAME;
+    }
+  } else if (PRINTING.LEFT.ENABLED) {
+    logger.info('Choosing left printer because right is disabled');
+    return PRINTING.LEFT.NAME;
+  } else if (PRINTING.RIGHT.ENABLED) {
+    logger.info('Choosing right printer because left is disabled');
+    return PRINTING.RIGHT.NAME;
   }
-  else {
-    return 'right';
-  }
+  logger.error('No printer enabled');
 }
 
 setInterval(async () => {
@@ -66,7 +73,7 @@ setInterval(async () => {
   const path = `/tmp/${fileNo}.pdf`;
 
   const paramers = {
-    Bucket: PRINTING_BUCKET_NAME,
+    Bucket: PRINTING.BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
 
@@ -92,4 +99,3 @@ setInterval(async () => {
       });
   });
 }, 10000);
-
