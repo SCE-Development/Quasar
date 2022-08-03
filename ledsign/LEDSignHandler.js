@@ -1,19 +1,18 @@
 const axios = require('axios');
-const config = require('../config/config.json');
-const AWS = require('aws-sdk');
-const { LED_URL, ACCESS_ID, SECRET_KEY, ACCOUNT_ID, LED_QUEUE_NAME } = config;
-const creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
+const awsSDK = require('aws-sdk');
+const {LED_SIGN, AWS} = require('../config/config.json');
+const creds = new AWS.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
 const { readMessageFromSqs } = require('../util/SqsMessageHandler');
 
-AWS.config.update({
+awsSDK.config.update({
   region: 'us-west-1',
   endpoint: 'XXXXXXXXXXXXX',
   credentials: creds,
 });
 
-const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
+const sqs = new awsSDK.SQS({ apiVersion: '2012-11-05' });
 
-const queueUrl = `https://sqs.us-west-2.amazonaws.com/${ACCOUNT_ID}/${LED_QUEUE_NAME}`;
+const queueUrl = `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${LED_SIGN.QUEUE_NAME}`;
 
 const params = {
   QueueUrl: queueUrl,
@@ -29,9 +28,9 @@ setInterval(async () => {
   }
 
   if (data.Body.ledIsOff && data.Body.ledIsOff != undefined) {
-    await axios.get(LED_URL + 'api/turn-off');
+    await axios.get(LED_SIGN.IP + 'api/turn-off');
   } else {
-    await axios.post(LED_URL + 'api/update-sign', data.Body);
+    await axios.post(LED_SIGN.IP + 'api/update-sign', data.Body);
   }
   const deleteParams = {
     QueueUrl: queueUrl,
