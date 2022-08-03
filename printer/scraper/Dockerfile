@@ -9,7 +9,6 @@ COPY ./package.json .
 
 #installs packages
 RUN npm install
-RUN npm i -g nodemon 
 
 RUN apk add jq
 
