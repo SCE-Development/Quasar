@@ -22,6 +22,16 @@ services:
       - ~/.ssh/id_rsa:/app/test_keys
       - ~/.ssh/known_hosts:/app/known_hosts
     tty: true
+  printing_scraper:
+    container_name: printing_scraper
+    build:
+      context: .
+      dockerfile: ./printer/scraper/Dockerfile
+    privileged: true
+    ports:
+      - '5000:5000'
+    depends_on:
+      - influxDB  
   influxDB:
     container_name: quasar_influx
     image: influxdb:1.8
@@ -72,7 +82,7 @@ services:
     container_name: quasar_grafana
     restart: always
     environment:
-      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
