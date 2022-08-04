@@ -1,0 +1,25 @@
+version: '2'
+services:
+  sce-ledsign:
+    container_name: sce-ledsign
+    build:
+      context: .
+      dockerfile: ./ledsign/Dockerfile.dev
+    volumes:
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+      - ./ledsign/:/app/ledsign
+      - ./config/config.json:/app/config/config.json
+      - ./util:/app/util
+  sce-printer:
+    container_name: sce-printer
+    build:
+      context: .
+      dockerfile: ./printer/Dockerfile.dev
+    privileged: true
+    volumes:
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+      - ./config:/app/config
+      - ./printer:/app/printer
+      - ./util:/app/util
