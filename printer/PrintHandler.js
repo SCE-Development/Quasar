@@ -91,13 +91,13 @@ setInterval(async () => {
   if (!data) {
     return;
   }
- 
   const { fileNo, copies, pageRanges } = data.Body;
   const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
   const path = `/tmp/${fileNo}.pdf`;
  
   const dataFromS3 = await downloadFileFromS3(fileNo);
   if (!dataFromS3) {
+    logger.warn("Unable to download file, skipping it");
     return;
   }
   fs.writeFileSync(path, dataFromS3.Body, 'binary');
