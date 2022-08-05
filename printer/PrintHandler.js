@@ -28,12 +28,12 @@ const params = {
 };
 
 function deleteFile(fileNo) {
-  const parms = {
+  const objectToDelete = {
     Bucket: PRINTING.BUCKET_NAME,
     Key: `folder/${fileNo}.pdf`,
   };
 
-  s3.deleteObject(parms, function (err) {
+  s3.deleteObject(objectToDelete, function (err) {
     if (err) {
       logger.error('unable to delete file with name ' + fileNo);
     } else {
@@ -62,40 +62,62 @@ function determinePrinterForJob() {
   logger.error('No printer enabled');
 }
 
+async function downloadFileFromS3(fileNo) {
+  const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
+  const objectToDownload = {
+    Bucket: PRINTING.BUCKET_NAME,
+    Key: `folder/${fileNo}.pdf`,
+  };
+  return new Promise((resolve) => {
+    try {
+      s3.getObject(objectToDownload, function (err, dataFromS3) {
+        if (err) {
+          logger.error(`Unable to download file with id ${fileNo} :`, err);
+          resolve(false);
+        } else {
+          logger.info(`Successfully downloaded file with id ${fileNo}`);
+          resolve(dataFromS3);
+        }
+      });
+    } catch (e) {
+      logger.error('downloadFileFromS3 had an error:', e);
+      resolve(false);
+    }
+  });
+}
+ 
 setInterval(async () => {
   const data = await readMessageFromSqs(params, sqs);
   if (!data) {
     return;
   }
-
   const { fileNo, copies, pageRanges } = data.Body;
   const pages = pageRanges === 'NA' ? '' : '-P ' + pageRanges;
   const path = `/tmp/${fileNo}.pdf`;
-
-  const paramers = {
-    Bucket: PRINTING.BUCKET_NAME,
-    Key: `folder/${fileNo}.pdf`,
-  };
-
-  s3.getObject(paramers, (err, dataFromS3) => {
-    if (err) console.error(err);
-    fs.writeFileSync(path, dataFromS3.Body, 'binary');
-    const printer = determinePrinterForJob();
-    exec(
-      `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
+ 
+  const dataFromS3 = await downloadFileFromS3(fileNo);
+  if (!dataFromS3) {
+    logger.warn('Unable to download file, skipping it');
+    return;
+  }
+  fs.writeFileSync(path, dataFromS3.Body, 'binary');
+  const printer = determinePrinterForJob();
+  exec(
+    `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
       `HP-LaserJet-p2015dn-${printer} ${path}`,
-      (error, stdout, stderr) => {
-        if (error) throw error;
-        if (stderr) throw stderr;
-        exec(`rm ${path}`, () => { });
-        const deleteParams = {
-          QueueUrl: queueUrl,
-          ReceiptHandle: data.ReceiptHandle,
-        };
-        deleteFile(fileNo);
-        sqs.deleteMessage(deleteParams, (err) => {
-          if (err) throw err;
-        });
+    (error, stdout, stderr) => {
+      if(error) logger.error('exec returned error:', error);
+      if(stderr) logger.error('exec returned stderr:', stderr);
+      exec(`rm ${path}`, () => { });
+      const deleteParams = {
+        QueueUrl: queueUrl,
+        ReceiptHandle: data.ReceiptHandle,
+      };
+      deleteFile(fileNo);
+      sqs.deleteMessage(deleteParams, (err) => {
+        if (err) logger.error('unable to delete message from SQS', err);
       });
-  });
+    });
 }, 10000);
+ 
+
