@@ -44,6 +44,9 @@ async function downloadFileFromURL(url) {
       responseType: 'stream'
     })
       .then(response => {
+        // discord attachment URLs look like below, where id and name
+        // are unique to the uploaded attachment
+        // https://cdn.discordapp.com/attachments/<server>/<id>/<name>
         const attachmentId = url.split('/')[5];
         const fileName = `/tmp/${attachmentId}.pdf`;
         const filePath = `/tmp/${fileName}.pdf`;
