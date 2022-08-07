@@ -4,6 +4,7 @@ const {
 } = require('../config/config.json');
 const awsSDK = require('aws-sdk');
 const creds = new awsSDK.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
+const logger = require('../util/logger');
 
 awsSDK.config.update({
   region: 'us-west-1',
@@ -53,7 +54,7 @@ function deleteMessageFromSqs(param) {
   const deleteParams = {
     QueueUrl: `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${PRINTING.QUEUE_NAME}`,
     ReceiptHandle: param.ReceiptHandle
-  }
+  };
   return new Promise((resolve) => {
     sqs.deleteMessage(deleteParams, (err) => {
       if (err) logger.error('unable to delete message from SQS', err);

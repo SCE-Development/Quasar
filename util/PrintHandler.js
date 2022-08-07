@@ -9,24 +9,22 @@ const { PRINTING } = require('../config/config.json');
 function sendRequestToPrinter(options) {
   const { copies, pages, printer, filePath } = options;
   return new Promise((resolve) => {
-    logger.info("attempting to print with options", options);
-    return resolve(true)
-  exec(
-    `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
+    exec(
+      `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
     `HP-LaserJet-p2015dn-${printer} ${filePath}`,
-    (error, stdout, stderr) => {
-      exec(`rm ${filePath}`, () => { });
-      if (error || stderr) {
-        if(error) {
-          logger.error('exec returned error:', error);
-        } else {
+      (error, stdout, stderr) => {
+        exec(`rm ${filePath}`, () => { });
+        if (error || stderr) {
+          if(error) {
+            logger.error('exec returned error:', error);
+          } else {
           // stderr was returned if error was fals
-          logger.error('exec returned stderr:', stderr);
+            logger.error('exec returned stderr:', stderr);
+          }
+          return resolve(false);
         }
-        return resolve(false);
-      }
-      return resolve(true)
-    });
+        return resolve(true);
+      });
   });
 }
 

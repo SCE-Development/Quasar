@@ -14,9 +14,6 @@ const {
   determinePrinterForJob
 } = require('../util/PrintHandler.js');
 
-const { QueueUrl } = require('../config/config.json').PRINTING;
-
-logger.info("starting print handler...")
 setInterval(async () => {
   const data = await readMessageFromSqs();
   if (!data) return;
