@@ -1,23 +1,26 @@
 const logger = require('../util/logger.js');
-const awsSDK = require('aws-sdk');
+const AWS = require('aws-sdk');
 const fs = require('fs');
 const {
-  PRINTING,
-  AWS,
+  ACCOUNT_ID,
+  ACCESS_ID,
+  SECRET_KEY,
+  PRINTING_QUEUE_NAME,
+  PRINTING_BUCKET_NAME,
 } = require('../config/config.json');
-let creds = new awsSDK.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
-awsSDK.config.update({
+let creds = new AWS.Credentials(ACCESS_ID, SECRET_KEY);
+AWS.config.update({
   region: 'us-west-2',
   endpoint: 'https://s3.amazonaws.com',
   credentials: creds
 });
-const s3 = new awsSDK.S3({ apiVersion: '2012-11-05' });
+const s3 = new AWS.S3({ apiVersion: '2012-11-05' });
 
 
 const uploadFile = (fileNo) => {
   return new Promise((resolve, reject) => {
     const params = {
-      Bucket: PRINTING.BUCKET_NAME,
+      Bucket: PRINTING_BUCKET_NAME,
       Key: `folder/${fileNo}.pdf`,
       Body: fs.readFileSync(`${process.cwd()}/tools/blank.pdf`)
     };
@@ -28,7 +31,7 @@ const uploadFile = (fileNo) => {
       } else {
         logger.info(
           'Uploaded blank PDF successfully to',
-          PRINTING.BUCKET_NAME, `in folder/${fileNo}.pdf`);
+          PRINTING_BUCKET_NAME, `in folder/${fileNo}.pdf`);
         resolve(true);
       }
     });
@@ -37,9 +40,9 @@ const uploadFile = (fileNo) => {
 
 function sendQueue(fileNo) {
   return new Promise((resolve, reject) => {
-    const sqs = new awsSDK.SQS({ apiVersion: '2012-11-05' });
-    const queueName = PRINTING.QUEUE_NAME;
-    const QueueUrl = `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${queueName}`;
+    const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
+    const queueName = PRINTING_QUEUE_NAME;
+    const QueueUrl = `https://sqs.us-west-2.amazonaws.com/${ACCOUNT_ID}/${queueName}`;
     const sqsParams = {
       MessageBody: JSON.stringify({
         location: QueueUrl,
