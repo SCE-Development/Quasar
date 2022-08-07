@@ -4,20 +4,20 @@ groups:
     rules: 
       - alert: container_not_running
         expr: |
-          time() - container_last_seen{name="quasar_grafana"} > 60
+          time() - container_last_seen{name="quasar_grafana"} > 10
             or
-          time() - container_last_seen{name="quasar_nginx"} > 60
+          time() - container_last_seen{name="quasar_nginx"} > 10
             or
-          time() - container_last_seen{name="sce-ledsign"} > 60
+          time() - container_last_seen{name="sce-ledsign"} > 10
             or
-          time() - container_last_seen{name="sce-printer"} > 60
+          time() - container_last_seen{name="sce-printer"} > 10
             or
-          time() - container_last_seen{name="quasar_influx"} > 60
+          time() - container_last_seen{name="quasar_influx"} > 10
             or
-          time() - container_last_seen{name="quasar_cadvisor"} > 60
+          time() - container_last_seen{name="quasar_cadvisor"} > 10
             or
-          time() - container_last_seen{name="quasar_grafana"} > 60
-        for: 1m
+          time() - container_last_seen{name="quasar_grafana"} > 10
+        for: 10s
         labels:
           severity: critical
         annotations:

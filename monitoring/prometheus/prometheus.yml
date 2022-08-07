@@ -15,5 +15,11 @@ scrape_configs:
     static_configs:
       - targets: ['temporary_container:5000']
 
+alerting:
+  alertmanagers:
+    - scheme: http
+      static_configs:
+        - targets: ['alertmanager:9093']
+
 rule_files:
   - alert_rules.yml
