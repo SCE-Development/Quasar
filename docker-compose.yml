@@ -31,7 +31,14 @@ services:
     ports:
       - '5000:5000'
     depends_on:
-      - influxDB  
+      - influxDB
+  temporary_container:
+    build:
+      context: . 
+      dockerfile: ./alerting/Dockerfile
+    privileged: true      
+    ports:
+      - '5000:5000'
   influxDB:
     container_name: quasar_influx
     image: influxdb:1.8
@@ -77,6 +84,21 @@ services:
     depends_on:
       - sce-ledsign
       - sce-printer
+  alertmanager:
+    image: prom/alertmanager:v0.23.0
+    restart: on-failure
+    ports: 
+      - '9093:9093'
+    volumes:
+      - ./alertmanager:/config
+      - alertmanager-data:/data
+    command: --config.file=/config/alertmanager.yml --cluster.advertise-address=0.0.0.0:9093
+  discord-alerts:
+    image: benjojo/alertmanager-discord
+    container_name: discord-alerts
+    restart: on-failure
+    environment:
+      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK_URL}
   quasar_grafana:
     image: grafana/grafana:latest
     container_name: quasar_grafana
@@ -96,3 +118,4 @@ services:
 volumes:
   quasar_grafana_data:
   quasar_influx_data:
+  alertmanager-data:
