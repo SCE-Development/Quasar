@@ -150,7 +150,7 @@ setInterval(async () => {
     `HP-LaserJet-p2015dn-${printer} ${filePath}`,
     (error, stdout, stderr) => {
       if(error) logger.error('exec returned error:', error);
-       if(stderr) logger.error('exec returned stderr:', stderr);
+      if(stderr) logger.error('exec returned stderr:', stderr);
       exec(`rm ${filePath}`, () => { });
 
       // delete from sqs
