@@ -5,7 +5,6 @@ const {
 const awsSDK = require('aws-sdk');
 const creds = new awsSDK.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
 const logger = require('../util/logger');
-
 awsSDK.config.update({
   region: 'us-west-1',
   endpoint: 'https://s3.amazonaws.com',
