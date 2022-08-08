@@ -9,5 +9,4 @@ RUN apt-get install -y jq ssh
 COPY ./healthcheck/* /app/tunnel/
 COPY ./config/config.json /app/config/
 
-EXPOSE 9000
 ENTRYPOINT ["/app/tunnel/tun.sh"]
