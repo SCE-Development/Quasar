@@ -15,7 +15,7 @@ const {
 } = require('../util/PrintHandler.js');
 
 function main() {
-  logger.info('starting print handler...')
+  logger.info('starting print handler...');
 
   setInterval(async () => {
     try {
@@ -47,9 +47,9 @@ function main() {
       await sendRequestToPrinter({copies, pages, printer, filePath});
       await deleteMessageFromSqs({ReceiptHandle: data.ReceiptHandle});
     } catch (e) {
-      logger.error('print handler had error:', e)
+      logger.error('print handler had error:', e);
     }
-    }, 10000);
-  }
+  }, 10000);
+}
 
 main();

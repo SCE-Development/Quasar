@@ -34,7 +34,7 @@ function readMessageFromSqs(params=defaultParams) {
     try {
       sqs.receiveMessage(params, (err, printRequestFromSqs) => {
         if (err) {
-          logger.error('readMessageFromSqs could not read from SQS:', err)
+          logger.error('readMessageFromSqs could not read from SQS:', err);
           return resolve(false);
         } else if (!printRequestFromSqs.Messages) {
           return resolve(false);

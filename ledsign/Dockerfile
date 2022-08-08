@@ -15,6 +15,6 @@ COPY ./ledsign /app/ledsign
 
 COPY ./config/config.json /app/config/config.json
 
-COPY /util /app/util
+COPY ./util /app/util
 
 CMD [ "node", "./ledsign/LEDSignHandler.js" ]

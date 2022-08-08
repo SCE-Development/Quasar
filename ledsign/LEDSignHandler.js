@@ -12,7 +12,7 @@ awsSDK.config.update({
 });
 
 function main() {
-  logger.info("starting led sign handler...")
+  logger.info('starting led sign handler...');
 
   const queueUrl = `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${LED_SIGN.QUEUE_NAME}`;
   
@@ -28,15 +28,15 @@ function main() {
       const data = await readMessageFromSqs(params);
       if (!data) return;
       
-      let result = null
+      let result = null;
       if (data.Body.ledIsOff && data.Body.ledIsOff != undefined) {
-        logging.info('turning sign off')
+        logger.info('turning sign off');
         result = await axios.get(LED_SIGN.IP + 'api/turn-off');
       } else {
-        logging.info(`writing "${data.Body.text}" to sign`)
+        logger.info(`writing "${data.Body.text}" to sign`);
         result = await axios.post(LED_SIGN.IP + 'api/update-sign', data.Body);
       }
-      logger.info('LED sign responded with code', result.status)
+      logger.info('LED sign responded with code', result.status);
       
       const deleteParams = {
         QueueUrl: queueUrl,
@@ -44,7 +44,7 @@ function main() {
       };
       deleteMessageFromSqs(deleteParams);
     } catch (e) {
-      logger.error('led sign handler had error:', e)
+      logger.error('led sign handler had error:', e);
     }
   }, 10000);
 }
