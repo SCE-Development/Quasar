@@ -9,6 +9,9 @@
         "QUEUE_NAME": "XXXXXXXXXXXXXXXXXX",
         "IP": "XXXXXXXXXXXXXXXXXX"
     },
+    "HEALTH_CHECK": {
+        "IP": "XXX.XXX.XX.XX"
+    },
     "PRINTING": {
         "QUEUE_NAME": "XXXXXXXXXXXXXXXXXX",
         "BUCKET_NAME": "XXXXXXXXXXXXXXXXXX",
