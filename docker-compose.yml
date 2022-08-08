@@ -14,6 +14,7 @@ services:
     volumes:
       - "/etc/cups/ppd/:/etc/cups/ppd"
   health_check_tunnel:
+    container_name: quasar_health_check
     build:
       context: .
       dockerfile: ./healthcheck/Dockerfile
