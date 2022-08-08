@@ -29,7 +29,7 @@ COPY ./config/config.json /app/config/config.json
 
 COPY ./printer /app/printer
 
-COPY /util /app/util
+COPY ./util /app/util
 
 # The below command runs the bash script that sets up the connection to the
 # printers and runs PrintHandler.js

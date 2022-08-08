@@ -33,8 +33,10 @@ function readMessageFromSqs(params=defaultParams) {
   return new Promise((resolve) => {
     try {
       sqs.receiveMessage(params, (err, printRequestFromSqs) => {
-        if (err) return resolve(false);
-        else if (!printRequestFromSqs.Messages) {
+        if (err) {
+          logger.error('readMessageFromSqs could not read from SQS:', err);
+          return resolve(false);
+        } else if (!printRequestFromSqs.Messages) {
           return resolve(false);
         }
         const data = {
@@ -61,6 +63,7 @@ function deleteMessageFromSqs(param) {
         logger.error('deleteMessageFromSqs had an error:', err);
         return resolve(false);
       }
+      logger.info('successfully deleted message from SQS.');
       return resolve(true);
     });
   });
