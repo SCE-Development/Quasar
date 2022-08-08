@@ -2,15 +2,13 @@ const axios = require('axios');
 const awsSDK = require('aws-sdk');
 const {LED_SIGN, AWS} = require('../config/config.json');
 const creds = new AWS.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
-const { readMessageFromSqs } = require('../util/SqsMessageHandler');
+const { readMessageFromSqs, deleteMessageFromSqs} = require('../util/SqsMessageHandler');
 
 awsSDK.config.update({
   region: 'us-west-1',
   endpoint: 'XXXXXXXXXXXXX',
   credentials: creds,
 });
-
-const sqs = new awsSDK.SQS({ apiVersion: '2012-11-05' });
 
 const queueUrl = `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${LED_SIGN.QUEUE_NAME}`;
 
@@ -22,7 +20,7 @@ const params = {
 };
 
 setInterval(async () => {
-  const data = await readMessageFromSqs(params, sqs);
+  const data = await readMessageFromSqs(params);
   if (!data) {
     return;
   }
@@ -36,5 +34,5 @@ setInterval(async () => {
     QueueUrl: queueUrl,
     ReceiptHandle: data.ReceiptHandle,
   };
-  sqs.deleteMessage(deleteParams, () => {});
+  deleteMessageFromSqs(deleteParams);
 }, 10000);
