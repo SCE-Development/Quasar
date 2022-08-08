@@ -44,7 +44,7 @@ open_ssh_tunnel () {
     ssh -v \
     -o UserKnownHostsFile=${DOCKER_CONTAINER_KNOWN_HOSTS} \
     -i ${DOCKER_CONTAINER_SSH_KEYS} \
-    -f -N -R ${CORE_V4_PORT}:localhost:${QUASAR_PORT} ${CORE_V4_HOST}
+    -f -g -N -R 0.0.0.0:${CORE_V4_PORT}:localhost:${QUASAR_PORT} ${CORE_V4_HOST}
 }
 
 
