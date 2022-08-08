@@ -42,4 +42,3 @@ setInterval(async () => {
   await sendRequestToPrinter({copies, pages, printer, filePath});
   await deleteMessageFromSqs({ReceiptHandle: data.ReceiptHandle});
 }, 10000);
- 
