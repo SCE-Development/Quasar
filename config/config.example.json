@@ -7,10 +7,10 @@
     },
     "LED_SIGN": {
         "QUEUE_NAME": "XXXXXXXXXXXXXXXXXX",
-        "IP": "XXXXXXXXXXXXXXXXXX"
+        "URL": "XXXXXXXXXXXXXXXXXX"
     },
     "HEALTH_CHECK": {
-        "IP": "XXX.XXX.XX.XX"
+        "CORE_V4_IP": "XXX.XXX.XX.XX"
     },
     "PRINTING": {
         "QUEUE_NAME": "XXXXXXXXXXXXXXXXXX",
