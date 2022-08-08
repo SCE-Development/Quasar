@@ -21,15 +21,7 @@ const sqs = new awsSDK.SQS({ apiVersion: '2012-11-05' });
  * @returns {Promise} Returns false if no message was received 
  * or if there was an error, otherwise returns the received message
  */
-function readMessageFromSqs() {
-  const queueUrl = `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${PRINTING.QUEUE_NAME}`;
-  
-  const params = {
-    QueueUrl: queueUrl,
-    MaxNumberOfMessages: 1,
-    VisibilityTimeout: 0,
-    WaitTimeSeconds: 0,
-  };
+function readMessageFromSqs(params, sqs) {
   return new Promise((resolve) => {
     try {
       sqs.receiveMessage(params, (err, printRequestFromSqs) => {
