@@ -5,11 +5,19 @@ const {
 const awsSDK = require('aws-sdk');
 const creds = new awsSDK.Credentials(AWS.ACCESS_ID, AWS.SECRET_KEY);
 const logger = require('../util/logger');
+
 awsSDK.config.update({
   region: 'us-west-1',
   endpoint: 'https://s3.amazonaws.com',
   credentials: creds,
 });
+
+const defaultParams = {
+  QueueUrl: `https://sqs.us-west-2.amazonaws.com/${AWS.ACCOUNT_ID}/${PRINTING.QUEUE_NAME}`,
+  MaxNumberOfMessages: 1,
+  VisibilityTimeout: 0,
+  WaitTimeSeconds: 0,
+};
 
 const sqs = new awsSDK.SQS({ apiVersion: '2012-11-05' });
 
@@ -21,7 +29,7 @@ const sqs = new awsSDK.SQS({ apiVersion: '2012-11-05' });
  * @returns {Promise} Returns false if no message was received 
  * or if there was an error, otherwise returns the received message
  */
-function readMessageFromSqs(params, sqs) {
+function readMessageFromSqs(params=defaultParams) {
   return new Promise((resolve) => {
     try {
       sqs.receiveMessage(params, (err, printRequestFromSqs) => {
@@ -36,6 +44,7 @@ function readMessageFromSqs(params, sqs) {
         return resolve(data);
       });
     } catch (error) {
+      logger.error('readMessageFromSqs had an error:', error);
       resolve(false);
     }
   });
@@ -48,9 +57,12 @@ function deleteMessageFromSqs(param) {
   };
   return new Promise((resolve) => {
     sqs.deleteMessage(deleteParams, (err) => {
-      if (err) logger.error('unable to delete message from SQS', err);
+      if (err) {
+        logger.error('deleteMessageFromSqs had an error:', err);
+        return resolve(false);
+      }
+      return resolve(true);
     });
-    resolve(true);
   });
 }
 
