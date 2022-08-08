@@ -11,18 +11,18 @@ function sendRequestToPrinter(options) {
   return new Promise((resolve) => {
     exec(
       `lp -n ${copies} ${pages} -o sides=one-sided -d ` +
-    `HP-LaserJet-p2015dn-${printer} ${filePath}`,
+    `${printer} ${filePath}`,
       (error, stdout, stderr) => {
-        exec(`rm ${filePath}`, () => { });
         if (error || stderr) {
           if(error) {
             logger.error('exec returned error:', error);
           } else {
-          // stderr was returned if error was fals
+            // stderr was returned if error was fals
             logger.error('exec returned stderr:', stderr);
           }
           return resolve(false);
         }
+        exec(`rm ${filePath}`, () => { });
         return resolve(true);
       });
   });

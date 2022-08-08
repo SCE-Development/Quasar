@@ -19,25 +19,27 @@ function main() {
 
   setInterval(async () => {
     try {
-
       const data = await readMessageFromSqs();
+      logger.info('data:', data);
       if (!data) return;
       
       // Checking if there is a file URL sent to SQS from Discord.
       const fromDiscord = (data.Body.fileURL) ? true : false;
       const printer = determinePrinterForJob();
       
-      const { fileNo, copies = 1, pages = 'NA'} = data.Body;
+      const { fileNo, copies = 1, pages = ''} = data.Body;
       
       let filePath = `/tmp/${fileNo}.pdf`;
       
       if (!fromDiscord) {
+        logger.info(`downloading file with id ${fileNo} from S3...`);
         const dataFromS3 = await downloadFileFromS3(fileNo);
         if (!dataFromS3) {
           logger.warn('Unable to download file, skipping it');
           return;
         }
         fs.writeFileSync(filePath, dataFromS3.Body, 'binary');
+        logger.info(`Successfully downloaded file with id ${fileNo}`);
         deleteFileFromS3(fileNo);
       } else {
         const fileDownloaded = await downloadFileFromURL(data.Body.fileURL);
