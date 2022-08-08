@@ -31,10 +31,10 @@ function main() {
       let result = null;
       if (data.Body.ledIsOff && data.Body.ledIsOff != undefined) {
         logger.info('turning sign off');
-        result = await axios.get(LED_SIGN.IP + 'api/turn-off');
+        result = await axios.get(LED_SIGN.URL + 'api/turn-off');
       } else {
         logger.info(`writing "${data.Body.text}" to sign`);
-        result = await axios.post(LED_SIGN.IP + 'api/update-sign', data.Body);
+        result = await axios.post(LED_SIGN.URL + 'api/update-sign', data.Body);
       }
       logger.info('LED sign responded with code', result.status);
       
