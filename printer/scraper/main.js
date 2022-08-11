@@ -62,6 +62,11 @@ function main() {
   let influxHandlerArray = [];
   let gaugeArrayLatency = [];
   let gaugeArrayLastSeen = [];
+  let errorAmount = new client.Counter({
+    name: 'errorAmount',
+    help: 'the_amount_of_errors'
+  })
+  register.registerMetric(errorAmount);
 
   for(let i = 0; i < printerIPs.length; i++){
     let ipAddress = printerIPs[i];
@@ -109,6 +114,11 @@ function main() {
       const end = gaugeArrayLatency[i].startTimer();
       gaugeArrayLastSeen[i].set(Date.now());
       const bodyData = await snmpArray[i].getSnmpData();
+      if(JSON.stringify(bodyData).includes('false')){
+        logger.error("Some data has been found to be false")
+        errorAmount.inc(1)
+      }  
+      logger.debug("For IP Address:", printerIPs[i]);
       end();
       const dataForInflux = await influxHandlerArray[i].formatForInflux(bodyData);
       await influxHandlerArray[i].writeToInflux(dataForInflux); 

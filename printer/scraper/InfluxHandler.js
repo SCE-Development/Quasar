@@ -35,6 +35,9 @@ class InfluxHandler {
     let bodyData = '';
     Object.keys(snmpData).forEach(key => {
       let value = snmpData[key];
+      if(value.includes('false')){
+        logger.debug("Skipping writing:", key)
+      }
       if (String(value) !== '') {
         // Any non numeric values are returned as a buffer
         if (typeof value !== 'number') {
@@ -43,6 +46,7 @@ class InfluxHandler {
         bodyData += `laserJet,tag=${this.printerName} ${key}=${value}\n`;
       }
     });
+    logger.debug(bodyData)
     return bodyData;
   }
 

@@ -23,3 +23,12 @@ groups:
         annotations:
           summary: Container "{{ $labels.name }}" is not running
           description: 'container "{{ $labels.name }}" has been down for more than {{ $value | printf "%.0f" }}'
+      - alert: Error_idk_temporary
+        expr: |
+          increase(errorAmount[1m]) > 0
+        for: 1s
+        labels:
+          severity: critical
+        annotations:
+          summary: Its doing false
+          description: Hella false

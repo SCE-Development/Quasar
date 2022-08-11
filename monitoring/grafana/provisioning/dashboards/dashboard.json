@@ -31,7 +31,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "BPc3YHkVk"
+        "uid": "T-YmrIi4z"
       },
       "fieldConfig": {
         "defaults": {
@@ -39,6 +39,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -95,7 +97,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -104,10 +107,9 @@
       },
       "targets": [
         {
-          "alias": "Left Memory Used",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -151,10 +153,9 @@
           ]
         },
         {
-          "alias": "Right Memory Used",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -205,7 +206,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "BPc3YHkVk"
+        "uid": "T-YmrIi4z"
       },
       "fieldConfig": {
         "defaults": {
@@ -213,6 +214,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -269,7 +272,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -278,10 +282,9 @@
       },
       "targets": [
         {
-          "alias": "Left Ink Level",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -325,10 +328,9 @@
           ]
         },
         {
-          "alias": "Right Ink Level",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -379,7 +381,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "BPc3YHkVk"
+        "uid": "T-YmrIi4z"
       },
       "fieldConfig": {
         "defaults": {
@@ -387,6 +389,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -445,7 +449,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -454,10 +459,9 @@
       },
       "targets": [
         {
-          "alias": "Left Current Toner Level",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -501,10 +505,9 @@
           ]
         },
         {
-          "alias": "Right Current Toner Level",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -563,6 +566,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -619,7 +624,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -705,7 +711,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "9.1.0-beta1",
       "targets": [
         {
           "datasource": {
@@ -764,7 +770,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "9.1.0-beta1",
       "targets": [
         {
           "datasource": {
@@ -772,7 +778,8 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "time() - (Right_last_seen{job=\"printer-temp\"} / 1000)",
+          "expr": "time() - (Right_last_seen{app=\"printer-temp\"} / 1000)",
+          "hide": false,
           "legendFormat": "Left Last Seen",
           "range": true,
           "refId": "A"
@@ -795,7 +802,7 @@
     }
   ],
   "refresh": "10s",
-  "schemaVersion": 36,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [],
   "templating": {
