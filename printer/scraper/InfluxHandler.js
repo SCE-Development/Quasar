@@ -35,7 +35,7 @@ class InfluxHandler {
     let bodyData = '';
     Object.keys(snmpData).forEach(key => {
       let value = snmpData[key];
-      if(value.includes('false')){
+      if(String(value).includes('false')){
         logger.debug("Skipping writing:", key)
       }
       if (String(value) !== '') {
