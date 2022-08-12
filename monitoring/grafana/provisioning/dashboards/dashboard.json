@@ -107,6 +107,7 @@
       },
       "targets": [
         {
+          "alias": "Left Printer",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -153,6 +154,7 @@
           ]
         },
         {
+          "alias": "Right Printer",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -282,6 +284,7 @@
       },
       "targets": [
         {
+          "alias": "Left Printer",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -328,6 +331,7 @@
           ]
         },
         {
+          "alias": "Right Printer",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -459,6 +463,7 @@
       },
       "targets": [
         {
+          "alias": "Left Printer",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -505,6 +510,7 @@
           ]
         },
         {
+          "alias": "Right Printer",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
