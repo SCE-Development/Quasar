@@ -106,7 +106,7 @@
       },
       "targets": [
         {
-          "alias": "Left Printer",
+          "alias": "Left Pages Printed",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -153,7 +153,7 @@
           ]
         },
         {
-          "alias": "Right Printer",
+          "alias": "Right Pages Printed",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -283,6 +283,7 @@
       },
       "targets": [
         {
+          "alias": "Left Ink Level",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -329,6 +330,7 @@
           ]
         },
         {
+          "alias": "Right Ink Level",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -458,6 +460,7 @@
       },
       "targets": [
         {
+          "alias": "Left Memory Used",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -504,6 +507,7 @@
           ]
         },
         {
+          "alias": "Right Memory Used",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -742,6 +746,7 @@
       },
       "targets": [
         {
+          "alias": "Left Toner Level",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
@@ -788,6 +793,7 @@
           ]
         },
         {
+          "alias": "Right Toner Level",
           "datasource": {
             "type": "influxdb",
             "uid": "T-YmrIi4z"
