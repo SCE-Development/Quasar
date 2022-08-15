@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # get Core-v4 ip from config.json
-CORE_V4_IP=$(cat /app/config/config.json | jq -r ".CORE_V4_IP") 
+CORE_V4_IP=$(cat /app/config/config.json | jq -r ".HEALTH_CHECK.CORE_V4_IP") 
 
 # known_hosts remembers servers we've ssh'd into in the past.
 # ssh can use this file to verify the legitimacy of CORE_V4_IP.
