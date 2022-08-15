@@ -22,7 +22,6 @@ function sendRequestToPrinter(options) {
           if(error) {
             logger.error('exec returned error:', error);
           } else {
-            // stderr was returned if error was fals
             logger.error('exec returned stderr:', stderr);
           }
           return resolve(false);
