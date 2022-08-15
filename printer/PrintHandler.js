@@ -44,8 +44,14 @@ function main() {
         if(!fileDownloaded) return;
         filePath = fileDownloaded.pdfFilePath;
       }
-      await sendRequestToPrinter({copies, pages, printer, filePath});
-      await deleteMessageFromSqs({ReceiptHandle: data.ReceiptHandle});
+      const printWorked = 
+        await sendRequestToPrinter({copies, pages, printer, filePath});
+      
+      if (printWorked) {
+        await deleteMessageFromSqs({ReceiptHandle: data.ReceiptHandle});
+      } else {
+        logger.error('keeping the message in SQS cause the print failed.');
+      }
     } catch (e) {
       logger.error('print handler had error:', e);
     }
