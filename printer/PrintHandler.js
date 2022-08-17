@@ -27,7 +27,7 @@ function main() {
       const fromDiscord = (data.Body.fileURL) ? true : false;
       const printer = determinePrinterForJob();
       
-      const { fileNo, copies = 1, pages = ''} = JSON.parse(data.Body);
+      const { fileNo, copies = 1, pages = ''} = JSON.parse(JSON.stringify(data.Body));
       
       let filePath = `/tmp/${fileNo}.pdf`;
       
