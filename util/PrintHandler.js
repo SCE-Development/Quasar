@@ -14,7 +14,7 @@ function sendRequestToPrinter(options) {
   }
   return new Promise((resolve) => {
     exec(
-      `lp -n ${copies} ${maybePageRange} -o sides=one-sided -d ` +
+      `lp -n ${copies} ${maybePageRange} -o sides=one-sided -o media=na_letter_8.5x11in -d ` +
     `${printer} ${filePath}`,
       (error, stdout, stderr) => {
         exec(`rm ${filePath}`, () => { });
