@@ -24,14 +24,14 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 6,
+  "id": 3,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "BPc3YHkVk"
+        "uid": "T-YmrIi4z"
       },
       "fieldConfig": {
         "defaults": {
@@ -39,6 +39,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -79,8 +81,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "bytes"
+          }
         },
         "overrides": []
       },
@@ -90,12 +91,13 @@
         "x": 0,
         "y": 0
       },
-      "id": 6,
+      "id": 14,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -104,10 +106,10 @@
       },
       "targets": [
         {
-          "alias": "Left Memory Used",
+          "alias": "Right Printer",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -132,7 +134,7 @@
             [
               {
                 "params": [
-                  "memoryUsed"
+                  "pagesPrinted"
                 ],
                 "type": "field"
               },
@@ -151,10 +153,10 @@
           ]
         },
         {
-          "alias": "Right Memory Used",
+          "alias": "Left Printer",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -180,7 +182,7 @@
             [
               {
                 "params": [
-                  "memoryUsed"
+                  "pagesPrinted"
                 ],
                 "type": "field"
               },
@@ -199,13 +201,13 @@
           ]
         }
       ],
-      "title": "Memory Used",
+      "title": "Panel Title",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "BPc3YHkVk"
+        "uid": "T-YmrIi4z"
       },
       "fieldConfig": {
         "defaults": {
@@ -213,6 +215,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -269,7 +273,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -278,10 +283,10 @@
       },
       "targets": [
         {
-          "alias": "Left Ink Level",
+          "alias": "Right Printer",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -325,10 +330,10 @@
           ]
         },
         {
-          "alias": "Right Ink Level",
+          "alias": "Left Printer",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -379,7 +384,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "BPc3YHkVk"
+        "uid": "T-YmrIi4z"
       },
       "fieldConfig": {
         "defaults": {
@@ -387,11 +392,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 10,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -399,10 +406,7 @@
               "viz": false
             },
             "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 3,
+            "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -430,22 +434,24 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "bytes"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 8
       },
-      "id": 2,
+      "id": 6,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -454,10 +460,10 @@
       },
       "targets": [
         {
-          "alias": "Left Current Toner Level",
+          "alias": "Right Printer",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -482,7 +488,7 @@
             [
               {
                 "params": [
-                  "currentTonerLevel"
+                  "memoryUsed"
                 ],
                 "type": "field"
               },
@@ -501,10 +507,10 @@
           ]
         },
         {
-          "alias": "Right Current Toner Level",
+          "alias": "Left Printer",
           "datasource": {
             "type": "influxdb",
-            "uid": "BPc3YHkVk"
+            "uid": "T-YmrIi4z"
           },
           "groupBy": [
             {
@@ -530,7 +536,7 @@
             [
               {
                 "params": [
-                  "currentTonerLevel"
+                  "memoryUsed"
                 ],
                 "type": "field"
               },
@@ -549,7 +555,7 @@
           ]
         }
       ],
-      "title": "Current Toner Level",
+      "title": "Memory Used",
       "type": "timeseries"
     },
     {
@@ -563,6 +569,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -619,7 +627,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -654,6 +663,185 @@
         }
       ],
       "title": "Query Latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "T-YmrIi4z"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 3,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Right Printer",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "T-YmrIi4z"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "laserJet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "currentTonerLevel"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "tag",
+              "operator": "=",
+              "value": "Left"
+            }
+          ]
+        },
+        {
+          "alias": "Left Printer",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "T-YmrIi4z"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "laserJet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "currentTonerLevel"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "tag",
+              "operator": "=",
+              "value": "Right"
+            }
+          ]
+        }
+      ],
+      "title": "Current Toner Level",
       "type": "timeseries"
     },
     {
@@ -705,7 +893,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "9.1.0-beta1",
       "targets": [
         {
           "datasource": {
@@ -747,7 +935,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 17
+        "y": 25
       },
       "id": 12,
       "options": {
@@ -764,7 +952,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "9.1.0-beta1",
       "targets": [
         {
           "datasource": {
@@ -772,7 +960,8 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "time() - (Right_last_seen{job=\"printer-temp\"} / 1000)",
+          "expr": "time() - (Right_last_seen{app=\"printer-temp\"} / 1000)",
+          "hide": false,
           "legendFormat": "Left Last Seen",
           "range": true,
           "refId": "A"
@@ -795,7 +984,7 @@
     }
   ],
   "refresh": "10s",
-  "schemaVersion": 36,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -807,8 +996,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Updated Dashboard",
-  "uid": "yQhNNvzVz",
-  "version": 7,
+  "title": "Updated Dashboard Copy",
+  "uid": "njy4_yiVz",
+  "version": 1,
   "weekStart": ""
 }
