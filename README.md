@@ -28,3 +28,11 @@ git clone https://github.com/SCE-Development/Quasar.git
 **Note:** Ensure on AWS you are using resources from the Oregon (`us-west-2`)
  region.
 - [ ] Run the project with `docker-compose up`. The containers will run and accept messages from SQS.
+
+## Generating SSH Keys for tunnel
+**Note:** This is for deploying production Quasar only!
+- Follow this
+ [guide](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-2)
+ to generate ssh keys on your machine
+- Ensure the keys were outputted to files containing `id_ed25519`
+- `docker-compose up`, the generated keys will be mounted in the health check container
