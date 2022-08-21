@@ -36,17 +36,21 @@ async function downloadFileFromS3(fileNo) {
 }
 
 function deleteFileFromS3(fileNo) {
-  const objectToDelete = {
-    Bucket: PRINTING.BUCKET_NAME,
-    Key: `folder/${fileNo}.pdf`,
-  };
-  s3.deleteObject(objectToDelete, function (err) {
-    if (err) {
-      logger.error('unable to delete file with name ' + fileNo);
-    } else {
-      logger.info('Successfully deleted file from S3 with name ' + fileNo);
-    }
-  });
+  return new Promise((resolve) => {
+    const objectToDelete = {
+      Bucket: PRINTING.BUCKET_NAME,
+      Key: `folder/${fileNo}.pdf`,
+    };
+    s3.deleteObject(objectToDelete, function (err) {
+      if (err) {
+        logger.error('unable to delete file with name ' + fileNo);
+        resolve(false)
+      } else {
+        logger.info('Successfully deleted file from S3 with name ' + fileNo);
+        resolve(true)
+      }
+    });
+  })
 }
 
 module.exports = {

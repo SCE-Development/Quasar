@@ -38,7 +38,6 @@ function main() {
           return;
         }
         fs.writeFileSync(filePath, dataFromS3.Body, 'binary');
-        deleteFileFromS3(fileNo);
       } else {
         const fileDownloaded = await downloadFileFromURL(data.Body.fileURL);
         if(!fileDownloaded) return;
@@ -46,8 +45,9 @@ function main() {
       }
       const printWorked = 
         await sendRequestToPrinter({copies, pages, printer, filePath});
-      
+
       if (printWorked) {
+        await deleteFileFromS3(fileNo);
         await deleteMessageFromSqs({ReceiptHandle: data.ReceiptHandle});
       } else {
         logger.error('keeping the message in SQS cause the print failed.');
@@ -55,7 +55,7 @@ function main() {
     } catch (e) {
       logger.error('print handler had error:', e);
     }
-  }, 10000);
+  }, 15000);
 }
 
 main();
