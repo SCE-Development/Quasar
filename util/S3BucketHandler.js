@@ -44,13 +44,13 @@ function deleteFileFromS3(fileNo) {
     s3.deleteObject(objectToDelete, function (err) {
       if (err) {
         logger.error('unable to delete file with name ' + fileNo);
-        resolve(false)
+        resolve(false);
       } else {
         logger.info('Successfully deleted file from S3 with name ' + fileNo);
-        resolve(true)
+        resolve(true);
       }
     });
-  })
+  });
 }
 
 module.exports = {
