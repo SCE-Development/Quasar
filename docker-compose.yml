@@ -19,8 +19,8 @@ services:
       context: .
       dockerfile: ./healthcheck/Dockerfile
     volumes:
-      - ~/.ssh/id_rsa.pub:/app/test_keys.pub
-      - ~/.ssh/id_rsa:/app/test_keys
+      - ~/.ssh/id_ed25519.pub:/app/ssh_key.pub
+      - ~/.ssh/id_ed25519:/app/ssh_key
       - ~/.ssh/known_hosts:/app/known_hosts
     tty: true
   printing_scraper:

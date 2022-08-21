@@ -11,7 +11,7 @@ DOCKER_CONTAINER_KNOWN_HOSTS=/app/known_hosts
 # This is Quasar's private ssh key. It's needed in order to connect
 # to Core-v4. Without this, ssh cannot decrypt data coming from
 # Core-v4
-DOCKER_CONTAINER_SSH_KEYS=/app/test_keys
+DOCKER_CONTAINER_SSH_KEYS=/app/ssh_key
 
 # This is the port on Core-v4 that will be forwarded into the conn
 # container (try curl localhost:CORE_V4_PORT in Core-v4). Software responisble
