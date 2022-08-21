@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 4,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -148,7 +148,7 @@
             {
               "key": "tag",
               "operator": "=",
-              "value": "Left"
+              "value": "HP_LaserJet_p2015dn_Right"
             }
           ]
         },
@@ -196,12 +196,12 @@
             {
               "key": "tag",
               "operator": "=",
-              "value": "Right"
+              "value": "HP_LaserJet_p2015dn_Left"
             }
           ]
         }
       ],
-      "title": "Panel Title",
+      "title": "Pages Printed",
       "type": "timeseries"
     },
     {
@@ -325,7 +325,7 @@
             {
               "key": "tag",
               "operator": "=",
-              "value": "Left"
+              "value": "HP_LaserJet_p2015dn_Right"
             }
           ]
         },
@@ -373,7 +373,7 @@
             {
               "key": "tag",
               "operator": "=",
-              "value": "Right"
+              "value": "HP_LaserJet_p2015dn_Left"
             }
           ]
         }
@@ -502,7 +502,7 @@
             {
               "key": "tag",
               "operator": "=",
-              "value": "Left"
+              "value": "HP_LaserJet_p2015dn_Right"
             }
           ]
         },
@@ -550,7 +550,7 @@
             {
               "key": "tag",
               "operator": "=",
-              "value": "Right"
+              "value": "HP_LaserJet_p2015dn_Left"
             }
           ]
         }
@@ -643,7 +643,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "time_spent_querying_data_Left{app=\"printer-temp\"}",
+          "expr": "time_spent_querying_data_HP_LaserJet_p2015dn_Left{app=\"printer-temp\"}",
           "instant": false,
           "legendFormat": "Left Latency ",
           "range": true,
@@ -655,7 +655,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "time_spent_querying_data_Right{app=\"printer-temp\"}",
+          "expr": "time_spent_querying_data_HP_LaserJet_p2015dn_Right{app=\"printer-temp\"}",
           "hide": false,
           "legendFormat": "Right Latency ",
           "range": true,
@@ -788,7 +788,7 @@
             {
               "key": "tag",
               "operator": "=",
-              "value": "Left"
+              "value": "HP_LaserJet_p2015dn_Right"
             }
           ]
         },
@@ -836,7 +836,7 @@
             {
               "key": "tag",
               "operator": "=",
-              "value": "Right"
+              "value": "HP_LaserJet_p2015dn_Left"
             }
           ]
         }
@@ -922,8 +922,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "light-blue",
-                "value": null
+                "color": "light-blue"
               }
             ]
           },
@@ -960,7 +959,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "time() - (Right_last_seen{app=\"printer-temp\"} / 1000)",
+          "expr": "time() - (HP_LaserJet_p2015dn_Right_last_seen{app=\"printer-temp\"} / 1000)",
           "hide": false,
           "legendFormat": "Left Last Seen",
           "range": true,
@@ -972,7 +971,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "time() - (Left_last_seen{app=\"printer-temp\"} / 1000)",
+          "expr": "time() - (HP_LaserJet_p2015dn_Left_last_seen{app=\"printer-temp\"} / 1000)",
           "hide": false,
           "legendFormat": "Right Last Seen",
           "range": true,
@@ -983,7 +982,7 @@
       "type": "stat"
     }
   ],
-  "refresh": "10s",
+  "refresh": "5s",
   "schemaVersion": 37,
   "style": "dark",
   "tags": [],
@@ -996,8 +995,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Updated Dashboard Copy",
-  "uid": "njy4_yiVz",
+  "title": "Updated Dashboard Copy Copy",
+  "uid": "I5iQ9ZZVz",
   "version": 1,
   "weekStart": ""
 }
