@@ -18,6 +18,3 @@ services:
       - ~/.ssh/id_ed25519:/app/ssh_key
       - ~/.ssh/known_hosts:/app/known_hosts
     tty: true
-volumes:
-  quasar_grafana_data:
-  quasar_influx_data:
