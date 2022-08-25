@@ -1,7 +1,7 @@
 {
   "name": "quasar",
   "version": "1.0.0",
-  "description": "Code for all of the SCE peripherals (printer + LED sign).",
+  "description": "How paper is printed at SCE.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

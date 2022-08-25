@@ -1,5 +1,5 @@
 # Quasar
-Code for all of the SCE peripherals (printer + LED sign).
+How paper is printed at SCE.
 
 ## Running the project
 - [ ] Clone this project with
@@ -10,19 +10,33 @@ git clone https://github.com/SCE-Development/Quasar.git
 - [ ] fill out `config/config.json` with the appropriate values:
 ```json
 {
-    "ACCESS_ID": "get this from an officer",
-    "SECRET_KEY": "get this from an officer",
-    "ACCOUNT_ID": "get this from an officer",
-    "LED_QUEUE_NAME": "name from aws, e.g. my-led-queue",
-    "PRINTING_QUEUE_NAME": "name from aws, e.g. my-printing-queue",
-    "PRINTING_BUCKET_NAME": "name from aws, e.g. my-printing-bucket",
-    "LED_URL": "http://<led ip address>/",
-    "PRINTER_LEFT_IP": "ip address of the left printer in sce",
-    "PRINTER_RIGHT_IP": "ip address of the right printer in sce",
-    "CORE_V4_IP" : "ip address of the core-v4 computer in sce",
-    "PRINTER_LEFT_NAME": "name of left printer in sce",
-    "PRINTER_RIGHT_NAME": "name of right printer in sce",
-    "AWS_DEFAULT_REGION": "us-west-2"
+    "AWS": {
+        "ACCESS_ID": "get this from an officer",
+        "SECRET_KEY": "get this from an officer",
+        "ACCOUNT_ID": "get this from an officer",
+        "DEFAULT_REGION": "us-west-2"
+    },
+    "HEALTH_CHECK": {
+        "CORE_V4_IP": "this is an ip address, i.e. 127.0.0.1"
+    },
+    "PRINTING": {
+        "QUEUE_NAME": "name from aws, e.g. my-printing-queue",
+        "BUCKET_NAME": "name from aws, e.g. my-printing-bucket",
+        "FETCH_INTERVAL_SECONDS": "interval sections for printing scraper",
+        "INFLUX_URL": "influx url for monitoring to write to",
+        "LEFT": {
+            "ENABLED": true,
+            "NAME": "name of left printer in sce",
+            "IP": "ip address of the left printer in sce",
+            "LPD_URL": "lpd://<ip address of left printer>"
+        },
+        "RIGHT": {
+            "ENABLED": true,
+            "NAME": "name of right printer in sce",
+            "IP": "ip address of the right printer in sce",
+            "LPD_URL": "lpd://<ip address of right printer>"
+        }
+    }
 }
 ```
 **Note:** Ensure on AWS you are using resources from the Oregon (`us-west-2`)
