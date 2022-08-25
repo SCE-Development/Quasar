@@ -1,10 +1,5 @@
 version: '2'
 services:
-  sce-ledsign:
-    container_name: sce-ledsign
-    build:
-      context: .
-      dockerfile: ./ledsign/Dockerfile
   sce-printer:
     container_name: sce-printer
     build:
@@ -54,7 +49,6 @@ services:
     devices:
       - /dev/kmsg:/dev/kmsg
     depends_on:
-      - sce-ledsign
       - sce-printer
   nginx:
     image: 'nginx'
@@ -76,7 +70,6 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     depends_on:
-      - sce-ledsign
       - sce-printer
   quasar_grafana:
     image: grafana/grafana:latest
