@@ -8,8 +8,6 @@ groups:
             or
           time() - container_last_seen{name="quasar_nginx"} > 60
             or
-          time() - container_last_seen{name="sce-ledsign"} > 60
-            or
           time() - container_last_seen{name="sce-printer"} > 60
             or
           time() - container_last_seen{name="quasar_influx"} > 60
