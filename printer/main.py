@@ -17,10 +17,6 @@ async def upload_file(request: Request):
         f.write(file)    
     return(200)
 
-@app.get("/text")
-def upload_file(text):
-    return (text)
-
 @app.get("/healthcheck")    
 def health_check():
     return {"Check":200}
