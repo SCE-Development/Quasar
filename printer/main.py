@@ -9,13 +9,9 @@ app= FastAPI()
 
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),"uploads")
 
-class returnValues(enum.Enum):
-    Error_400 = ("error_400",HTTPException(status_code=400, detail="No data passed"))
-    Success_200 = ("success_200",200)
-
-    def __init__(self, name, status):
-        self.name = name
-        self.status = status
+class HttpResponseCodes(enum.Enum):
+    BAD_REQUEST = 400
+    OK = 200
      
 @app.post("/upload")
 async def upload_file(request: Request):
