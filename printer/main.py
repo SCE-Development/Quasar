@@ -24,7 +24,7 @@ async def upload_file(request: Request):
     SAVE_FILE_PATH = os.path.join(UPLOAD_DIR,((str)(filename)+".pdf"))
     with open(SAVE_FILE_PATH, "wb") as f:
         f.write(file)    
-    return(returnValues.Success_200.status)
+    return HttpResponseCodes.OK.value
 
 @app.get("/healthcheck")    
 def health_check():
