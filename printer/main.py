@@ -17,7 +17,12 @@ class HttpResponseCodes(enum.Enum):
 async def upload_file(request: Request):
     data = await request.json()
     if "raw" not in data:
-        raise returnValues.Error_400.status
+        HTTPException(
+            status_code=HttpResponseCodes.BAD_REQUEST.value,
+            detail="""
+                PDF data must be passed as base64 encoded data in the `"raw" field
+                """,
+           ))
     rawData = data["raw"]
     file = base64.b64decode(rawData)
     filename = random.randint(0,100)
