@@ -23,12 +23,6 @@ create_and_enable_printer() {
 # script hangs out for 10 seconds.
 sleep 10
 
-# we set these environment variables as the AWS S3 node library will
-# throw errors otherwise.
-export AWS_ACCESS_KEY_ID=$(jq -r '.AWS.ACCESS_ID' config/config.json)
-export AWS_SECRET_ACCESS_KEY=$(jq -r '.AWS.SECRET_KEY' config/config.json)
-export AWS_DEFAULT_REGION=$(jq -r '.AWS.DEFAULT_REGION' config/config.json)
-
 # Call the above function for the left and right printers, both values
 # defined in an .env file. See this repo's README.md for more info.
 if [ $(cat config/config.json | jq ".PRINTING.LEFT.ENABLED") = "true"  ]; then
@@ -45,5 +39,4 @@ fi
 
 echo Starting print server...
 
-# Run the actual code to read from SQS/S3 and send files to the printers.
-node printer/PrintHandler.js
+python3 /app/printer/server.py

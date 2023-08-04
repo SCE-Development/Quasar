@@ -3,33 +3,19 @@ FROM drpsychick/airprint-bridge:latest
 
 WORKDIR /app
 
-# Because the base image we are using doesn't have node or npm installed, we
-# have to do so before running the printing container. The below steps set up
-# node and npm.
 RUN apt-get update
-ENV NODE_VERSION=16.13.0
-RUN apt install -y curl jq
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-ENV NVM_DIR=/root/.nvm
-RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
-RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
-RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
-ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
-# Node and NPM are now set up. The next steps copy the required files into
-# the container. By copying the files over later, the setup steps for npm
-# and node remain cached to speed up subsequent rebuilds.
 
-COPY ./package.json .
+RUN apt install -y python3 python3-pip
 
-COPY ./package-lock.json .
+COPY ./printer/requirements.txt /app/printer/requirements.txt
 
-RUN npm install
+RUN python3 -m pip install -r /app/printer/requirements.txt
 
 COPY ./config/config.json /app/config/config.json
 
-COPY ./printer /app/printer
+COPY ./printer/what.sh /app/printer/what.sh
 
-COPY ./util /app/util
+COPY ./printer/server.py /app/printer/server.py
 
 # The below command runs the bash script that sets up the connection to the
 # printers and runs PrintHandler.js

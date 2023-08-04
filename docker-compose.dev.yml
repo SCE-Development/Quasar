@@ -5,10 +5,8 @@ services:
     build:
       context: .
       dockerfile: ./printer/Dockerfile.dev
-    privileged: true
+    ports:
+      - 9000:9000
     volumes:
-      - ./package.json:/app/package.json
-      - ./package-lock.json:/app/package-lock.json
       - ./config:/app/config
       - ./printer:/app/printer
-      - ./util:/app/util
