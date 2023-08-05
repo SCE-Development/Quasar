@@ -120,7 +120,8 @@ async def read_item(request: Request):
     file_id = str(uuid.uuid4())
     file_path = str(base / file_id)
     decoded = base64.b64decode(data['raw'])
-    open(file_path, 'wb').write(decoded)
+    with open(file_path, 'wb') as f:
+        f.write(decoded)
 
     # make a function that takes in file path, copies, and optional page range
     # and it prints the below string:
@@ -140,19 +141,19 @@ def metrics():
 
 if __name__  == "__main__":
     print("yoyoyo!!!!!", flush=True)
+    t = threading.Thread(
+        target=maybe_reopen_ssh_tunnel,
+        daemon=True,
+    )
+    t.start()
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
 
 def temp(file_path: str, num_copies: int, page_range: str = None) -> str:
     maybe_page_range = ''
     if page_range:
        maybe_page_range = f'-o page-ranges={page_range}'
-    t = threading.Thread(
-        target=maybe_reopen_ssh_tunnel,
-        daemon=True,
-    )
-    t.start()
     print("lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
-    os.popen(f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
+    return os.popen(f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
 
     
 
