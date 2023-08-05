@@ -1,7 +1,6 @@
 import argparse
 import base64
 import json
-import os
 import pathlib
 import subprocess
 import threading
@@ -80,7 +79,11 @@ def send_file_to_printer(file_path: str, num_copies: int, page_range: str = None
     if page_range:
        maybe_page_range = f'-o page-ranges={page_range}'
     print("lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
-    os.popen(f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
+    subprocess.Popen(
+        f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}",
+        shell=True,
+    )
+
 
 @app.get("/healthcheck/printer")
 def api():
