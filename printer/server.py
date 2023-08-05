@@ -24,9 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-neel1 = Gauge('neel1', '1 if up 0 if not')
-ssh_tunnel_last_opened = Gauge('ssh_tunnel_last_opened', 'the last time we opened the ssh tunnel')
-
+last_health_check = int(time.time())
 
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -66,14 +64,10 @@ def maybe_reopen_ssh_tunnel():
     we rerun the script to open the ssh tunnel.
     """
     while 1:
-        print("reponing gang", neel1._value.get(), now_epoch_seconds)
         time.sleep(60)
         now_epoch_seconds = int(time.time())
         # skip reopening the tunnel if the value is 0 or falsy
-        if not neel1._value.get():
-            continue
-        if now_epoch_seconds - neel1._value.get() > 120:
-            ssh_tunnel_last_opened.set(now_epoch_seconds)
+        if now_epoch_seconds - last_health_check > 120:
             subprocess.Popen(
                 './what.sh tunnel-only',
                 shell=True,
@@ -83,6 +77,8 @@ def maybe_reopen_ssh_tunnel():
 
 @app.get("/healthcheck/printer")
 def api():
+    global last_health_check
+    last_health_check = int(time.time())
     return "printer is up!"
 
 @app.post("/print")
