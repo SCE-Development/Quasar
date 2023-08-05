@@ -75,6 +75,14 @@ def maybe_reopen_ssh_tunnel():
                 stdout=subprocess.DEVNULL,
             )
 
+def send_file_to_printer(file_path: str, num_copies: int, page_range: str = None) -> str:
+    maybe_page_range = ''
+    if page_range:
+       maybe_page_range = f'-o page-ranges={page_range}'
+    print("lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
+    print_job = os.popen(f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
+    os.close(print_job)
+
 @app.get("/healthcheck/printer")
 def api():
     global last_health_check
@@ -104,9 +112,6 @@ async def read_item(request: Request):
     except json.decoder.JSONDecodeError:
       return HTTPException(status_code=400, detail="could not parse JSON body")
     
-    print(data)
-    
-    
     # make a curl command to test this
     """
     curl --location --request POST 'localhost:9000/print' \
@@ -124,7 +129,6 @@ async def read_item(request: Request):
     with open(file_path, 'wb') as f:
         f.write(decoded)
 
-    print(f'writing to {os.path.exists(file_path)}', flush=True)
     # make a function that takes in file path, copies, and optional page range
     # and it prints the below string:
     """
@@ -132,7 +136,8 @@ async def read_item(request: Request):
 
     <maybe insert page ranges here> can be empty string if page range wasnt sent, else -o page-ranges=<whatever user sent>
     """
-    print(temp(file_path, int(data['copies']), page_range=data.get("pageRanges")))
+    print(send_file_to_printer(file_path, int(data['copies']), page_range=data.get("pageRanges")))
+    pathlib.Path(file_path).unlink()
     return "worked!"
 
 @app.get("/metrics")
@@ -148,13 +153,6 @@ if __name__  == "__main__":
     )
     t.start()
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
-
-def temp(file_path: str, num_copies: int, page_range: str = None) -> str:
-    maybe_page_range = ''
-    if page_range:
-       maybe_page_range = f'-o page-ranges={page_range}'
-    print("lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
-    return os.popen(f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
 
     
 
