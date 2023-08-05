@@ -24,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-neel = Gauge('neel', '1 if up 0 if not')
+neel1 = Gauge('neel1', '1 if up 0 if not')
 ssh_tunnel_last_opened = Gauge('ssh_tunnel_last_opened', 'the last time we opened the ssh tunnel')
 
 
@@ -69,9 +69,9 @@ def maybe_reopen_ssh_tunnel():
         time.sleep(60)
         now_epoch_seconds = int(time.time())
         # skip reopening the tunnel if the value is 0 or falsy
-        if not neel._value.get():
+        if not neel1._value.get():
             continue
-        if now_epoch_seconds - neel._value.get() > 120:
+        if now_epoch_seconds - neel1._value.get() > 120:
             ssh_tunnel_last_opened.set(now_epoch_seconds)
             subprocess.Popen(
                 './what.sh tunnel-only',
