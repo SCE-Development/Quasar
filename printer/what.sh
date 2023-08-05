@@ -43,6 +43,7 @@ open_ssh_tunnel () {
 
     ssh -v \
     -o UserKnownHostsFile=${DOCKER_CONTAINER_KNOWN_HOSTS} \
+    -o StrictHostKeyChecking=no \
     -i ${DOCKER_CONTAINER_SSH_KEYS} \
     -f -g -N -R 0.0.0.0:${CORE_V4_PORT}:localhost:${QUASAR_PORT} ${CORE_V4_HOST}
 }
@@ -52,8 +53,6 @@ open_ssh_tunnel () {
 # If the permissions aren't tight, ssh complains and doesn't connect. 
 chmod 600 ${DOCKER_CONTAINER_SSH_KEYS}
 
-# call ssh tunnel function
-open_ssh_tunnel
 
 # in https://stackoverflow.com/a/41518225 we trust
 
@@ -102,6 +101,9 @@ then
         export RIGHT_PRINTER_LPD_URL=$(jq -r '.PRINTING.RIGHT.LPD_URL' config/config.json)                       
         create_and_enable_printer $RIGHT_PRINTER_NAME $RIGHT_PRINTER_LPD_URL
     fi
+    open_ssh_tunnel
     python3 /app/printer/server.py
+else
+    open_ssh_tunnel
 fi
 
