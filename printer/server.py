@@ -81,7 +81,7 @@ def maybe_reopen_ssh_tunnel():
                 stdout=subprocess.DEVNULL,
             )
 
-@app.route("/healthcheck/printer")
+@app.get("/healthcheck/printer")
 def api():
     return "printer is up!"
 
@@ -138,7 +138,7 @@ async def read_item(request: Request):
     pathlib.Path(file_path).unlink(missing_ok=False)
     return text_content
 
-@app.route("/metrics", methods=["GET"])
+@app.get("/metrics")
 def metrics():
     return generate_latest()
 
