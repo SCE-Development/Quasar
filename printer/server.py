@@ -66,6 +66,7 @@ def maybe_reopen_ssh_tunnel():
     we rerun the script to open the ssh tunnel.
     """
     while 1:
+        print("reponing gang", neel1._value.get(), now_epoch_seconds)
         time.sleep(60)
         now_epoch_seconds = int(time.time())
         # skip reopening the tunnel if the value is 0 or falsy
@@ -143,6 +144,7 @@ def metrics():
 
 
 if __name__  == "__main__":
+    print("yoyoyo!!!!!", flush=True)
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
 
 def temp(file_path: str, num_copies: int, page_range: str = None) -> str:

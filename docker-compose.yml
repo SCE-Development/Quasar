@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: ./printer/Dockerfile
     privileged: true
+    restart: no
     volumes:
       - ~/.ssh/id_ed25519.pub:/app/ssh_key.pub
       - ~/.ssh/id_ed25519:/app/ssh_key
