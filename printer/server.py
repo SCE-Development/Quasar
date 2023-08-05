@@ -56,7 +56,7 @@ args = get_args()
 
 with open(args.config_json_path) as json_file:
     config_json = json.load(json_file)
-    printerLeftName = config_json.get("PRINTING", {}).get("LEFT", {}).get("NAME")
+    printerLeftName = config_json.get("PRINTING", {}).get("RIGHT", {}).get("NAME")
 
 def maybe_reopen_ssh_tunnel():
     """
@@ -130,9 +130,8 @@ async def read_item(request: Request):
     <maybe insert page ranges here> can be empty string if page range wasnt sent, else -o page-ranges=<whatever user sent>
     """
     print(temp(file_path, int(data['copies']), page_range=data.get("pageRanges")))
-    text_content = pathlib.Path(file_path).read_text()
     pathlib.Path(file_path).unlink(missing_ok=False)
-    return text_content
+    return "worked!"
 
 @app.get("/metrics")
 def metrics():
