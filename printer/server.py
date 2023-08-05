@@ -3,12 +3,16 @@ import base64
 import json
 import os
 import pathlib
+import subprocess
+import threading
+import time
 import uuid
 
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from prometheus_client import Gauge, generate_latest
 
 
 app = FastAPI()
@@ -19,6 +23,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+neel = Gauge('neel', '1 if up 0 if not')
+ssh_tunnel_last_opened = Gauge('ssh_tunnel_last_opened', 'the last time we opened the ssh tunnel')
+
 
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -52,10 +60,29 @@ with open(args.config_json_path) as json_file:
     config_json = json.load(json_file)
     printerLeftName = config_json.get("PRINTING", {}).get("LEFT", {}).get("NAME")
 
+def maybe_reopen_ssh_tunnel():
+    """
+    if we havent recieved a health check ping in over 1 min then
+    we rerun the script to open the ssh tunnel.
+    """
+    while 1:
+        time.sleep(60)
+        now_epoch_seconds = int(time.time())
+        # skip reopening the tunnel if the value is 0 or falsy
+        if not neel._value.get():
+            continue
+        if now_epoch_seconds - neel._value.get() > 120:
+            ssh_tunnel_last_opened.set(now_epoch_seconds)
+            subprocess.Popen(
+                './what.sh tunnel-only',
+                shell=True,
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+            )
 
-@app.get("/")
-async def read_item():
-    return "go to hell2ni"
+@app.route("/healthcheck/printer")
+def api():
+    return "printer is up!"
 
 @app.post("/print")
 async def read_item(request: Request):
@@ -110,6 +137,10 @@ async def read_item(request: Request):
     pathlib.Path(file_path).unlink(missing_ok=False)
     return text_content
 
+@app.route("/metrics", methods=["GET"])
+def metrics():
+    return generate_latest()
+
 
 if __name__  == "__main__":
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
@@ -118,10 +149,11 @@ def temp(file_path: str, num_copies: int, page_range: str = None) -> str:
     maybe_page_range = ''
     if page_range:
        maybe_page_range = f'-o page-ranges={page_range}'
-    # read config json, insert PRINTING.LEFT.NAME into the command
-
-    # replace PENIS with the above
-    # os.popen(command)
+    t = threading.Thread(
+        target=maybe_reopen_ssh_tunnel,
+        daemon=True,
+    )
+    t.start()
     print("lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
     os.popen(f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
 
@@ -131,3 +163,5 @@ def temp(file_path: str, num_copies: int, page_range: str = None) -> str:
 # delete the file after printing
 # 6. add thread that checks ssh tunnel being open, reopen if died (just like led sign)
 # 7. os.popen
+# add logging, argparse for level
+# right printer only!

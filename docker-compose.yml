@@ -7,13 +7,6 @@ services:
       dockerfile: ./printer/Dockerfile
     privileged: true
     volumes:
-      - "/etc/cups/ppd/:/etc/cups/ppd"
-  health_check_tunnel:
-    container_name: quasar_health_check
-    build:
-      context: .
-      dockerfile: ./healthcheck/Dockerfile
-    volumes:
       - ~/.ssh/id_ed25519.pub:/app/ssh_key.pub
       - ~/.ssh/id_ed25519:/app/ssh_key
       - ~/.ssh/known_hosts:/app/known_hosts
