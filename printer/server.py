@@ -120,9 +120,11 @@ async def read_item(request: Request):
     file_id = str(uuid.uuid4())
     file_path = str(base / file_id)
     decoded = base64.b64decode(data['raw'])
+    print(f'writing to {file_path}', flush=True)
     with open(file_path, 'wb') as f:
         f.write(decoded)
 
+    print(f'writing to {os.path.exists(file_path)}', flush=True)
     # make a function that takes in file path, copies, and optional page range
     # and it prints the below string:
     """
@@ -131,7 +133,6 @@ async def read_item(request: Request):
     <maybe insert page ranges here> can be empty string if page range wasnt sent, else -o page-ranges=<whatever user sent>
     """
     print(temp(file_path, int(data['copies']), page_range=data.get("pageRanges")))
-    pathlib.Path(file_path).unlink(missing_ok=False)
     return "worked!"
 
 @app.get("/metrics")
