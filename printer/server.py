@@ -79,10 +79,11 @@ def send_file_to_printer(file_path: str, num_copies: int, page_range: str = None
     if page_range:
        maybe_page_range = f'-o page-ranges={page_range}'
     print("lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}")
-    subprocess.Popen(
+    print_job = subprocess.Popen(
         f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {printerLeftName} {file_path}",
         shell=True,
     )
+    print_job.wait()
 
 
 @app.get("/healthcheck/printer")
@@ -123,24 +124,31 @@ async def read_item(request: Request):
         "copies": 1
     }'
     """
-    base = pathlib.Path("/tmp")
-    file_id = str(uuid.uuid4())
-    file_path = str(base / file_id)
-    decoded = base64.b64decode(data['raw'])
-    print(f'writing to {file_path}', flush=True)
-    with open(file_path, 'wb') as f:
-        f.write(decoded)
+    try:
+        base = pathlib.Path("/tmp")
+        file_id = str(uuid.uuid4())
+        file_path = str(base / file_id)
+        decoded = base64.b64decode(data['raw'])
+        print(f'writing to {file_path}', flush=True)
+        with open(file_path, 'wb') as f:
+            f.write(decoded)
 
-    # make a function that takes in file path, copies, and optional page range
-    # and it prints the below string:
-    """
-    lp -n <copies> <maybe insert page ranges here> -o sides=one-sided -o media=na_letter_8.5x11in -d PENIS <file_path>
+        # make a function that takes in file path, copies, and optional page range
+        # and it prints the below string:
+        """
+        lp -n <copies> <maybe insert page ranges here> -o sides=one-sided -o media=na_letter_8.5x11in -d PENIS <file_path>
 
-    <maybe insert page ranges here> can be empty string if page range wasnt sent, else -o page-ranges=<whatever user sent>
-    """
-    print(send_file_to_printer(file_path, int(data['copies']), page_range=data.get("pageRanges")))
-    pathlib.Path(file_path).unlink()
-    return "worked!"
+        <maybe insert page ranges here> can be empty string if page range wasnt sent, else -o page-ranges=<whatever user sent>
+        """
+        print(send_file_to_printer(file_path, int(data['copies']), page_range=data.get("pageRanges")))
+        pathlib.Path(file_path).unlink()
+        return "worked!"
+    except Exception as e:
+        print('idk we died for some reason', e, flush=True)
+        return HTTPException(
+            status_code=400,
+            detail=str(e),
+            )
 
 @app.get("/metrics")
 def metrics():
