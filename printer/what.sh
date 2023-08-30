@@ -67,16 +67,20 @@ create_and_enable_printer() {
     cupsenable $1 && cupsaccept $1
 }
 
-# if no value is sent along with the invocation of the script,
-# run the server. otherwise just open the ssh tunnel. i.e.
+# if the first argument passed to the script, is --tunnel-only,
+# we just open the ssh tunnel. i.e.
 #
+# $ ./what.sh --tunnel-only
+# 
 # to open the tunnel and start the server:
-# $ ./tun.sh 
+# $ ./tun.sh <args we want to send to the python server>
 #
-# to only open the tunnel:
-# $ ./what.sh tunnel-only
-if [ -z "$1" ]
+# the above args are passed to the python script with the $@ variable,
+# for more info on $@, see https://stackoverflow.com/a/3811369
+if [ "$1" = "--tunnel-only" ]
 then
+    open_ssh_tunnel
+else
     # The below command starts CUPS in the background. Our base image for the
     # printing container comes with /root/start-cups.sh. Because the print
     # container is built from said image, the script comes with the build steps. 
@@ -102,8 +106,6 @@ then
         create_and_enable_printer $RIGHT_PRINTER_NAME $RIGHT_PRINTER_LPD_URL
     fi
     open_ssh_tunnel
-    python3 /app/printer/server.py
-else
-    open_ssh_tunnel
+    python3 /app/printer/server.py $@
 fi
 

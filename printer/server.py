@@ -73,7 +73,7 @@ def maybe_reopen_ssh_tunnel():
                 f"now_epoch_seconds - last_health_check = {now_epoch_seconds - last_health_check}, reopening SSH tunnel"
             )
             subprocess.Popen(
-                "./what.sh tunnel-only",
+                "./what.sh --tunnel-only",
                 shell=True,
                 stderr=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
@@ -88,11 +88,15 @@ def send_file_to_printer(
         # to speciy page ranges, we can do:
         # `-o page-ranges=<whatever user sent>` OR `-P <whatever user sent>`
         maybe_page_range = f"-o page-ranges={page_range}"
-    print_job = subprocess.Popen(
-        f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}",
-        shell=True,
-    )
-    print_job.wait()
+    command = f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
+    if args.development:
+        logging.warning(f"server is in development mode, command would've been `{command}`")
+    else:
+        print_job = subprocess.Popen(
+            command,
+            shell=True,
+        )
+        print_job.wait()
 
 
 @app.get("/healthcheck/printer")
@@ -150,9 +154,10 @@ if __name__ == "__main__":
         datefmt="%Y-%m-%dT%H:%M:%S",
         level=logging.INFO,
     )
-    t = threading.Thread(
-        target=maybe_reopen_ssh_tunnel,
-        daemon=True,
-    )
-    t.start()
+    if not args.development:
+        t = threading.Thread(
+            target=maybe_reopen_ssh_tunnel,
+            daemon=True,
+        )
+        t.start()
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
