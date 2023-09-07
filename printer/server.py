@@ -27,8 +27,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-last_health_check = int(time.time())
+logging.basicConfig(
+    format="%(asctime)s.%(msecs)03dZ %(processName)s %(threadName)s %(levelname)s:%(name)s:%(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+    level=logging.INFO,
+)
 
 
 def get_args() -> argparse.Namespace:
@@ -158,12 +161,15 @@ async def read_item(request: Request):
         )
 
 
-if __name__ == "__main__":
-    logging.basicConfig(
-        format="%(asctime)s.%(msecs)03dZ %(processName)s %(threadName)s %(levelname)s:%(name)s:%(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S",
-        level=logging.INFO,
-    )
+# we have a separate __name__ check here due to how FastAPI starts
+# a server. the file is first ran (where __name__ == "__main__")
+# and then calls `uvicorn.run`. the call to run() reruns the file,
+# this time __name__ == "server". the separate __name__ if statement
+# is so the thread references the same instance as the global
+# metrics_handler referenced by the rest of the file. otherwise,
+# the thread interacts with an instance different than the one the
+# server uses
+if __name__ == "server":
     if not args.development:
         # set the last time we opened an ssh tunnel to now because
         # when the script runs for the first time, we did so in what.sh
@@ -173,4 +179,6 @@ if __name__ == "__main__":
             daemon=True,
         )
         t.start()
+
+if __name__ == "__main__":
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
