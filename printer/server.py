@@ -11,9 +11,14 @@ import uuid
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
+import prometheus_client
 import uvicorn
 
+from metrics import MetricsHandler
 
+
+metrics_handler = MetricsHandler.instance()
 app = FastAPI()
 
 app.add_middleware(
@@ -67,8 +72,9 @@ def maybe_reopen_ssh_tunnel():
     while 1:
         time.sleep(60)
         now_epoch_seconds = int(time.time())
-        # skip reopening the tunnel if the value is 0 or falsy
+        last_health_check = metrics_handler.last_health_check_request._value.get()
         if now_epoch_seconds - last_health_check > 120:
+            metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
             logging.warning(
                 f"now_epoch_seconds - last_health_check = {now_epoch_seconds - last_health_check}, reopening SSH tunnel"
             )
@@ -89,6 +95,7 @@ def send_file_to_printer(
         # `-o page-ranges=<whatever user sent>` OR `-P <whatever user sent>`
         maybe_page_range = f"-o page-ranges={page_range}"
     command = f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
+    metrics_handler.print_jobs_recieved.inc()
     if args.development:
         logging.warning(f"server is in development mode, command would've been `{command}`")
     else:
@@ -101,9 +108,12 @@ def send_file_to_printer(
 
 @app.get("/healthcheck/printer")
 def api():
-    global last_health_check
-    last_health_check = int(time.time())
+    metrics_handler.last_health_check_request.set(int(time.time()))
     return "printer is up!"
+
+@app.get("/metrics", response_class=PlainTextResponse)
+def metrics():
+    return prometheus_client.generate_latest()
 
 
 @app.post("/print")
@@ -155,6 +165,9 @@ if __name__ == "__main__":
         level=logging.INFO,
     )
     if not args.development:
+        # set the last time we opened an ssh tunnel to now because
+        # when the script runs for the first time, we did so in what.sh
+        metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
         t = threading.Thread(
             target=maybe_reopen_ssh_tunnel,
             daemon=True,
