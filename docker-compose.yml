@@ -13,3 +13,8 @@ services:
       - ~/.ssh/known_hosts:/app/known_hosts
       - "/etc/cups/ppd/:/etc/cups/ppd"
     tty: true
+
+networks: 
+  default:
+    external: 
+      name: poweredge
