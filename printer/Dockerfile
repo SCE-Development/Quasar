@@ -17,6 +17,8 @@ COPY ./printer/what.sh /app/printer/what.sh
 
 COPY ./printer/*.py /app/printer/
 
+EXPOSE 9000
+
 # The below command runs the bash script that sets up the connection to the
 # printers and runs PrintHandler.js
 ENTRYPOINT [ "./printer/what.sh" ]
