@@ -14,7 +14,11 @@ services:
       - "/etc/cups/ppd/:/etc/cups/ppd"
     tty: true
 
-networks: 
+# we attach the print container to an external docker
+# network called "poweredge". we do this so a prometheus
+# container can pull metrics from the server over HTTP
+# and relay the metrics to a Grafana dashboard.
+networks:
   default:
-    external: 
+    external:
       name: poweredge
