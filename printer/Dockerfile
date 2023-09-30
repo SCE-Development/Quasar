@@ -15,7 +15,9 @@ COPY ./config/config.json /app/config/config.json
 
 COPY ./printer/what.sh /app/printer/what.sh
 
-COPY ./printer/server.py /app/printer/server.py
+COPY ./printer/*.py /app/printer/
+
+EXPOSE 9000
 
 # The below command runs the bash script that sets up the connection to the
 # printers and runs PrintHandler.js
