@@ -90,14 +90,14 @@ def maybe_reopen_ssh_tunnel():
 
 
 def send_file_to_printer(
-    file_path: str, num_copies: int, page_range: str = None
+    file_path: str, num_copies: int, page_range: str = None, sides: str = "one-sided"
 ) -> str:
     maybe_page_range = ""
     if page_range:
         # to speciy page ranges, we can do:
         # `-o page-ranges=<whatever user sent>` OR `-P <whatever user sent>`
         maybe_page_range = f"-o page-ranges={page_range}"
-    command = f"lp -n {num_copies} {maybe_page_range} -o sides=one-sided -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
+    command = f"lp -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
     metrics_handler.print_jobs_recieved.inc()
     if args.development:
         logging.warning(f"server is in development mode, command would've been `{command}`")
@@ -147,9 +147,11 @@ async def read_item(request: Request):
         decoded = base64.b64decode(data["raw"])
         with open(file_path, "wb") as f:
             f.write(decoded)
-
         send_file_to_printer(
-            file_path, int(data["copies"]), page_range=data.get("pageRanges")
+            file_path,
+            int(data["copies"]),
+            page_range=data.get("pageRanges"),
+            sides=data.get("sides", "one-sided"),
         )
         pathlib.Path(file_path).unlink()
         return "worked!"
