@@ -153,7 +153,7 @@ async def read_item(request: Request):
             page_range=data.get("pageRanges"),
             sides=data.get("sides", "one-sided"),
         )
-        # pathlib.Path(file_path).unlink()
+        pathlib.Path(file_path).unlink()
         return "worked!"
     except Exception:
         logging.exception("printing failed!")
