@@ -35,6 +35,7 @@ sce link q
 }
 ```
 - [ ] Run the project with `sce run q`. The server will run and accept requests on http://localhost:14000.
+- [ ] to verify the files are making it to the server, comment out the line using `unlink` in `server.py`. Data recieved is written to the `tmp` folder within this project.
 
 ## Running the project (production)
 ### Generating SSH Keys for tunnel

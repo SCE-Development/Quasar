@@ -12,6 +12,7 @@ services:
     volumes:
       - ./config:/app/config
       - ./printer:/app/printer
+      - ./tmp:/tmp
     command:
       - --development
       - --port=14000
