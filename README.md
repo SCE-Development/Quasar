@@ -7,7 +7,7 @@ Clone the SCE dev tool and follow the guide for setup: https://github.com/SCE-De
 ```
 sce clone q
 
-cd Clark
+cd Quasar
 
 sce link q
 ```
