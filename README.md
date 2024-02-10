@@ -49,3 +49,6 @@ sce link q
 - ensure the `IP` and `LPD_URL` field are using the same IP address of the corresponding printer
 - the `NAME` field can be whatever you want, i.e. `right-printer`. It's for the `lp` command to use in sending the print request
 
+### its go time
+- just run `docker-compose up --build -d`
+- the logs of the server can be observed with `docker logs sce-printer --tail 300 -f`
