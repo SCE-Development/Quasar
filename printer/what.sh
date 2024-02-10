@@ -93,7 +93,7 @@ else
     sleep 10
 
     # Call the above function for the left and right printers, both values
-    # defined in an config.json file. See this repo's README.md for more info.
+    # defined in a config.json file. See this repo's README.md for more info.
     if [ $(cat config/config.json | jq ".PRINTING.LEFT.ENABLED") = "true"  ]; then
         export LEFT_PRINTER_NAME=$(jq -r '.PRINTING.LEFT.NAME' config/config.json)
         export LEFT_PRINTER_LPD_URL=$(jq -r '.PRINTING.LEFT.LPD_URL' config/config.json)                         
