@@ -1,6 +1,8 @@
 #node modules
 /node_modules
 
+__pycache__
+
 # config
 config.json
 
@@ -10,3 +12,5 @@ config.json
 *.env
 
 **/.DS_Store
+
+tmp/
