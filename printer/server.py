@@ -144,7 +144,6 @@ async def read_item(request: Request):
         base = pathlib.Path("/tmp")
         file_id = str(uuid.uuid4())
         file_path = str(base / file_id)
-        print(data["raw"][:100])
         decoded = base64.b64decode(data["raw"][28:])
         with open(file_path, "wb") as f:
             f.write(decoded)
