@@ -144,7 +144,8 @@ async def read_item(request: Request):
         base = pathlib.Path("/tmp")
         file_id = str(uuid.uuid4())
         file_path = str(base / file_id)
-        decoded = base64.b64decode(data["raw"])
+        print(data["raw"][:100])
+        decoded = base64.b64decode(data["raw"][28:])
         with open(file_path, "wb") as f:
             f.write(decoded)
         send_file_to_printer(
@@ -153,7 +154,7 @@ async def read_item(request: Request):
             page_range=data.get("pageRanges"),
             sides=data.get("sides", "one-sided"),
         )
-        pathlib.Path(file_path).unlink()
+        # pathlib.Path(file_path).unlink()
         return "worked!"
     except Exception:
         logging.exception("printing failed!")
