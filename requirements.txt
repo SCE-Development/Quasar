@@ -1,3 +1,4 @@
 fastapi==0.84.0
 uvicorn==0.18.3
 py-grpc-prometheus==0.7.0
+pysnmp==4.4.12

@@ -1,0 +1,27 @@
+version: '2'
+services:
+  printersnmp:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: printersnmp
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server.py:/app/server.py
+      - ./modules:/app/modules
+    restart: 'on-failure'
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    volumes:
+      # yooo
+      # "etcs", bruhhhhhh fr bruhhhhh
+      # - ./prometheus.yml:/etcs/prometheus/prometheus.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

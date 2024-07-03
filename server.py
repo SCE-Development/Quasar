@@ -2,6 +2,7 @@ import time
 import argparse
 from threading import Thread
 import enum
+import logging
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +23,13 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+logging.basicConfig(
+    # in mondo we trust
+    format="%(asctime)s.%(msecs)03dZ %(levelname)s:%(name)s:%(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+    level=logging.INFO,
 )
 
 class SnmpOid(enum.Enum):
@@ -60,9 +68,12 @@ def update_metrics(ip):
         if ink_level and ink_cap:
             ink_percent = float(ink_level) / float(ink_cap)
             ink_percent_metric.set(ink_percent)
+            
 
         if page_count:
-            page_count_metric.set(page_count)
+            page_count_metric.set(int(page_count))
+
+        logging.info(f"SNMP data - Ink percent: {ink_percent}, Ink capacity: {ink_cap}, Page count: {page_count}")
 
         time.sleep(2)
 
@@ -97,9 +108,9 @@ if __name__ == "__main__":
 
     thread = Thread(target = update_metrics, args = (args.ip,))
     thread.start()
-
     uvicorn.run(
         "server:app", 
         host=args.host, 
         port=args.port, 
+        reload=True,
     )
