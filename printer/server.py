@@ -121,12 +121,13 @@ def metrics():
 
 
 @app.post("/print")
-async def read_item(file: UploadFile = File(...), copies: str = Form(...), pageRanges: str = Form(...)):
+async def read_item(file: UploadFile = File(...), copies: str = Form(...), sides: str = Form(...), pageRanges: str = Form(...)):
     """
     incoming request to print looks like
     {
       "file": file data
       "copies": integer or whatever, we insert this into the lp command,
+      "sides": string value from user input on clark frontend; we insert this into the lp command,
       "pageRanges": string value from user input on clark frontend; we insert this into the lp command,
     }
     """
@@ -140,6 +141,7 @@ async def read_item(file: UploadFile = File(...), copies: str = Form(...), pageR
             str(file_path),
             copies,
             page_range=pageRanges,
+            sides=sides,
         )
         pathlib.Path(file_path).unlink()
         return "worked!"
