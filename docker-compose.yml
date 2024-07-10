@@ -13,6 +13,8 @@ services:
       - ~/.ssh/known_hosts:/app/known_hosts
       - "/etc/cups/ppd/:/etc/cups/ppd"
     tty: true
+    ports: 
+      - 9000:9000
 
 # we attach the print container to an external docker
 # network called "poweredge". we do this so a prometheus
