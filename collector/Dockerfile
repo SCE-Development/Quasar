@@ -2,11 +2,11 @@ FROM python:3.10.2-slim-buster
 
 WORKDIR /app
 
-COPY requirements.txt /app
+COPY ./collector/requirements.txt /app
 
 RUN pip install -r /app/requirements.txt
 
-COPY server.py /app
+COPY ./collector/server.py /app
 
 EXPOSE 5000
 
