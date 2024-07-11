@@ -17,9 +17,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    ports:
-      - 5000:5000
-
+      
 # we attach the print container to an external docker
 # network called "poweredge". we do this so a prometheus
 # container can pull metrics from the server over HTTP
