@@ -16,8 +16,8 @@ services:
   snmp-collector:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      
+      dockerfile: ./collector/Dockerfile
+
 # we attach the print container to an external docker
 # network called "poweredge". we do this so a prometheus
 # container can pull metrics from the server over HTTP
