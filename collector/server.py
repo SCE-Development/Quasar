@@ -31,6 +31,16 @@ snmp_req_duration = prometheus_client.Gauge(
     "Time it took for SNMP request",
 )
 
+door_status_metric = prometheus_client.Gauge(
+    "door_status",
+    "Will be 0 when door status is OK, 3 when door is open or has a no print cartridge"
+)
+
+tray_status_metric = prometheus_client.Gauge(
+    "tray_status",
+    "Will be 0 when tray status is OK, 3 when tray is empty"
+)
+
 
 app = FastAPI()
 
@@ -52,6 +62,8 @@ class SnmpOid(enum.Enum):
     INK_LEVEL = "1.3.6.1.2.1.43.11.1.1.9.1.1"
     INK_CAPACITY = "1.3.6.1.2.1.43.11.1.1.8.1.1"
     PAGE_COUNT = "1.3.6.1.2.1.43.10.2.1.4.1.1"
+    DOOR_STATUS = "1.3.6.1.2.1.43.18.1.1.2.1.12"
+    TRAY_STATUS = "1.3.6.1.2.1.43.18.1.1.2.1.9"
 
 def get_snmp_data(ip, oid):
     start = time.time()
@@ -69,28 +81,39 @@ def get_snmp_data(ip, oid):
         print(f"Error: {errorIndication}")
         return None
     elif errorStatus:
-        print(f"Error: {errorStatus.prettyPrint()} at {errorIndex}")
+        if (oid != SnmpOid.DOOR_STATUS.value) and  (oid != SnmpOid.TRAY_STATUS.value):
+            print(f"Error: {errorStatus.prettyPrint()} at {errorIndex}")
         return None
     else:
         for res in varBinds:
             return res[1]
+    
 
 def update_metrics(ip):
     while True:
         ink_level = get_snmp_data(ip, SnmpOid.INK_LEVEL.value)
         ink_cap = get_snmp_data(ip, SnmpOid.INK_CAPACITY.value)
         page_count = get_snmp_data(ip, SnmpOid.PAGE_COUNT.value)
+        door_status = get_snmp_data(ip, SnmpOid.DOOR_STATUS.value)
+        tray_status = get_snmp_data(ip, SnmpOid.TRAY_STATUS.value)
+
+        if door_status:
+            print(door_status)
+            door_status_metric.set(door_status)
+
+        if tray_status:
+            print(tray_status)
+            tray_status_metric.set(tray_status)
 
         if ink_level and ink_cap:
             ink_percent = float(ink_level) / float(ink_cap)
             ink_percent_metric.set(ink_percent)
-            
 
         if page_count:
             logging.info('setting')
             page_count_metric.set(int(page_count))
 
-        logging.info(f"SNMP data Ink capacity: {ink_cap}, Page !!: {(bool(page_count), int(page_count), page_count)}")
+        logging.info(f"SNMP data Ink capacity: {ink_cap}, Page !!: {page_count}")
         print(ink_percent)
 
         time.sleep(2)
