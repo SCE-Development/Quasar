@@ -9,7 +9,7 @@ import threading
 import time
 import uuid
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, File, Form, Request, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import prometheus_client
@@ -120,38 +120,25 @@ def metrics():
 
 
 @app.post("/print")
-async def read_item(request: Request):
+async def read_item(file: UploadFile = File(...), copies: str = Form(...), sides: str = Form(...)):
     """
     incoming request to print looks like
     {
-      "raw": base64 encoded file data
+      "file": file data
       "copies": integer or whatever, we insert this into the lp command,
-      "pageRanges": string value from user input on clark frontend; we insert this into the lp command,
+      "sides": string value from user input on clark frontend; we insert this into the lp command,
     }
     """
-    try:
-        data = await request.json()
-        missing_required_keys = not all(key in data for key in ["raw", "copies"])
-        if missing_required_keys:
-            return HTTPException(
-                status_code=400,
-                detail="fields raw copies and pageRanges must be present in JSON body",
-            )
-    except json.decoder.JSONDecodeError:
-        return HTTPException(status_code=400, detail="could not parse JSON body")
-
     try:
         base = pathlib.Path("/tmp")
         file_id = str(uuid.uuid4())
         file_path = str(base / file_id)
-        decoded = base64.b64decode(data["raw"][28:])
         with open(file_path, "wb") as f:
-            f.write(decoded)
+            f.write(await file.read())
         send_file_to_printer(
-            file_path,
-            int(data["copies"]),
-            page_range=data.get("pageRanges"),
-            sides=data.get("sides", "one-sided"),
+            str(file_path),
+            copies,
+            sides=sides,
         )
         pathlib.Path(file_path).unlink()
         return "worked!"
