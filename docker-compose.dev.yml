@@ -16,3 +16,10 @@ services:
     command:
       - --development
       - --port=14000
+  snmp-collector:
+    build:
+      context: .
+      dockerfile: ./collector/Dockerfile
+    ports:
+      - 5000:5000
+    
