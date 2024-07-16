@@ -68,12 +68,17 @@ def get_snmp_data(ip):
         )
         snmp_req_duration.set(time.time() - start)
         if errorIndication:
-                logging.error(f"Error: {errorIndication}")
+            logging.error(f"Error: {errorIndication}")
         elif errorStatus:
             logging.error(f"Error: {errorStatus.prettyPrint()}")
         else:
             for res in varBinds:
-                snmp_metric.labels(name=oid.metric_name).set(res[1])
+                if (res[1] == 3) and oid.metric_name == "door_status":
+                    snmp_metric.labels(name="door_status").set(1)
+                elif (res[1] == 3) and oid.metric_name == "tray_status":
+                    snmp_metric.labels(name="tray_status").set(1)
+                else:
+                    snmp_metric.labels(name=oid.metric_name).set(res[1])
                 if oid.metric_name == "ink_level":
                     ink_level = res[1]
                 elif oid.metric_name == "ink_capacity":
