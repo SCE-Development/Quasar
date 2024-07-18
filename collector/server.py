@@ -83,7 +83,8 @@ def get_snmp_data(ip):
                     ink_level = res[1]
                 elif oid.metric_name == "ink_capacity":
                     ink_cap = res[1]
-    snmp_metric.labels(name="ink_percent").set(ink_level/ink_cap)
+    if ink_cap:
+        snmp_metric.labels(name="ink_percent").set(ink_level/ink_cap)
     
     time.sleep((args.sleep_duration_minutes)*60)
 
@@ -119,7 +120,8 @@ if __name__ == "__main__":
         help="update sleepy time, default is 2mins",
         default=2
     )
-
+    snmp_metric.labels(name="tray_status").set(0)
+    snmp_metric.labels(name="door_status").set(0)
     args = parser.parse_args()
 
     thread = Thread(target = get_snmp_data, args = (args.ip,), daemon=True)
