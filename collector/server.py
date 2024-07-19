@@ -50,14 +50,16 @@ logging.basicConfig(
 )
 
 class SnmpOid(enum.Enum):
-    INK_LEVEL = ("ink_level", "1.3.6.1.2.1.43.11.1.1.9.1.1")
-    INK_CAPACITY = ("ink_capacity", "1.3.6.1.2.1.43.11.1.1.8.1.1")
-    PAGE_COUNT = ("page_count", "1.3.6.1.2.1.43.10.2.1.4.1.1")
-    IS_ERROR = ("is_error", False)
+    INK_LEVEL = ("ink_level", "1.3.6.1.2.1.43.11.1.1.9.1.1", False)
+    INK_CAPACITY = ("ink_capacity", "1.3.6.1.2.1.43.11.1.1.8.1.1", False)
+    PAGE_COUNT = ("page_count", "1.3.6.1.2.1.43.10.2.1.4.1.1", False)
+    DOOR_STATUS = ("door_status", "1.3.6.1.2.1.43.18.1.1.2.1.12", True)
+    TRAY_STATUS = ("tray_status", "1.3.6.1.2.1.43.18.1.1.2.1.9", True)
 
-    def __init__(self, metric_name, metric_value):
+    def __init__(self, metric_name, metric_value, is_error=False):
         self.metric_name = metric_name
         self.metric_value = metric_value
+        self.is_error = is_error
 
 def get_snmp_data(ip):
     ink_level = 0
@@ -78,16 +80,16 @@ def get_snmp_data(ip):
             logging.error(f"Error: {errorStatus.prettyPrint()}")
         else:
             for res in varBinds:
-                if oid.IS_ERROR:
-                    snmp_error.labels(oid.metric_name).set(int(res[1] == 3))
-                    continue
+                for res in varBinds:
+                    if oid.is_error:
+                        snmp_error.labels(name=oid.metric_name).set(int(res[1] == 3))
+                        continue
 
-                snmp_metric.labels(name=oid.metric_name).set(res[1])
-
-                if oid.metric_name == "ink_level":
-                    ink_level = res[1]
-                elif oid.metric_name == "ink_capacity":
-                    ink_cap = res[1]
+                    snmp_metric.labels(name=oid.metric_name).set(res[1])
+                    if oid.metric_name == "ink_level":
+                        ink_level = res[1]
+                    elif oid.metric_name == "ink_capacity":
+                        ink_cap = res[1]
     if ink_cap:
         snmp_metric.labels(name="ink_percent").set(ink_level/ink_cap)
     
