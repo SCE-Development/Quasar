@@ -28,7 +28,7 @@ snmp_error = prometheus_client.Gauge(
     ["name"],
 )
 
-snmp_req_duration = prometheus_client.Gauge(
+snmp_req_duration = prometheus_client.Summary(
     "snmp_request_duration",
     "Time it took for SNMP request",
 )
@@ -74,7 +74,7 @@ def get_snmp_data(ip):
                ContextData(),
                ObjectType(ObjectIdentity(oid.metric_value)))
             )
-            snmp_req_duration.set(time.time() - start)
+            snmp_req_duration.observe(time.time() - start)
             if errorIndication:
                 logging.error(f"Error: {errorIndication}")
             elif errorStatus:
@@ -93,7 +93,7 @@ def get_snmp_data(ip):
                 if ink_cap:
                     snmp_metric.labels(name="ink_percent").set(ink_level/ink_cap)
                     
-        time.sleep((args.sleep_duration_minutes)*60)
+        time.sleep(args.sleep_duration_minutes * 60)
 
 @app.get("/metrics")
 async def metrics():
