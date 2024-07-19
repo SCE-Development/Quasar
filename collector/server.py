@@ -53,8 +53,6 @@ class SnmpOid(enum.Enum):
     INK_LEVEL = ("ink_level", "1.3.6.1.2.1.43.11.1.1.9.1.1")
     INK_CAPACITY = ("ink_capacity", "1.3.6.1.2.1.43.11.1.1.8.1.1")
     PAGE_COUNT = ("page_count", "1.3.6.1.2.1.43.10.2.1.4.1.1")
-    DOOR_STATUS = ("door_status", "1.3.6.1.2.1.43.18.1.1.2.1.12")
-    TRAY_STATUS = ("tray_status", "1.3.6.1.2.1.43.18.1.1.2.1.9")
     IS_ERROR = ("is_error", False)
 
     def __init__(self, metric_name, metric_value):
@@ -127,7 +125,7 @@ if __name__ == "__main__":
         help="update sleepy time, default is 2mins",
         default=2
     )
-    
+
     args = parser.parse_args()
 
     thread = Thread(target = get_snmp_data, args = (args.ip,), daemon=True)
