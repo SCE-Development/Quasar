@@ -57,6 +57,8 @@ class SnmpOid(enum.Enum):
 
 def get_snmp_data(ip):
     while True:
+        ink_level = 0
+        ink_cap = 0
         for oid in SnmpOid:
             with snmp_req_duration.time():
                 errorIndication, errorStatus, errorIndex, varBinds = next(
