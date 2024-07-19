@@ -113,6 +113,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    snmp_error.labels(name="tray_status").set(0)
+    snmp_error.labels(name="ink_status").set(0)
     thread = Thread(target = get_snmp_data, args = (args.ip,), daemon=True)
     thread.start()
     uvicorn.run(
