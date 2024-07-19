@@ -110,7 +110,7 @@ if __name__ == "__main__":
         help="update sleepy time, default is 2mins",
         default=2
     )
-    
+
     args = parser.parse_args()
 
     thread = Thread(target = get_snmp_data, args = (args.ip,), daemon=True)
