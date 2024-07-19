@@ -64,35 +64,36 @@ class SnmpOid(enum.Enum):
 def get_snmp_data(ip):
     ink_level = 0
     ink_cap = 0
-    for oid in SnmpOid:
-        start = time.time()
-        errorIndication, errorStatus, errorIndex, varBinds = next(
-        getCmd(SnmpEngine(),
+    while True:
+        for oid in SnmpOid:
+            start = time.time()
+            errorIndication, errorStatus, errorIndex, varBinds = next(
+            getCmd(SnmpEngine(),
                CommunityData('public', mpModel=0),
                UdpTransportTarget((ip, 161)),
                ContextData(),
                ObjectType(ObjectIdentity(oid.metric_value)))
-        )
-        snmp_req_duration.set(time.time() - start)
-        if errorIndication:
-            logging.error(f"Error: {errorIndication}")
-        elif errorStatus:
-            logging.error(f"Error: {errorStatus.prettyPrint()}")
-        else:
-            for res in varBinds:
-                if oid.is_error:
-                    snmp_error.labels(name=oid.metric_name).set(int(res[1] == 3))
-                    continue
+            )
+            snmp_req_duration.set(time.time() - start)
+            if errorIndication:
+                logging.error(f"Error: {errorIndication}")
+            elif errorStatus:
+                logging.error(f"Error: {errorStatus.prettyPrint()}")
+            else:
+                for res in varBinds:
+                    if oid.is_error:
+                        snmp_error.labels(name=oid.metric_name).set(int(res[1] == 3))
+                        continue
 
-                snmp_metric.labels(name=oid.metric_name).set(res[1])
-                if oid.metric_name == "ink_level":
-                    ink_level = res[1]
-                elif oid.metric_name == "ink_capacity":
-                    ink_cap = res[1]
-    if ink_cap:
-        snmp_metric.labels(name="ink_percent").set(ink_level/ink_cap)
-    
-    time.sleep((args.sleep_duration_minutes)*60)
+                    snmp_metric.labels(name=oid.metric_name).set(res[1])
+                    if oid.metric_name == "ink_level":
+                        ink_level = res[1]
+                    elif oid.metric_name == "ink_capacity":
+                        ink_cap = res[1]
+                if ink_cap:
+                    snmp_metric.labels(name="ink_percent").set(ink_level/ink_cap)
+                    
+        time.sleep((args.sleep_duration_minutes)*60)
 
 @app.get("/metrics")
 async def metrics():
