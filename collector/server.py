@@ -80,16 +80,15 @@ def get_snmp_data(ip):
             logging.error(f"Error: {errorStatus.prettyPrint()}")
         else:
             for res in varBinds:
-                for res in varBinds:
-                    if oid.is_error:
-                        snmp_error.labels(name=oid.metric_name).set(int(res[1] == 3))
-                        continue
+                if oid.is_error:
+                    snmp_error.labels(name=oid.metric_name).set(int(res[1] == 3))
+                    continue
 
-                    snmp_metric.labels(name=oid.metric_name).set(res[1])
-                    if oid.metric_name == "ink_level":
-                        ink_level = res[1]
-                    elif oid.metric_name == "ink_capacity":
-                        ink_cap = res[1]
+                snmp_metric.labels(name=oid.metric_name).set(res[1])
+                if oid.metric_name == "ink_level":
+                    ink_level = res[1]
+                elif oid.metric_name == "ink_capacity":
+                    ink_cap = res[1]
     if ink_cap:
         snmp_metric.labels(name="ink_percent").set(ink_level/ink_cap)
     
