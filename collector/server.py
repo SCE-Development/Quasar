@@ -56,7 +56,7 @@ class SnmpOid(enum.Enum):
     DOOR_STATUS = ("door_status", "1.3.6.1.2.1.43.18.1.1.2.1.12", True)
     TRAY_STATUS = ("tray_status", "1.3.6.1.2.1.43.18.1.1.2.1.9", True)
 
-    def __init__(self, metric_name, metric_value, is_error=False):
+    def __init__(self, metric_name, metric_value, is_error):
         self.metric_name = metric_name
         self.metric_value = metric_value
         self.is_error = is_error
