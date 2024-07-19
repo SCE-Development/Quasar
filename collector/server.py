@@ -22,6 +22,12 @@ snmp_metric = prometheus_client.Gauge(
     ["name"],
 )
 
+snmp_error = prometheus_client.Gauge(
+    "snmp_error",
+    "Error metrics",
+    ["name"],
+)
+
 snmp_req_duration = prometheus_client.Gauge(
     "snmp_request_duration",
     "Time it took for SNMP request",
@@ -44,11 +50,12 @@ logging.basicConfig(
 )
 
 class SnmpOid(enum.Enum):
-    INK_LEVEL = ("ink_level","1.3.6.1.2.1.43.11.1.1.9.1.1")
-    INK_CAPACITY = ("ink_capacity","1.3.6.1.2.1.43.11.1.1.8.1.1")
-    PAGE_COUNT = ("page_count","1.3.6.1.2.1.43.10.2.1.4.1.1")
-    DOOR_STATUS = ("door_status","1.3.6.1.2.1.43.18.1.1.2.1.12")
-    TRAY_STATUS = ("tray_status","1.3.6.1.2.1.43.18.1.1.2.1.9")
+    INK_LEVEL = ("ink_level", "1.3.6.1.2.1.43.11.1.1.9.1.1")
+    INK_CAPACITY = ("ink_capacity", "1.3.6.1.2.1.43.11.1.1.8.1.1")
+    PAGE_COUNT = ("page_count", "1.3.6.1.2.1.43.10.2.1.4.1.1")
+    DOOR_STATUS = ("door_status", "1.3.6.1.2.1.43.18.1.1.2.1.12")
+    TRAY_STATUS = ("tray_status", "1.3.6.1.2.1.43.18.1.1.2.1.9")
+    IS_ERROR = ("is_error", False)
 
     def __init__(self, metric_name, metric_value):
         self.metric_name = metric_name
@@ -73,12 +80,12 @@ def get_snmp_data(ip):
             logging.error(f"Error: {errorStatus.prettyPrint()}")
         else:
             for res in varBinds:
-                if (res[1] == 3) and oid.metric_name == "door_status":
-                    snmp_metric.labels(name="door_status").set(1)
-                elif (res[1] == 3) and oid.metric_name == "tray_status":
-                    snmp_metric.labels(name="tray_status").set(1)
-                else:
-                    snmp_metric.labels(name=oid.metric_name).set(res[1])
+                if oid.IS_ERROR:
+                    snmp_error.labels(oid.metric_name).set(int(res[1] == 3))
+                    continue
+
+                snmp_metric.labels(name=oid.metric_name).set(res[1])
+
                 if oid.metric_name == "ink_level":
                     ink_level = res[1]
                 elif oid.metric_name == "ink_capacity":
@@ -120,8 +127,7 @@ if __name__ == "__main__":
         help="update sleepy time, default is 2mins",
         default=2
     )
-    snmp_metric.labels(name="tray_status").set(0)
-    snmp_metric.labels(name="door_status").set(0)
+    
     args = parser.parse_args()
 
     thread = Thread(target = get_snmp_data, args = (args.ip,), daemon=True)
