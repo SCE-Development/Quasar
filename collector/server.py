@@ -13,13 +13,13 @@ import uvicorn
 snmp_metric = prometheus_client.Gauge(
     "snmp_metric",
     "ex: Number of pages printed",
-    ["name"],
+    ["name", "ip"],
 )
 
 snmp_error = prometheus_client.Gauge(
     "snmp_error",
     "Error metrics",
-    ["name"],
+    ["name", "ip"],
 )
 
 snmp_req_duration = prometheus_client.Summary(
@@ -55,27 +55,28 @@ class SnmpOid(enum.Enum):
         self.metric_value = metric_value
         self.is_error = is_error
 
-def get_snmp_data(ip):
+def get_snmp_data(ips):
     while True:
-        for oid in SnmpOid:
-            with snmp_req_duration.time():
-                errorIndication, errorStatus, errorIndex, varBinds = next(
-                getCmd(SnmpEngine(),
-                CommunityData('public', mpModel=0),
-                UdpTransportTarget((ip, 161)),
-                ContextData(),
-                ObjectType(ObjectIdentity(oid.metric_value)))
-                )
-                if errorIndication:
-                    logging.error(f"Error: {errorIndication}")
-                elif errorStatus:
-                    logging.error(f"Error: {errorStatus.prettyPrint()}")
-                else:
-                    for res in varBinds:
-                        if oid.is_error:
-                            snmp_error.labels(name=oid.metric_name).set(int(res[1] == 3))
-                            continue
-                        snmp_metric.labels(name=oid.metric_name).set(res[1])
+        for ip in ips:
+            for oid in SnmpOid:
+                with snmp_req_duration.time():
+                    errorIndication, errorStatus, errorIndex, varBinds = next(
+                    getCmd(SnmpEngine(),
+                    CommunityData('public', mpModel=0),
+                    UdpTransportTarget((ip, 161)),
+                    ContextData(),
+                    ObjectType(ObjectIdentity(oid.metric_value)))
+                    )
+                    if errorIndication:
+                        logging.error(f"Error: {errorIndication}")
+                    elif errorStatus:
+                        logging.error(f"Error: {errorStatus.prettyPrint()}")
+                    else:
+                        for res in varBinds:
+                            if oid.is_error:
+                                snmp_error.labels(name=oid.metric_name, ip=ip).set(int(res[1] == 3))
+                                continue
+                            snmp_metric.labels(name=oid.metric_name, ip=ip).set(res[1])
         time.sleep(args.sleep_duration_minutes * 60)
 
 @app.get("/metrics")
@@ -89,9 +90,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("snmp coolness")
 
     parser.add_argument(
-        "--ip",
-        help="IP address of snmp agent (default: 192.168.69.208)",
-        default="192.168.69.208"
+        "--ips",
+        help="List of IP addresses of snmp agent (default: 192.168.69.208)",
+        default="192.168.69.208,192.168.69.149"
     )
     parser.add_argument(
         "--host",
@@ -112,8 +113,9 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    ip_list = args.ips.split(',')
 
-    thread = Thread(target = get_snmp_data, args = (args.ip,), daemon=True)
+    thread = Thread(target = get_snmp_data, args=(ip_list,), daemon=True)
     thread.start()
     uvicorn.run(
         app, 
