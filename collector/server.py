@@ -10,12 +10,6 @@ import prometheus_client
 from pysnmp.hlapi import *
 import uvicorn
 
-# from modules.metrics import (
-#     page_count_metric,
-#     ink_percent_metric,
-#     snmp_req_duration
-# )
-
 snmp_metric = prometheus_client.Gauge(
     "snmp_metric",
     "ex: Number of pages printed",
@@ -63,8 +57,6 @@ class SnmpOid(enum.Enum):
 
 def get_snmp_data(ip):
     while True:
-        ink_level = 0
-        ink_cap = 0
         for oid in SnmpOid:
             with snmp_req_duration.time():
                 errorIndication, errorStatus, errorIndex, varBinds = next(
@@ -83,15 +75,7 @@ def get_snmp_data(ip):
                         if oid.is_error:
                             snmp_error.labels(name=oid.metric_name).set(int(res[1] == 3))
                             continue
-
                         snmp_metric.labels(name=oid.metric_name).set(res[1])
-                        if oid.metric_name == "ink_level":
-                            ink_level = res[1]
-                        elif oid.metric_name == "ink_capacity":
-                            ink_cap = res[1]
-                    if ink_cap:
-                        snmp_metric.labels(name="ink_percent").set(ink_level/ink_cap)
-                    
         time.sleep(args.sleep_duration_minutes * 60)
 
 @app.get("/metrics")
