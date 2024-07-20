@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--ips",
-        help="List of IP addresses of snmp agent (default: 192.168.69.208)",
+        help="List of IP addresses of snmp agent (default: 192.168.69.208,192.168.69.149)",
         default="192.168.69.208,192.168.69.149"
     )
     parser.add_argument(
