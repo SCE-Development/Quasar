@@ -55,29 +55,32 @@ class SnmpOid(enum.Enum):
         self.metric_value = metric_value
         self.is_error = is_error
 
-def get_snmp_data(ips):
+def work(ip_list):
     while True:
-        for ip in ips:
-            for oid in SnmpOid:
-                with snmp_req_duration.time():
-                    errorIndication, errorStatus, errorIndex, varBinds = next(
-                    getCmd(SnmpEngine(),
-                    CommunityData('public', mpModel=0),
-                    UdpTransportTarget((ip, 161)),
-                    ContextData(),
-                    ObjectType(ObjectIdentity(oid.metric_value)))
-                    )
-                    if errorIndication:
-                        logging.error(f"Error: {errorIndication}")
-                    elif errorStatus:
-                        logging.error(f"Error: {errorStatus.prettyPrint()}")
-                    else:
-                        for res in varBinds:
-                            if oid.is_error:
-                                snmp_error.labels(name=oid.metric_name, ip=ip).set(int(res[1] == 3))
-                                continue
-                            snmp_metric.labels(name=oid.metric_name, ip=ip).set(res[1])
+        for ip in ip_list:
+            get_snmp_data(ip)
         time.sleep(args.sleep_duration_minutes * 60)
+
+def get_snmp_data(ip):
+    for oid in SnmpOid:
+        with snmp_req_duration.time():
+            errorIndication, errorStatus, errorIndex, varBinds = next(
+            getCmd(SnmpEngine(),
+            CommunityData('public', mpModel=0),
+            UdpTransportTarget((ip, 161)),
+            ContextData(),
+            ObjectType(ObjectIdentity(oid.metric_value)))
+            )
+            if errorIndication:
+                logging.error(f"Error: {errorIndication}")
+            elif errorStatus:
+                logging.error(f"Error: {errorStatus.prettyPrint()}")
+            else:
+                for res in varBinds:
+                    if oid.is_error:
+                        snmp_error.labels(name=oid.metric_name, ip=ip).set(int(res[1] == 3))
+                        continue
+                    snmp_metric.labels(name=oid.metric_name, ip=ip).set(res[1])
 
 @app.get("/metrics")
 async def metrics():
@@ -115,7 +118,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     ip_list = args.ips.split(',')
 
-    thread = Thread(target = get_snmp_data, args=(ip_list,), daemon=True)
+    thread = Thread(target = work, args=(ip_list,), daemon=True)
     thread.start()
     uvicorn.run(
         app, 
