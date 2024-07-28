@@ -27,6 +27,11 @@ snmp_req_duration = prometheus_client.Summary(
     "Time it took for SNMP request",
 )
 
+device_unreachable = prometheus_client.Gauge(
+    "device_unreachable",
+    "set to 1 when error",
+)
+
 app = FastAPI()
 
 app.add_middleware(
@@ -73,6 +78,7 @@ def get_snmp_data(ip):
             )
             if errorIndication:
                 logging.error(f"Error: {errorIndication}")
+                device_unreachable.set(1)
             elif errorStatus:
                 logging.error(f"Error: {errorStatus.prettyPrint()}")
             else:
@@ -81,6 +87,7 @@ def get_snmp_data(ip):
                         snmp_error.labels(name=oid.metric_name, ip=ip).set(int(res[1] == 3))
                         continue
                     snmp_metric.labels(name=oid.metric_name, ip=ip).set(res[1])
+                    device_unreachable.set(0)
 
 @app.get("/metrics")
 async def metrics():
