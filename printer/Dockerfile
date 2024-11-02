@@ -1,5 +1,6 @@
 # Base image from https://github.com/DrPsychick/docker-cups-airprint
-FROM drpsychick/airprint-bridge:latest
+# Docker images are here https://hub.docker.com/r/drpsychick/airprint-bridge/tags
+FROM drpsychick/airprint-bridge:latest-20240612
 
 WORKDIR /app
 
