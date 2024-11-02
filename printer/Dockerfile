@@ -1,16 +1,22 @@
 # Base image from https://github.com/DrPsychick/docker-cups-airprint
 # Docker images are here https://hub.docker.com/r/drpsychick/airprint-bridge/tags
-FROM drpsychick/airprint-bridge:latest-20240612
+FROM drpsychick/airprint-bridge:latest
 
 WORKDIR /app
 
 RUN apt-get update
 
-RUN apt install -y python3 python3-pip jq ssh
+RUN apt install -y python3 python3-pip python3-venv jq ssh
+
+# Create a virtual environment
+RUN python3 -m venv /opt/venv
+
+# Set the virtual environment as the default Python environment
+ENV PATH="/opt/venv/bin:$PATH"
 
 COPY ./printer/requirements.txt /app/printer/requirements.txt
 
-RUN python3 -m pip install -r /app/printer/requirements.txt
+RUN /opt/venv/bin/pip install -r /app/printer/requirements.txt
 
 COPY ./config/config.json /app/config/config.json
 
