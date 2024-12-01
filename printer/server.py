@@ -4,6 +4,8 @@ import json
 import logging
 import os
 import pathlib
+import psutil
+import signal
 import subprocess
 import threading
 import time
@@ -20,6 +22,7 @@ from metrics import MetricsHandler
 
 metrics_handler = MetricsHandler.instance()
 app = FastAPI()
+SERVER_PID = os.getpid()
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,6 +61,17 @@ def get_args() -> argparse.Namespace:
         default=False,
         help="specify if server should run in development. this means requests won't get sent to a printer but logger instead",
     )
+    parser.add_argument(
+        "--ssh-tunnel-timeout-seconds",
+        type=int,
+        default=10,
+        help=(
+            """Seconds to wait between healthcheck requests before assuming the SSH tunnel is
+            closed. If we are in a non-development environment, the server will exit after the
+            time in between healthcheck requests exceeds the number of seconds specified.
+            Defaults to 120."""
+        ),
+    )
     return parser.parse_args()
 
 
@@ -67,26 +81,21 @@ args = get_args()
 PRINTER_NAME = os.environ.get("RIGHT_PRINTER_NAME")
 
 
-def maybe_reopen_ssh_tunnel():
+def poll_ssh_tunnel_health():
     """
     if we havent recieved a health check ping in over 1 min then
     we rerun the script to open the ssh tunnel.
     """
     while 1:
-        time.sleep(60)
+        time.sleep(10)
         now_epoch_seconds = int(time.time())
         last_health_check = metrics_handler.last_health_check_request._value.get()
-        if now_epoch_seconds - last_health_check > 120:
+        if now_epoch_seconds - last_health_check > args.ssh_tunnel_timeout_seconds:
             metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
             logging.warning(
-                f"now_epoch_seconds - last_health_check = {now_epoch_seconds - last_health_check}, reopening SSH tunnel"
+                f"now_epoch_seconds - last_health_check = {now_epoch_seconds - last_health_check}, exiting"
             )
-            subprocess.Popen(
-                "./what.sh --tunnel-only",
-                shell=True,
-                stderr=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL,
-            )
+            raise SystemExit
 
 
 def send_file_to_printer(
@@ -163,11 +172,14 @@ if __name__ == "server":
         # set the last time we opened an ssh tunnel to now because
         # when the script runs for the first time, we did so in what.sh
         metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
-        t = threading.Thread(
-            target=maybe_reopen_ssh_tunnel,
-            daemon=True,
-        )
-        t.start()
+        try:
+            t = threading.Thread(
+                target=poll_ssh_tunnel_health,
+                daemon=True,
+            )
+            t.start()
+        except SystemExit:
+            sys.exit(1)
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
