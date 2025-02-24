@@ -53,7 +53,9 @@ class SnmpOid(enum.Enum):
     INK_CAPACITY = ("ink_capacity", "1.3.6.1.2.1.43.11.1.1.8.1.1")
     PAGE_COUNT = ("page_count", "1.3.6.1.2.1.43.10.2.1.4.1.1")
     TRAY_EMPTY = ("tray_empty", "1.3.6.1.2.1.43.18.1.1.8.1.13", True)
-    TRAY_EMPTY = ("tray_empty", "1.3.6.1.2.1.43.18.1.1.8.1.2", True)
+    # we observed each printer emitting a different SNMP OID for
+    # an empty paper tray, the below accounts for the second OID
+    TRAY_EMPTY_2 = ("tray_empty", "1.3.6.1.2.1.43.18.1.1.8.1.2", True)
 
     def __init__(self, metric_name, metric_value, is_error=False):
         self.metric_name = metric_name
