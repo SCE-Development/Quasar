@@ -55,7 +55,7 @@ class SnmpOid(enum.Enum):
     TRAY_EMPTY = ("tray_empty", "1.3.6.1.2.1.43.18.1.1.8.1.13", True)
     # we observed each printer emitting a different SNMP OID for
     # an empty paper tray, the below accounts for the second OID
-    TRAY_EMPTY_2 = ("tray_empty", "1.3.6.1.2.1.43.18.1.1.8.1.2", True)
+    TRAY_EMPTY_2 = ("tray_empty_2", "1.3.6.1.2.1.43.18.1.1.8.1.2", True)
 
     def __init__(self, metric_name, metric_value, is_error=False):
         self.metric_name = metric_name
@@ -70,6 +70,15 @@ def work(ip_list):
 
 def get_snmp_data(ip):
     for oid in SnmpOid:
+        # set the error to zero by default, this is because
+        # SNMP OIDs related to errors often dissappear when
+        # the associated issue that the metric refers to is
+        # no longer present (i.e. an empty tray now has
+        # paper). To avoid leaving an error metric as 1
+        # which would create a false positive, set the error
+        # as zero before reading anything.
+        if oid.is_error:
+            snmp_error.labels(name=oid.metric_name, ip=ip).set(0)
         with snmp_req_duration.time():
             errorIndication, errorStatus, errorIndex, varBinds = next(
             getCmd(SnmpEngine(),
@@ -81,15 +90,19 @@ def get_snmp_data(ip):
             if errorIndication:
                 logging.error(f"Error indication from {ip} for metric {oid.metric_value}: {errorIndication}")
                 device_unreachable.set(1)
-            elif errorStatus:
+                continue
+            if errorStatus:
                 logging.error(f"Error status from {ip} for metric {oid.metric_value}: {errorStatus.prettyPrint()}")
-            else:
-                for res in varBinds:
-                    if oid.is_error:
-                        snmp_error.labels(name=oid.metric_name, ip=ip).set(int(res[1] == 3))
-                        continue
-                    snmp_metric.labels(name=oid.metric_name, ip=ip).set(res[1])
-                    device_unreachable.set(0)
+                continue
+
+            device_unreachable.set(0)
+            if not varBinds:
+                continue
+            res = varBinds[0]
+            if oid.is_error:
+              snmp_error.labels(name=oid.metric_name, ip=ip).set(1)
+              continue
+            snmp_metric.labels(name=oid.metric_name, ip=ip).set(res[1])
 
 @app.get("/metrics")
 async def metrics():
