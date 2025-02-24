@@ -53,6 +53,7 @@ class SnmpOid(enum.Enum):
     INK_CAPACITY = ("ink_capacity", "1.3.6.1.2.1.43.11.1.1.8.1.1")
     PAGE_COUNT = ("page_count", "1.3.6.1.2.1.43.10.2.1.4.1.1")
     TRAY_EMPTY = ("tray_empty", "1.3.6.1.2.1.43.18.1.1.8.1.13", True)
+    TRAY_EMPTY = ("tray_empty", "1.3.6.1.2.1.43.18.1.1.8.1.2", True)
 
     def __init__(self, metric_name, metric_value, is_error=False):
         self.metric_name = metric_name
@@ -76,10 +77,10 @@ def get_snmp_data(ip):
             ObjectType(ObjectIdentity(oid.metric_value)))
             )
             if errorIndication:
-                logging.error(f"Error: {errorIndication}")
+                logging.error(f"Error indication from {ip} for metric {oid.metric_value}: {errorIndication}")
                 device_unreachable.set(1)
             elif errorStatus:
-                logging.error(f"Error: {errorStatus.prettyPrint()}")
+                logging.error(f"Error status from {ip} for metric {oid.metric_value}: {errorStatus.prettyPrint()}")
             else:
                 for res in varBinds:
                     if oid.is_error:
