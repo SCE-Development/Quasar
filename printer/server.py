@@ -1,6 +1,4 @@
 import argparse
-import base64
-import json
 import logging
 import os
 import pathlib
@@ -9,7 +7,7 @@ import threading
 import time
 import uuid
 
-from fastapi import FastAPI, File, Form, Request, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import prometheus_client
@@ -63,9 +61,6 @@ def get_args() -> argparse.Namespace:
 
 args = get_args()
 
-# only the right printer works right now, so we default to it
-PRINTER_NAME = os.environ.get("RIGHT_PRINTER_NAME")
-
 
 def maybe_reopen_ssh_tunnel():
     """
@@ -97,6 +92,9 @@ def send_file_to_printer(
         # to speciy page ranges, we can do:
         # `-o page-ranges=<whatever user sent>` OR `-P <whatever user sent>`
         maybe_page_range = f"-o page-ranges={page_range}"
+
+    # only the right printer works right now, so we default to it
+    PRINTER_NAME = os.environ.get("RIGHT_PRINTER_NAME")
     command = f"lp -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
     metrics_handler.print_jobs_recieved.inc()
     if args.development:
