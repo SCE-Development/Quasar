@@ -26,4 +26,4 @@ jobs:
 
     - name: Run tests
       run: |
-        python -m printer/test_server.py
+        python printer/test_server.py
