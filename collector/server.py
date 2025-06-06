@@ -142,7 +142,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     ip_list = args.ips.split(',')
 
-    thread = Thread(target = work, args=(ip_list,), daemon=True)
+    thread = Thread(target = scrape_snmp, args=(ip_list,), daemon=True)
     thread.start()
     uvicorn.run(
         app, 
