@@ -118,7 +118,7 @@ def send_file_to_printer(
         print_job.wait()
         if print_job.returncode == 0: # success
             print_id = print_job.stdout.read().strip().split(" ")[3]
-            logging.warning(print_id)
+            logging.info(print_id)
         else: # failed
             logging.error(f"printing failed with error: {print_job.stderr.read()}")
 
