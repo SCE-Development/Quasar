@@ -107,11 +107,22 @@ def send_file_to_printer(
     if args.development:
         logging.warning(f"server is in development mode, command would've been `{command}`")
     else:
+        print_id = ""
         print_job = subprocess.Popen(
             command,
             shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
         )
         print_job.wait()
+        if print_job.returncode == 0: # success
+            print_id = print_job.stdout.read().strip().split(" ")[3]
+            logging.warning(print_id)
+        else: # failed
+            logging.error(f"printing failed with error: {print_job.stderr.read()}")
+
+
 
 
 @app.get("/healthcheck/printer")
