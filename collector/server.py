@@ -65,7 +65,7 @@ class SnmpOid(enum.Enum):
         self.metric_value = metric_value
         self.is_error = is_error
 
-def work(ip_list):
+def scrape_snmp(ip_list):
     while True:
         for ip in ip_list:
             get_snmp_data(ip)
