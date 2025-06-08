@@ -65,7 +65,7 @@ class SnmpOid(enum.Enum):
         self.metric_value = metric_value
         self.is_error = is_error
 
-def work(ip_list):
+def scrape_snmp(ip_list):
     while True:
         for ip in ip_list:
             get_snmp_data(ip)
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     ip_list = args.ips.split(',')
 
-    thread = Thread(target = work, args=(ip_list,), daemon=True)
+    thread = Thread(target = scrape_snmp, args=(ip_list,), daemon=True)
     thread.start()
     uvicorn.run(
         app, 
