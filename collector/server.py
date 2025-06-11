@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     try:
-        with open("/config/config.json", "r") as f:
+        with open("/tmp/config.json", "r") as f:
             config = json.load(f)
             left_ip = config["PRINTING"]["LEFT"]["IP"]
             right_ip = config["PRINTING"]["RIGHT"]["IP"]
