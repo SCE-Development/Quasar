@@ -3,6 +3,7 @@ import argparse
 from threading import Thread
 import enum
 import logging
+import json
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -140,10 +141,18 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    ip_list = args.ips.split(',')
+    try:
+        with open("../config/config.json", "r") as f:
+            config = json.load(f)
+            left_ip = config["PRINTING"]["LEFT"]["IP"]
+            right_ip = config["PRINTING"]["RIGHT"]["IP"]
+            ip_list=[left_ip, right_ip]
 
-    thread = Thread(target = scrape_snmp, args=(ip_list,), daemon=True)
-    thread.start()
+            thread = Thread(target = scrape_snmp, args=(ip_list,), daemon=True)
+            thread.start()
+    except Exception as e:
+        logging.error(f"error opening config file: {e}")
+
     uvicorn.run(
         app, 
         host=args.host, 
