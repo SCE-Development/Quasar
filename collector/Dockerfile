@@ -10,4 +10,6 @@ COPY ./collector/server.py /app
 
 EXPOSE 5000
 
-ENTRYPOINT [ "python", "server.py" ]
+ENTRYPOINT [ "python", "server.py"]
+
+CMD [ "--config-file-path", "/tmp/config.json"]

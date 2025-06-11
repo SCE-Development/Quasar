@@ -116,7 +116,12 @@ async def metrics():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("snmp coolness")
-
+    parser.add_argument(
+        "--config-file-path", 
+        required=True,
+        help="Path to config file that stores IPs",
+    )
+    
     parser.add_argument(
         "--ips",
         help="List of IP addresses of snmp agent (default: 192.168.69.208,192.168.69.149)",
@@ -142,7 +147,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     try:
-        with open("/tmp/config.json", "r") as f:
+        with open(args.config_file_path, "r") as f:
             config = json.load(f)
             left_ip = config["PRINTING"]["LEFT"]["IP"]
             right_ip = config["PRINTING"]["RIGHT"]["IP"]
