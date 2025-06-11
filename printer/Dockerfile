@@ -15,7 +15,7 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 COPY ./printer/requirements.txt  /app/printer/requirements.txt
-COPY ../collector/requirements.txt /app/collector/requirements.txt
+COPY ./collector/requirements.txt /app/collector/requirements.txt
 
 RUN /opt/venv/bin/pip install -r /app/printer/requirements.txt
 RUN /opt/venv/bin/pip install -r /app/collector/requirements.txt
