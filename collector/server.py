@@ -148,6 +148,8 @@ if __name__ == "__main__":
             right_ip = config["PRINTING"]["RIGHT"]["IP"]
             ip_list=[left_ip, right_ip]
 
+            logging.info(f"connected to left printer ip: {left_ip}")
+            logging.info(f"connected to right printer ip: {right_ip}")   
             thread = Thread(target = scrape_snmp, args=(ip_list,), daemon=True)
             thread.start()
     except Exception as e:
