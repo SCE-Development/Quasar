@@ -56,6 +56,13 @@ def get_args() -> argparse.Namespace:
         default=False,
         help="specify if server should run in development. this means requests won't get sent to a printer but logger instead",
     )
+    parser.add_argument(
+        "--dont-delete-pdfs",
+        action="store_true",
+        default=False,
+        help="specify if server should delete pdfs after printing"
+    )
+    
     return parser.parse_args()
 
 
@@ -138,6 +145,9 @@ async def read_item(file: UploadFile = File(...), copies: str = Form(...), sides
             copies,
             sides=sides,
         )
+        if args.dont_delete_pdfs:
+          logging.info(f'--dont-delete-pdfs is set, skipping deletion of file {file_path}')
+          return "worked!"
         pathlib.Path(file_path).unlink()
         return "worked!"
     except Exception:
