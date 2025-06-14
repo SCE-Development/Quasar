@@ -15,22 +15,18 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 COPY ./printer/requirements.txt  /app/printer/requirements.txt
-COPY ./collector/requirements.txt /app/collector/requirements.txt
 
 RUN /opt/venv/bin/pip install -r /app/printer/requirements.txt
-RUN /opt/venv/bin/pip install -r /app/collector/requirements.txt
 
 COPY ./config/config.json /app/config/config.json
 
 COPY ./printer/what.sh /app/printer/what.sh
 
 COPY ./printer/*.py /app/printer/
-COPY ./collector/server.py /app/collector/server.py
 
 EXPOSE 5000 9000
 
 # The below command runs the bash script that sets up the connection to the
 # printers and runs PrintHandler.js
-ENTRYPOINT [ "sh", "-c", "./printer/what.sh & python3 /app/collector/server.py \"$@\"" ]
-CMD ["--config-file-path", "/app/config/config.json"]
+ENTRYPOINT [ "./printer/what.sh" ]
 

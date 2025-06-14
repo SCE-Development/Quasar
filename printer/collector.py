@@ -1,6 +1,4 @@
 import time
-import argparse
-from threading import Thread
 import enum
 import logging
 import json
@@ -11,36 +9,9 @@ import prometheus_client
 from pysnmp.hlapi import *
 import uvicorn
 
-snmp_metric = prometheus_client.Gauge(
-    "snmp_metric",
-    "ex: Number of pages printed",
-    ["name", "ip"],
-)
+from metrics import MetricsHandler
+metrics_handler = MetricsHandler.instance()
 
-snmp_error = prometheus_client.Gauge(
-    "snmp_error",
-    "Error metrics",
-    ["name", "ip"],
-)
-
-snmp_req_duration = prometheus_client.Summary(
-    "snmp_request_duration",
-    "Time it took for SNMP request",
-)
-
-device_unreachable = prometheus_client.Gauge(
-    "device_unreachable",
-    "set to 1 when error",
-)
-
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 logging.basicConfig(
     # in mondo we trust
@@ -66,15 +37,27 @@ class SnmpOid(enum.Enum):
         self.metric_value = metric_value
         self.is_error = is_error
 
-def scrape_snmp(ip_list):
+def fetch_ips_from_config(config_file_path):
+    try:
+        with open(config_file_path, "r") as f:
+            config = json.load(f)
+            right_ip = config["PRINTING"]["RIGHT"]["IP"]
+            ip_list=[right_ip]
+            logging.info(f"connected to right printer ip: {right_ip}")   
+            return ip_list
+    except Exception as e:
+        logging.error(f"error opening config file: {e}")
+
+
+def scrape_snmp(ip_list, sleep_duration_minutes=5):
     while True:
         for ip in ip_list:
             get_snmp_data(ip)
-        time.sleep(args.sleep_duration_minutes * 60)
+        time.sleep(sleep_duration_minutes * 60)
 
 def get_snmp_data(ip):
     for oid in SnmpOid:
-        with snmp_req_duration.time():
+        with metrics_handler.snmp_request_duration.time():
             errorIndication, errorStatus, errorIndex, varBinds = next(
             getCmd(SnmpEngine(),
             CommunityData('public', mpModel=0),
@@ -84,7 +67,7 @@ def get_snmp_data(ip):
             )
         if errorIndication:
             logging.error(f"Error indication from {ip} for metric {oid.metric_value}: {errorIndication}")
-            device_unreachable.set(1)
+            metrics_handler.device_unreachable.set(1)
             continue
         if errorStatus:
             logging.error(f"Error status from {ip} for metric {oid.metric_value}: {errorStatus.prettyPrint()}")
@@ -95,74 +78,20 @@ def get_snmp_data(ip):
             # which would create a false positive, set the metric
             # to zero if the associated SNMP OID was not found
             if oid.is_error:
-                snmp_error.labels(name=oid.metric_name, ip=ip).set(0)
+                metrics_handler.snmp_error.labels(name=oid.metric_name, ip=ip).set(0)
             continue
 
-        device_unreachable.set(0)
+        metrics_handler.device_unreachable.set(0)
         if not varBinds:
             continue
         res = varBinds[0]
         if oid.is_error:
-            snmp_error.labels(name=oid.metric_name, ip=ip).set(1)
+            metrics_handler.snmp_error.labels(name=oid.metric_name, ip=ip).set(1)
             continue
-        snmp_metric.labels(name=oid.metric_name, ip=ip).set(res[1])
+        metrics_handler.snmp_metric.labels(name=oid.metric_name, ip=ip).set(res[1])
 
-@app.get("/metrics")
 async def metrics():
     return Response(
         content=prometheus_client.generate_latest(),
         media_type="text/plain",
-    )
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser("snmp coolness")
-    parser.add_argument(
-        "--config-file-path", 
-        required=True,
-        help="Path to config file that stores IPs",
-    )
-    
-    parser.add_argument(
-        "--ips",
-        help="List of IP addresses of snmp agent (default: 192.168.69.208,192.168.69.149)",
-        default="192.168.69.208,192.168.69.149"
-    )
-    parser.add_argument(
-        "--host",
-        help="ip address to listen for requests on, i.e. 0.0.0.0",
-        default='0.0.0.0',
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        help="port for the server to listen on, default is 5000",
-        default=5000
-    )
-    parser.add_argument(
-        "--sleep-duration-minutes",
-        type=int,
-        help="update sleepy time, default is 2mins",
-        default=2
-    )
-
-    args = parser.parse_args()
-    try:
-        with open(args.config_file_path, "r") as f:
-            config = json.load(f)
-            left_ip = config["PRINTING"]["LEFT"]["IP"]
-            right_ip = config["PRINTING"]["RIGHT"]["IP"]
-            ip_list=[left_ip, right_ip]
-
-            logging.info(f"connected to left printer ip: {left_ip}")
-            logging.info(f"connected to right printer ip: {right_ip}")   
-            thread = Thread(target = scrape_snmp, args=(ip_list,), daemon=True)
-            thread.start()
-    except Exception as e:
-        logging.error(f"error opening config file: {e}")
-
-    uvicorn.run(
-        app, 
-        host=args.host, 
-        port=args.port, 
-        # reload=True,
     )

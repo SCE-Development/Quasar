@@ -4,3 +4,5 @@ py-grpc-prometheus==0.7.0
 python-multipart==0.0.9
 httpx==0.28.1
 requests==2.32.3
+pysnmp==4.4.12
+pyasn1==0.4.8
