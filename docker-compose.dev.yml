@@ -16,6 +16,7 @@ services:
     command:
       - --development
       - --port=14000
+      # - --dont-delete-pdfs
   snmp-collector:
     build:
       context: .
