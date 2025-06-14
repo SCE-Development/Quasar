@@ -146,7 +146,7 @@ async def read_item(file: UploadFile = File(...), copies: str = Form(...), sides
             sides=sides,
         )
         if args.dont_delete_pdfs:
-          logger.info(f'--dont-delete-pdfs is set, skipping deletion of file {file_path}')
+          logging.info(f'--dont-delete-pdfs is set, skipping deletion of file {file_path}')
           return "worked!"
         pathlib.Path(file_path).unlink()
         return "worked!"
