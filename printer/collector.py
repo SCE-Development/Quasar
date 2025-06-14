@@ -3,13 +3,10 @@ import enum
 import logging
 import json
 
-from fastapi import FastAPI, Response
-from fastapi.middleware.cors import CORSMiddleware
-import prometheus_client
 from pysnmp.hlapi import *
-import uvicorn
 
 from metrics import MetricsHandler
+
 metrics_handler = MetricsHandler.instance()
 
 
@@ -19,6 +16,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%dT%H:%M:%S",
     level=logging.INFO,
 )
+
 
 class SnmpOid(enum.Enum):
     INK_LEVEL = ("ink_level", "1.3.6.1.2.1.43.11.1.1.9.1.1")
@@ -37,14 +35,22 @@ class SnmpOid(enum.Enum):
         self.metric_value = metric_value
         self.is_error = is_error
 
+
 def fetch_ips_from_config(config_file_path):
     try:
         with open(config_file_path, "r") as f:
             config = json.load(f)
-            right_ip = config["PRINTING"]["RIGHT"]["IP"]
-            ip_list=[right_ip]
-            logging.info(f"connected to right printer ip: {right_ip}")   
+            printer_configs = config.get("PRINTING")
+            if not printer_configs:
+                raise Exception("No printers defined in config file")
+
+            ip_list = []
+            for printer in printer_configs:
+                ip = printer_configs[printer]["IP"]
+                logging.info(f"Adding printer {printer} with IP {ip}")
+                ip_list.append(ip)
             return ip_list
+
     except Exception as e:
         logging.error(f"error opening config file: {e}")
 
@@ -55,22 +61,29 @@ def scrape_snmp(ip_list, sleep_duration_minutes=5):
             get_snmp_data(ip)
         time.sleep(sleep_duration_minutes * 60)
 
+
 def get_snmp_data(ip):
     for oid in SnmpOid:
         with metrics_handler.snmp_request_duration.time():
             errorIndication, errorStatus, errorIndex, varBinds = next(
-            getCmd(SnmpEngine(),
-            CommunityData('public', mpModel=0),
-            UdpTransportTarget((ip, 161)),
-            ContextData(),
-            ObjectType(ObjectIdentity(oid.metric_value)))
+                getCmd(
+                    SnmpEngine(),
+                    CommunityData("public", mpModel=0),
+                    UdpTransportTarget((ip, 161)),
+                    ContextData(),
+                    ObjectType(ObjectIdentity(oid.metric_value)),
+                )
             )
         if errorIndication:
-            logging.error(f"Error indication from {ip} for metric {oid.metric_value}: {errorIndication}")
+            logging.error(
+                f"Error indication from {ip} for metric {oid.metric_value}: {errorIndication}"
+            )
             metrics_handler.device_unreachable.set(1)
             continue
         if errorStatus:
-            logging.error(f"Error status from {ip} for metric {oid.metric_value}: {errorStatus.prettyPrint()}")
+            logging.error(
+                f"Error status from {ip} for metric {oid.metric_value}: {errorStatus.prettyPrint()}"
+            )
             # SNMP OIDs related to errors often dissappear when
             # the associated issue that the metric refers to is
             # no longer present (i.e. an empty tray now has
@@ -89,9 +102,3 @@ def get_snmp_data(ip):
             metrics_handler.snmp_error.labels(name=oid.metric_name, ip=ip).set(1)
             continue
         metrics_handler.snmp_metric.labels(name=oid.metric_name, ip=ip).set(res[1])
-
-async def metrics():
-    return Response(
-        content=prometheus_client.generate_latest(),
-        media_type="text/plain",
-    )

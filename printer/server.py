@@ -69,7 +69,7 @@ def get_args() -> argparse.Namespace:
         "--sleep-duration-minutes",
         type=int,
         help="update sleepy time, default is 2mins",
-        default=2
+        default=2,
     )
     return parser.parse_args()
 
@@ -218,18 +218,18 @@ if __name__ == "server":
         t = threading.Thread(
             target=maybe_reopen_ssh_tunnel,
             daemon=True,
-        ) 
+        )
         t.start()
 
-    thread = threading.Thread(
-        target = collector.scrape_snmp,
-        args=(
-            collector.fetch_ips_from_config(args.config_json_path),
-            args.sleep_duration_minutes,
-        ),
-        daemon=True
-    ) 
-    thread.start()
+        thread = threading.Thread(
+            target=collector.scrape_snmp,
+            args=(
+                collector.fetch_ips_from_config(args.config_json_path),
+                args.sleep_duration_minutes,
+            ),
+            daemon=True,
+        )
+        thread.start()
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
