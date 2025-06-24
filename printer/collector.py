@@ -46,9 +46,10 @@ def fetch_ips_from_config(config_file_path):
 
             ip_list = []
             for printer in printer_configs:
-                ip = printer_configs[printer]["IP"]
-                logging.info(f"Adding printer {printer} with IP {ip}")
-                ip_list.append(ip)
+                if printer.isinstance(printer_configs[printer], dict):
+                    ip = printer_configs[printer]["IP"]
+                    logging.info(f"Adding printer {printer} with IP {ip}")
+                    ip_list.append(ip)
             return ip_list
 
     except Exception as e:
