@@ -3,13 +3,9 @@
 FROM drpsychick/airprint-bridge:latest
 
 WORKDIR /app
-
 RUN apt-get update
 
-RUN apt-get install -y software-properties-common \
- && add-apt-repository ppa:deadsnakes/ppa \
- && apt-get update \
- && apt-get install -y python3.11 python3.11-venv python3.11-dev jq ssh
+RUN apt install -y python3 python3-pip python3-venv jq ssh
 
 # Create the virtual environment with Python 3.11
 RUN python3.11 -m venv /opt/venv
