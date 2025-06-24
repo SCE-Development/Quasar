@@ -220,7 +220,7 @@ if __name__ == "server":
         )
         t.start()
 
-        if args.config_json_path:
+        if args.config_json_path and os.path.exists(args.config_json_path):
             thread = threading.Thread(
                 target=collector.scrape_snmp,
                 args=(
