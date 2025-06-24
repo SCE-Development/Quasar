@@ -13,7 +13,7 @@ import server
 
 class TestFastAPI(unittest.TestCase):
     def load_server_with_args(self, argv=[]):
-        argv_to_use = ["server.py", "--config-json-path=config/config.example.json", ]
+        argv_to_use = ["server.py"]
         argv_to_use.extend(argv)
 
         os.environ["RIGHT_PRINTER_NAME"] = "HP_P2015_DN"
