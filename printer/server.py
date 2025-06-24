@@ -220,15 +220,16 @@ if __name__ == "server":
         )
         t.start()
 
-        thread = threading.Thread(
-            target=collector.scrape_snmp,
-            args=(
-                collector.fetch_ips_from_config(args.config_json_path),
-                args.sleep_duration_minutes,
-            ),
-            daemon=True,
-        )
-        thread.start()
+        if args.args.config_json_path:
+            thread = threading.Thread(
+                target=collector.scrape_snmp,
+                args=(
+                    collector.fetch_ips_from_config(args.config_json_path),
+                    args.sleep_duration_minutes,
+                ),
+                daemon=True,
+            )
+            thread.start()
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
