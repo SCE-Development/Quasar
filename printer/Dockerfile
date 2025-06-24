@@ -6,10 +6,13 @@ WORKDIR /app
 
 RUN apt-get update
 
-RUN apt install -y python3 python3-pip python3-venv jq ssh
+RUN apt-get install -y software-properties-common \
+ && add-apt-repository ppa:deadsnakes/ppa \
+ && apt-get update \
+ && apt-get install -y python3.11 python3.11-venv python3.11-dev jq ssh
 
-# Create a virtual environment
-RUN python3 -m venv /opt/venv
+# Create the virtual environment with Python 3.11
+RUN python3.11 -m venv /opt/venv
 
 # Set the virtual environment as the default Python environment
 ENV PATH="/opt/venv/bin:$PATH"
@@ -24,7 +27,7 @@ COPY ./printer/what.sh /app/printer/what.sh
 
 COPY ./printer/*.py /app/printer/
 
-EXPOSE 5000 9000
+EXPOSE 9000
 
 # The below command runs the bash script that sets up the connection to the
 # printers and runs PrintHandler.js
