@@ -51,7 +51,6 @@ def get_args() -> argparse.Namespace:
         "--config-json-path",
         default="/app/config/config.json",
         help="path to config json path",
-        required=True,
     )
     parser.add_argument(
         "--development",
