@@ -116,11 +116,18 @@ def send_file_to_printer(
             text=True,
         )
         print_job.wait()
+        print('print_job.returncode', print_job.returncode)
+        print('print_job.returncode', print_job.returncode)
         if print_job.returncode == 0: # success
-            print_id = print_job.stdout.read().strip().split(" ")[3]
-            logging.info(f"extracted print id is {print_id}")
+            try:
+                print_id = print_job.stdout.read().strip().split(" ")[3]
+                logging.info(print_id)
+            except Exception as e:
+                logging.error(f"failed to parse print job output!: {print_job.stdout.read()}")
+                return ""
         else: # failed
-            logging.error(f"printing failed with error: {print_job.stderr.read()}")
+            logging.error(f"printing page failed!: {print_job.stderr.read()}")
+            return 500
 
 
 
@@ -151,16 +158,25 @@ async def read_item(file: UploadFile = File(...), copies: str = Form(...), sides
         file_path = str(base / file_id)
         with open(file_path, "wb") as f:
             f.write(await file.read())
-        send_file_to_printer(
+        print_id = send_file_to_printer(
             str(file_path),
             copies,
             sides=sides,
         )
+
+        if print_id == 500:
+            return HTTPException(
+                status_code=500,
+                detail="printing failed, check logs",
+            )
+        result = {
+            "print_id": print_id,
+        }
         if args.dont_delete_pdfs:
           logging.info(f'--dont-delete-pdfs is set, skipping deletion of file {file_path}')
-          return "worked!"
+          return result
         pathlib.Path(file_path).unlink()
-        return "worked!"
+        return result
     except Exception:
         logging.exception("printing failed!")
         return HTTPException(

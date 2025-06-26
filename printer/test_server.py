@@ -36,6 +36,13 @@ class TestFastAPI(unittest.TestCase):
     def test_print_endpoint(self, mock_pathlib_unlink, mock_open_func, mock_popen, _):
         client = self.load_server_with_args()
         test_file = io.BytesIO(b"dummy file content")
+
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = "request id is HP_LaserJet_p2015dn_Right-53 (1 file(s))"
+
+        mock_popen.return_value = mock_popen_result
+
         response = client.post(
             "/print",
             files={"file": ("test.txt", test_file, "text/plain")},
@@ -43,7 +50,10 @@ class TestFastAPI(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.text, '"worked!"')
+        json_response = response.json()
+        self.assertEqual(json_response, {
+            "print_id": "HP_LaserJet_p2015dn_Right-53",
+        })
 
         mock_open_func.assert_called_once_with("/tmp/test-id", "wb")
 
@@ -74,6 +84,12 @@ class TestFastAPI(unittest.TestCase):
     def test_print_endpoint_dont_delete_pdf(
         self, mock_pathlib_unlink, mock_open_func, mock_popen, _
     ):
+        
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = "request id is HP_LaserJet_p2015dn_Right-53 (1 file(s))"
+
+        mock_popen.return_value = mock_popen_result
         client = self.load_server_with_args(["--dont-delete-pdfs"])
         test_file = io.BytesIO(b"dummy file content")
         response = client.post(
@@ -83,7 +99,10 @@ class TestFastAPI(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.text, '"worked!"')
+        json_response = response.json()
+        self.assertEqual(json_response, {
+            "print_id": "HP_LaserJet_p2015dn_Right-53",
+        })
 
         mock_open_func.assert_called_once_with("/tmp/test-id", "wb")
 
@@ -135,3 +154,9 @@ class TestFastAPI(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# we need 2 more tests, what should the api do when the...
+# 1. statuscode of Popen is non zero, should probably return http 500
+# 2. statuscode of Popen is zero, but the lp command returns junk, like an empty string
+#    
