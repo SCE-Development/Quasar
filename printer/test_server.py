@@ -1,8 +1,10 @@
 import importlib
 import io
 import os
+import subprocess
 import unittest
 from unittest import mock
+
 
 from fastapi.testclient import TestClient
 
@@ -57,6 +59,9 @@ class TestFastAPI(unittest.TestCase):
             mock.call(
                 "lp -n 1  -o sides=one-sided -o media=na_letter_8.5x11in -d HP_P2015_DN /tmp/test-id",
                 shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
             ),
         )
 
