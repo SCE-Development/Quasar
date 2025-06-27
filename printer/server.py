@@ -118,17 +118,18 @@ def send_file_to_printer(
         print_job.wait()
 
         print('print_job.returncode', print_job.returncode)
-
-        if print_job.returncode == 0: # success
-            try:
-                print_id = print_job.stdout.read().strip().split(" ")[3]
-                logging.info(print_id)
-            except Exception as e:
-                logging.error(f"failed to parse print job output!: {print_job.stdout.read()}")
-                return ""
-        else: # failed
+        if print_job.returncode != 0:
             logging.error(f"printing page failed!: {print_job.stderr.read()}")
-            return 500
+            return None
+        try:
+            print_id = print_job.stdout.read().strip().split(" ")[3]
+            logging.info(print_id)
+            return print_id
+        except Exception as e:
+            logging.error(f"failed to parse print job output!: {print_job.stdout.read()}")
+            return ""
+       
+            
 
 
 
@@ -165,9 +166,9 @@ async def read_item(file: UploadFile = File(...), copies: str = Form(...), sides
             sides=sides,
         )
 
-        if print_id == 500: raise Exception("printing failed with code 500")
+        if print_id == None: raise Exception("printing failed!")
         
-        result = { "print_id": print_id, }
+        result = { "print_id": print_id }
         if args.dont_delete_pdfs:
           logging.info(f'--dont-delete-pdfs is set, skipping deletion of file {file_path}')
           return result

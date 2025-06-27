@@ -129,7 +129,7 @@ class TestFastAPI(unittest.TestCase):
     @mock.patch("server.subprocess.Popen")
     @mock.patch("builtins.open", side_effect=FileNotFoundError("sorry!"))
     @mock.patch("pathlib.Path.unlink")
-    def test_print_endpoint_error(self, mock_pathlib_unlink, _, mock_popen):
+    def test_print_endpoint_file_not_found(self, mock_pathlib_unlink, _, mock_popen):
         client = self.load_server_with_args()
         test_file = io.BytesIO(b"dummy file content")
         response = client.post(
@@ -150,6 +150,107 @@ class TestFastAPI(unittest.TestCase):
 
         mock_popen.assert_not_called()
         mock_pathlib_unlink.assert_not_called()
+
+    @mock.patch("server.uuid.uuid4", return_value="test-id")
+    @mock.patch("server.subprocess.Popen")
+    @mock.patch("builtins.open", callable=mock.mock_open)
+    @mock.patch("pathlib.Path.unlink")
+    def test_print_endpoint_nonzero_returncode(self, mock_pathlib_unlink, mock_open_func, mock_popen, _):
+        client = self.load_server_with_args()
+        test_file = io.BytesIO(b"dummy file content")
+
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 1
+        mock_popen.return_value = mock_popen_result
+
+        response = client.post(
+            "/print",
+            files={"file": ("test.txt", test_file, "text/plain")},
+            data={"copies": "1", "sides": "dark-side"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "status_code": 500,
+                "detail": "printing failed, check logs",
+                "headers": None,
+            },
+        )
+
+        mock_open_func.assert_called_once_with("/tmp/test-id", "wb")
+
+        mock_open_func().write.assert_called_once()
+        self.assertEqual(
+            mock_open_func().write.call_args_list[0], mock.call(b"dummy file content")
+        )
+
+        mock_popen.assert_called_once()
+
+        self.assertEqual(
+            mock_popen.call_args_list[0],
+            mock.call(
+                "lp -n 1  -o sides=dark-side -o media=na_letter_8.5x11in -d HP_P2015_DN /tmp/test-id",
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            ),
+        )
+
+        mock_pathlib_unlink.assert_called_once()
+
+    @mock.patch("server.uuid.uuid4", return_value="test-id")
+    @mock.patch("server.subprocess.Popen")
+    @mock.patch("builtins.open", callable=mock.mock_open)
+    @mock.patch("pathlib.Path.unlink")
+    def test_junk_print_id(self, mock_pathlib_unlink, mock_open_func, mock_popen, _):
+        client = self.load_server_with_args()
+        test_file = io.BytesIO(b"dummy file content")
+
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = "junk output"
+        mock_popen.return_value = mock_popen_result
+
+        response = client.post(
+            "/print",
+            files={"file": ("test.txt", test_file, "text/plain")},
+            data={"copies": "1", "sides": "dark-side"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "print_id": "",
+            },
+        )
+
+        mock_open_func.assert_called_once_with("/tmp/test-id", "wb")
+
+        mock_open_func().write.assert_called_once()
+        self.assertEqual(
+            mock_open_func().write.call_args_list[0], mock.call(b"dummy file content")
+        )
+
+        mock_popen.assert_called_once()
+
+        self.assertEqual(
+            mock_popen.call_args_list[0],
+            mock.call(
+                "lp -n 1  -o sides=dark-side -o media=na_letter_8.5x11in -d HP_P2015_DN /tmp/test-id",
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            ),
+        )
+
+        mock_pathlib_unlink.assert_called_once()
+
+        
 
 
 if __name__ == "__main__":
