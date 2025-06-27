@@ -109,31 +109,33 @@ def send_file_to_printer(
         logging.warning(
             f"server is in development mode, command would've been `{command}`"
         )
-    else:
-        print_id = ""
-        print_job = subprocess.Popen(
-            command,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        print_job.wait()
+        return None
 
-        if print_job.returncode != 0:
-            logging.error(
-                f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}"
-            )
-            return None
-        try:
-            print_id = print_job.stdout.read().strip().split(" ")[3]
-            logging.info(f"extracted print id is {print_id}")
-            return print_id
-        except Exception:
-            logging.exception(
-                f"failed to extract print id from stdout: {print_job.stdout.read()}"
-            )
-            return ""
+    print_job = subprocess.Popen(
+        command,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    print_job.wait()
+
+    if print_job.returncode != 0:
+        logging.error(
+            f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}"
+        )
+        return None
+    try:
+        print_id = print_job.stdout.read().strip().split(" ")[3]
+        logging.info(f"extracted print id is {print_id}")
+        return print_id
+    except Exception:
+        logging.exception(
+            f"failed to extract print id from stdout: {print_job.stdout.read()}"
+        )
+        # need to find a better value to return when the command exited with code 0
+        # but the output could not be parsed for a job id.
+        return ''
 
 
 def maybe_delete_pdf(file_path):
@@ -182,9 +184,9 @@ async def read_item(
 
         maybe_delete_pdf(file_path)
 
-        if not args.development and print_id == None:
+        if not args.development and print_id is None:
             raise Exception("printing failed!")
-
+        print(":DDDDDD", print_id)
         return {"print_id": print_id}
     except Exception:
         logging.exception("printing failed!")
