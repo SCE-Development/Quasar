@@ -119,14 +119,14 @@ def send_file_to_printer(
 
         print('print_job.returncode', print_job.returncode)
         if print_job.returncode != 0:
-            logging.error(f"printing page failed!: {print_job.stderr.read()}")
+            logging.error(f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}")
             return None
         try:
             print_id = print_job.stdout.read().strip().split(" ")[3]
             logging.info(print_id)
             return print_id
-        except Exception as e:
-            logging.error(f"failed to parse print job output!: {print_job.stdout.read()}")
+        except Exception:
+            logging.exception(f"failed to extract print id from stdout: {print_job.stdout.read()}")
             return ""
        
             
