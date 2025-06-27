@@ -61,9 +61,9 @@ def get_args() -> argparse.Namespace:
         "--dont-delete-pdfs",
         action="store_true",
         default=False,
-        help="specify if server should delete pdfs after printing"
+        help="specify if server should delete pdfs after printing",
     )
-    
+
     return parser.parse_args()
 
 
@@ -106,7 +106,9 @@ def send_file_to_printer(
     command = f"lp -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
     metrics_handler.print_jobs_recieved.inc()
     if args.development:
-        logging.warning(f"server is in development mode, command would've been `{command}`")
+        logging.warning(
+            f"server is in development mode, command would've been `{command}`"
+        )
     else:
         print_id = ""
         print_job = subprocess.Popen(
@@ -119,26 +121,35 @@ def send_file_to_printer(
         print_job.wait()
 
         if print_job.returncode != 0:
-            logging.error(f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}")
+            logging.error(
+                f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}"
+            )
             return None
         try:
             print_id = print_job.stdout.read().strip().split(" ")[3]
             logging.info(print_id)
             return print_id
         except Exception:
-            logging.exception(f"failed to extract print id from stdout: {print_job.stdout.read()}")
+            logging.exception(
+                f"failed to extract print id from stdout: {print_job.stdout.read()}"
+            )
             return ""
+
 
 def maybe_delete_pdf(file_path):
     if args.dont_delete_pdfs:
-        logging.info(f'--dont-delete-pdfs is set, skipping deletion of file {file_path}')
+        logging.info(
+            f"--dont-delete-pdfs is set, skipping deletion of file {file_path}"
+        )
         return
     pathlib.Path(file_path).unlink()
+
 
 @app.get("/healthcheck/printer")
 def api():
     metrics_handler.last_health_check_request.set(int(time.time()))
     return "printer is up!"
+
 
 @app.get("/metrics", response_class=PlainTextResponse)
 def metrics():
@@ -146,7 +157,9 @@ def metrics():
 
 
 @app.post("/print")
-async def read_item(file: UploadFile = File(...), copies: str = Form(...), sides: str = Form(...)):
+async def read_item(
+    file: UploadFile = File(...), copies: str = Form(...), sides: str = Form(...)
+):
     """
     incoming request to print looks like
     {
@@ -171,8 +184,8 @@ async def read_item(file: UploadFile = File(...), copies: str = Form(...), sides
 
         if not args.development and print_id == None:
             raise Exception("printing failed!")
-        
-        return { "print_id": print_id }
+
+        return {"print_id": print_id}
     except Exception:
         logging.exception("printing failed!")
         return HTTPException(
