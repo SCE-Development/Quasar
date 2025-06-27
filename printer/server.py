@@ -26,7 +26,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 logging.basicConfig(
-    format="%(asctime)s.%(msecs)03dZ %(processName)s %(threadName)s %(levelname)s:%(name)s:%(message)s",
+    # in mondo we trust
+    format="%(asctime)s.%(msecs)03dZ %(levelname)s:%(name)s:%(message)s",
     datefmt="%Y-%m-%dT%H:%M:%S",
     level=logging.INFO,
 )
@@ -117,7 +118,6 @@ def send_file_to_printer(
         )
         print_job.wait()
 
-        print('print_job.returncode', print_job.returncode)
         if print_job.returncode != 0:
             logging.error(f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}")
             return None
@@ -128,11 +128,12 @@ def send_file_to_printer(
         except Exception:
             logging.exception(f"failed to extract print id from stdout: {print_job.stdout.read()}")
             return ""
-       
-            
 
-
-
+def maybe_delete_pdf(file_path):
+    if args.dont_delete_pdfs:
+        logging.info(f'--dont-delete-pdfs is set, skipping deletion of file {file_path}')
+        return
+    pathlib.Path(file_path).unlink()
 
 @app.get("/healthcheck/printer")
 def api():
@@ -166,14 +167,12 @@ async def read_item(file: UploadFile = File(...), copies: str = Form(...), sides
             sides=sides,
         )
 
-        if print_id == None: raise Exception("printing failed!")
+        maybe_delete_pdf(file_path)
+
+        if not args.development and print_id == None:
+            raise Exception("printing failed!")
         
-        result = { "print_id": print_id }
-        if args.dont_delete_pdfs:
-          logging.info(f'--dont-delete-pdfs is set, skipping deletion of file {file_path}')
-          return result
-        pathlib.Path(file_path).unlink()
-        return result
+        return { "print_id": print_id }
     except Exception:
         logging.exception("printing failed!")
         return HTTPException(

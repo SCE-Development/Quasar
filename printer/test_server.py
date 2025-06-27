@@ -172,11 +172,7 @@ class TestFastAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.json(),
-            {
-                "status_code": 500,
-                "detail": "printing failed, check logs",
-                "headers": None,
-            },
+            {'status_code': 500, 'detail': 'printing failed, check logs', 'headers': None},
         )
 
         mock_open_func.assert_called_once_with("/tmp/test-id", "wb")
