@@ -153,7 +153,7 @@ class TestFastAPI(unittest.TestCase):
 
     @mock.patch("server.uuid.uuid4", return_value="test-id")
     @mock.patch("server.subprocess.Popen")
-    @mock.patch("builtins.open", callable=mock.mock_open)
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
     @mock.patch("pathlib.Path.unlink")
     def test_print_endpoint_nonzero_returncode(self, mock_pathlib_unlink, mock_open_func, mock_popen, _):
         client = self.load_server_with_args()
@@ -203,7 +203,7 @@ class TestFastAPI(unittest.TestCase):
 
     @mock.patch("server.uuid.uuid4", return_value="test-id")
     @mock.patch("server.subprocess.Popen")
-    @mock.patch("builtins.open", callable=mock.mock_open)
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
     @mock.patch("pathlib.Path.unlink")
     def test_junk_print_id(self, mock_pathlib_unlink, mock_open_func, mock_popen, _):
         client = self.load_server_with_args()
@@ -217,7 +217,7 @@ class TestFastAPI(unittest.TestCase):
         response = client.post(
             "/print",
             files={"file": ("test.txt", test_file, "text/plain")},
-            data={"copies": "1", "sides": "dark-side"},
+            data={"copies": "1", "sides": "one-sided"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -240,7 +240,7 @@ class TestFastAPI(unittest.TestCase):
         self.assertEqual(
             mock_popen.call_args_list[0],
             mock.call(
-                "lp -n 1  -o sides=dark-side -o media=na_letter_8.5x11in -d HP_P2015_DN /tmp/test-id",
+                "lp -n 1  -o sides=one-sided -o media=na_letter_8.5x11in -d HP_P2015_DN /tmp/test-id",
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
