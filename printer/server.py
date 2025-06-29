@@ -133,8 +133,8 @@ def send_file_to_printer(
         logging.exception(
             f"failed to extract print id from stdout: {print_job.stdout.read()}"
         )
-        # need to find a better value to return when the command exited with code 0
-        # but the output could not be parsed for a job id.
+        # need to find a better value to return when the command exited
+        # with code 0 but the output could not be parsed for a job id.
         return ''
 
 
@@ -185,8 +185,7 @@ async def read_item(
         maybe_delete_pdf(file_path)
 
         if not args.development and print_id is None:
-            raise Exception("printing failed!")
-        print(":DDDDDD", print_id)
+            raise Exception("unable to extract print id from print request")
         return {"print_id": print_id}
     except Exception:
         logging.exception("printing failed!")
