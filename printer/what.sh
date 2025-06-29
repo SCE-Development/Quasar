@@ -41,7 +41,7 @@ open_ssh_tunnel () {
     #   Quasar:QUASAR_PORT
     # Lastly, CORE_V4_HOST is given to signify the user and ip of Core-v4.
 
-    ssh -v \
+    ssh \
     -o UserKnownHostsFile=${DOCKER_CONTAINER_KNOWN_HOSTS} \
     -o StrictHostKeyChecking=no \
     -i ${DOCKER_CONTAINER_SSH_KEYS} \
