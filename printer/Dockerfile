@@ -1,6 +1,6 @@
 # Base image from https://github.com/DrPsychick/docker-cups-airprint
 # Docker images are here https://hub.docker.com/r/drpsychick/airprint-bridge/tags
-FROM drpsychick/airprint-bridge:latest
+FROM drpsychick/airprint-bridge:jammy
 
 WORKDIR /app
 RUN apt-get update

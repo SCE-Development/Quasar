@@ -4,11 +4,7 @@ import logging
 import json
 import asyncio
 
-from pysnmp.hlapi.asyncio import (
-    SnmpEngine, CommunityData, UdpTransportTarget,
-    ContextData, ObjectType, ObjectIdentity,
-    getCmd
-)
+from pysnmp.hlapi import *
 
 from metrics import MetricsHandler
 
@@ -68,11 +64,11 @@ def scrape_snmp(ip_list, sleep_duration_minutes=5):
         time.sleep(sleep_duration_minutes * 60)
 
 
-async def get_snmp_data(ip):
+def get_snmp_data(ip):
     for oid in SnmpOid:
         with metrics_handler.snmp_request_duration.time():
             errorIndication, errorStatus, errorIndex, varBinds = next(
-                await getCmd(
+                getCmd(
                     SnmpEngine(),
                     CommunityData("public", mpModel=0),
                     UdpTransportTarget((ip, 161)),
