@@ -31,6 +31,8 @@ logging.basicConfig(
     datefmt="%Y-%m-%dT%H:%M:%S",
     level=logging.INFO,
 )
+logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
 
 
 def get_args() -> argparse.Namespace:
