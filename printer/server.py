@@ -6,6 +6,7 @@ import subprocess
 import threading
 import time
 import uuid
+import collector
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -65,7 +66,12 @@ def get_args() -> argparse.Namespace:
         default=False,
         help="specify if server should delete pdfs after printing",
     )
-
+    parser.add_argument(
+        "--sleep-duration-minutes",
+        type=int,
+        help="update sleepy time, default is 2mins",
+        default=2,
+    )
     return parser.parse_args()
 
 
@@ -215,6 +221,17 @@ if __name__ == "server":
             daemon=True,
         )
         t.start()
+
+        if not args.development and os.path.exists(args.config_json_path):
+            thread = threading.Thread(
+                target=collector.scrape_snmp,
+                args=(
+                    collector.fetch_ips_from_config(args.config_json_path),
+                    args.sleep_duration_minutes,
+                ),
+                daemon=True,
+            )
+            thread.start()
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)

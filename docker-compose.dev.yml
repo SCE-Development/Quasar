@@ -17,10 +17,4 @@ services:
       - --development
       - --port=14000
       - --dont-delete-pdfs
-  snmp-collector:
-    build:
-      context: .
-      dockerfile: ./collector/Dockerfile
-    ports:
-      - 5000:5000
-    
+      - --config-json-path=/app/config/config.json

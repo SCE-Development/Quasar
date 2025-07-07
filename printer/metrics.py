@@ -23,6 +23,31 @@ class Metrics(enum.Enum):
         "total bytes of files pointed to by cache",
         prometheus_client.Gauge,
     )
+    SNMP_METRIC = (
+        "snmp_metric",
+        "ex: Number of pages printed",
+        prometheus_client.Gauge,
+        ["name", "ip"],
+    )
+
+    SNMP_ERROR = (
+        "snmp_error",
+        "Error metrics",
+        prometheus_client.Gauge,
+        ["name", "ip"],
+    )
+
+    SNMP_REQ_DURATION = (
+        "snmp_request_duration",
+        "Time it took for SNMP request",
+        prometheus_client.Summary,
+    )
+
+    DEVICE_UNREACHABLE = (
+        "device_unreachable",
+        "set to 1 when error",
+        prometheus_client.Gauge,
+    )
 
     def __init__(self, title, description, prometheus_type, labels=()):
         # we use the above default value for labels because it matches what's used
@@ -38,8 +63,8 @@ class MetricsHandler:
     _instance = None
 
     def __init__(self):
-        raise RuntimeError('Call MetricsHandler.instance() instead')
-    
+        raise RuntimeError("Call MetricsHandler.instance() instead")
+
     def init(self) -> None:
         for metric in Metrics:
             setattr(
