@@ -34,7 +34,7 @@ def query_printer_jobs():
     job_id = cleaned_output[0]
     
     output_dt = cleaned_output[:-7:-1]
-    output_dt_str = "".join(output_dt[::-1])
+    output_dt_str = " ".join(output_dt[::-1]).strip()
     date_obj = datetime.datetime.strptime(output_dt_str, "%a %b %d %H:%M:%S %Y")
     date_str = date_obj.strftime("%Y-%m-%d %H:%M:%S")
 
