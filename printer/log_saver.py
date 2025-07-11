@@ -2,9 +2,17 @@ import sqlite3
 import subprocess
 import datetime
 import time
+import logging
 
 LINE_CMD = "echo '-----------'"
 QUERY_CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
+
+logging.basicConfig(
+    # in mondo we trust
+    format="%(asctime)s.%(msecs)03dZ %(levelname)s:%(name)s:%(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+    level=logging.INFO,
+)
 
 mydb = sqlite3.connect("printer_jobs.db")
 mycursor = mydb.cursor()
@@ -19,6 +27,10 @@ def query_printer_jobs():
         raise subprocess.CalledProcessError(p.returncode, QUERY_CMD)
     
     output = p.stdout.read()
+    if len(output) == 0:
+        logging.info("No printer jobs found.")
+        return
+
     cleaned_output = output.strip().split(" ")
     job_id = cleaned_output[0]
     
@@ -35,8 +47,7 @@ def query_printer_jobs():
     sql_query = "SELECT * FROM entries"
     mycursor.execute(sql_query)
     for x in mycursor.fetchall():
-        print(x[0])
-        print("job id: " + x[1])
+        logging.info(f"Date: {x[0]}, Job ID: {x[1]}")
 
 if __name__ == "__main__":
     # This will run the query_printer_jobs function every second
@@ -46,7 +57,7 @@ if __name__ == "__main__":
         try:
             query_printer_jobs()
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"Error querying printer jobs: {e}")
             break
 
         time.sleep(1)
