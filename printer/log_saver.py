@@ -46,7 +46,7 @@ def query_printer_jobs():
     sql_query = "SELECT * FROM entries"
     mycursor.execute(sql_query)
     for x in mycursor.fetchall():
-        logging.info(f"Date: {x[0]}, Job ID: {x[1]}")
+        print(f"Date: {x[0]}, Job ID: {x[1]}")
 
 if __name__ == "__main__":
     # This will run the query_printer_jobs function every second
