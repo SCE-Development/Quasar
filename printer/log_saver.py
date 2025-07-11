@@ -29,7 +29,8 @@ def query_printer_jobs():
     output = p.stdout.read()
     if len(output) == 0:
         return
-
+    
+    logging.info(output)
     cleaned_output = output.strip().split(" ")
     job_id = cleaned_output[0]
     
@@ -37,16 +38,18 @@ def query_printer_jobs():
     output_dt_str = " ".join(output_dt[::-1]).strip()
     date_obj = datetime.datetime.strptime(output_dt_str, "%a %b %d %H:%M:%S %Y")
     date_str = date_obj.strftime("%Y-%m-%d %H:%M:%S")
+    logging.info(date_str, job_id)
 
     sql_insert = "INSERT INTO entries (date, job_id) VALUES (?, ?)"
     mycursor.execute(sql_insert, (date_str, job_id))
     mydb.commit()
+    logging.info("inserted into sql db")
     
     # debug, make sure the data is inserted + the date is good.
     sql_query = "SELECT * FROM entries"
     mycursor.execute(sql_query)
     for x in mycursor.fetchall():
-        print(f"Date: {x[0]}, Job ID: {x[1]}")
+        logging.info(f"Date: {x[0]}, Job ID: {x[1]}")
 
 if __name__ == "__main__":
     # This will run the query_printer_jobs function every second
