@@ -1,20 +1,22 @@
 import sqlite3
 import subprocess
 import datetime
+import time
 
-try:
-        
-    mydb = sqlite3.connect("printer_jobs.db")
-    mycursor = mydb.cursor()
-    sql = "CREATE TABLE IF NOT EXISTS entries(date VARCHAR(255), job_id VARCHAR(255), PRIMARY KEY (date, job_id))"
-    mycursor.execute(sql)
+LINE_CMD = "echo '-----------'"
+QUERY_CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
 
-    CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
-    p = subprocess.Popen(CMD, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+mydb = sqlite3.connect("printer_jobs.db")
+mycursor = mydb.cursor()
+sql = "CREATE TABLE IF NOT EXISTS entries(date VARCHAR(255), job_id VARCHAR(255), PRIMARY KEY (date, job_id))"
+mycursor.execute(sql)
+
+def query_printer_jobs():
+    p = subprocess.Popen(QUERY_CMD, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     p.wait()
 
     if p.returncode != 0: 
-        raise subprocess.CalledProcessError(p.returncode, CMD)
+        raise subprocess.CalledProcessError(p.returncode, QUERY_CMD)
     
     output = p.stdout.read()
     cleaned_output = output.strip().split(" ")
@@ -35,8 +37,18 @@ try:
     for x in mycursor.fetchall():
         print(x[0])
         print("job id: " + x[1])
-    
-except Exception as e:
-    print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    # This will run the query_printer_jobs function every second
+    # and print the job id and date from the database.
+    while True:     
+        subprocess.run(LINE_CMD, shell=True)
+        try:
+            query_printer_jobs()
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            break
+
+        time.sleep(1)
 
 

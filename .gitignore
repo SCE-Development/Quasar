@@ -16,3 +16,4 @@ config.json
 venv/
 
 tmp/
+printer/printer_jobs.db
