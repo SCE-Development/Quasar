@@ -28,15 +28,14 @@ def query_printer_jobs():
     
     output = p.stdout.read()
     if len(output) == 0:
-        logging.info("No printer jobs found.")
         return
 
     cleaned_output = output.strip().split(" ")
     job_id = cleaned_output[0]
     
     output_dt = cleaned_output[:-7:-1]
-    output_dt_str = " ".join(output_dt[::-1])
-    date_obj = datetime.datetime.strptime(output_dt_str, "%a %b  %d %H:%M:%S %Y")
+    output_dt_str = "".join(output_dt[::-1])
+    date_obj = datetime.datetime.strptime(output_dt_str, "%a %b %d %H:%M:%S %Y")
     date_str = date_obj.strftime("%Y-%m-%d %H:%M:%S")
 
     sql_insert = "INSERT INTO entries (date, job_id) VALUES (?, ?)"
