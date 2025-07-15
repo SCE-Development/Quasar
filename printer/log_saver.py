@@ -37,7 +37,7 @@ def print_db():
 
 def test_job_ids():
     x = random.randint(3, 7)
-    MOCK_CMD  = f"echo HP_LaserJet_p2015dn_Right-{x} root              5120   Mon Jul 7 03:43:42 2025"
+    MOCK_CMD  = f"echo HP_LaserJet_p2015dn_Right-{x} root              5120   {datetime.datetime.now().strftime('%a %b %d %H:%M:%S %Y')}"
     DONE_CMD = ""
     for n in range(x):
         query_printer_jobs(MOCK_CMD)
