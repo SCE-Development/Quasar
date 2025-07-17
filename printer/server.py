@@ -15,9 +15,11 @@ import prometheus_client
 import uvicorn
 
 from metrics import MetricsHandler
+from mock_printer import MockPrinter
 
 
 metrics_handler = MetricsHandler.instance()
+mock_printer = None
 app = FastAPI()
 
 app.add_middleware(
@@ -117,7 +119,7 @@ def send_file_to_printer(
         logging.warning(
             f"server is in development mode, command would've been `{command}`"
         )
-        return None
+        return mock_printer.lp()
 
     print_job = subprocess.Popen(
         command,
@@ -154,6 +156,17 @@ def maybe_delete_pdf(file_path):
         return
     pathlib.Path(file_path).unlink()
 
+
+# test endpoint on clark
+@app.post("/status")
+def status(print_id: str):
+    if args.development:
+      status = mock_printer.get_job_status(print_id)
+
+      if (status == "PRINTED"):
+          mock_printer.remove_job(print_id)
+
+      return status
 
 @app.get("/healthcheck/printer")
 def api():
@@ -212,6 +225,21 @@ async def read_item(
 # the thread interacts with an instance different than the one the
 # server uses
 if __name__ == "server":
+    if args.development:
+        mock_printer = MockPrinter.instance()
+
+        mock_printer_upd_thread = threading.Thread(
+            target=mock_printer.update,
+            daemon=True
+        )
+        mock_printer_upd_thread.start()
+
+        mock_printer_log_thread = threading.Thread(
+            target=mock_printer.log,
+            daemon=True
+        )
+        mock_printer_log_thread.start()
+
     if not args.development:
         # set the last time we opened an ssh tunnel to now because
         # when the script runs for the first time, we did so in what.sh
