@@ -19,7 +19,7 @@ from mock_printer import MockPrinter
 
 
 metrics_handler = MetricsHandler.instance()
-mock_printer = None
+mock_printer = MockPrinter.instance()
 app = FastAPI()
 
 app.add_middleware(
@@ -157,7 +157,7 @@ def maybe_delete_pdf(file_path):
     pathlib.Path(file_path).unlink()
 
 
-# test endpoint on clark
+# still need to test endpoint on clark
 @app.post("/status")
 def status(print_id: str):
     if args.development:
@@ -226,8 +226,6 @@ async def read_item(
 # server uses
 if __name__ == "server":
     if args.development:
-        mock_printer = MockPrinter.instance()
-
         mock_printer_upd_thread = threading.Thread(
             target=mock_printer.update,
             daemon=True

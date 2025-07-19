@@ -37,9 +37,8 @@ class MockPrinter():
           if self._queue.__len__() == 0:
               continue
 
-          if (self._jobs[self._queue[0]] == "PENDING"):
-              self._jobs[self._queue[0]] = "PRINTED"
-              self._queue.pop(0)
+          self._jobs[self._queue[0]] = "PRINTED"
+          self._queue.pop(0)
 
     def log(self) -> None:
         while True:
