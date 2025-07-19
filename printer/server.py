@@ -8,7 +8,7 @@ import time
 import uuid
 import collector
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import prometheus_client
@@ -157,17 +157,6 @@ def maybe_delete_pdf(file_path):
     pathlib.Path(file_path).unlink()
 
 
-# still need to test endpoint on clark
-@app.post("/status")
-def status(print_id: str):
-    if args.development:
-      status = mock_printer.get_job_status(print_id)
-
-      if (status == "PRINTED"):
-          mock_printer.remove_job(print_id)
-
-      return status
-
 @app.get("/healthcheck/printer")
 def api():
     metrics_handler.last_health_check_request.set(int(time.time()))
@@ -215,6 +204,16 @@ async def read_item(
             detail="printing failed, check logs",
         )
 
+@app.post("/status")
+async def status(print_id: str = Body(...)):
+    if args.development:
+      mock_printer.log()
+      status = mock_printer.get_job_status(print_id)
+
+      if (status == "PRINTED"):
+          mock_printer.remove_job(print_id)
+
+      return {"status": status}
 
 # we have a separate __name__ check here due to how FastAPI starts
 # a server. the file is first ran (where __name__ == "__main__")
@@ -231,12 +230,6 @@ if __name__ == "server":
             daemon=True
         )
         mock_printer_upd_thread.start()
-
-        mock_printer_log_thread = threading.Thread(
-            target=mock_printer.log,
-            daemon=True
-        )
-        mock_printer_log_thread.start()
 
     if not args.development:
         # set the last time we opened an ssh tunnel to now because

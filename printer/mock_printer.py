@@ -41,8 +41,6 @@ class MockPrinter():
           self._queue.pop(0)
 
     def log(self) -> None:
-        while True:
-            time.sleep(3)
-            logging.info("-----------------")
-            logging.info(f"jobs: {self._jobs}")
-            logging.info(f"queue: {self._queue}")
+        logging.info("-----------------")
+        logging.info(f"jobs: {self._jobs}")
+        logging.info(f"queue: {self._queue}")
