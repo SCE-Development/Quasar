@@ -76,7 +76,8 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--database-file-path",
         required=True,
-        help="path to sqlite database file"
+        help="path to sqlite database file",
+        default="/tmp/jobs.db"
     )
     return parser.parse_args()
 
