@@ -33,7 +33,7 @@ def insert_print_job(sqlite_file: str, job_id: str):
     cursor = db.cursor()
     timestamp = datetime.now()
     try:
-        sql = "INSERT INTO logs(job_id) VALUES ?"
+        sql = "INSERT INTO logs(job_id) VALUES (?)"
         cursor.execute(sql, job_id)
         db.commit()
         return timestamp
