@@ -18,6 +18,7 @@ def maybe_create_table(sqlite_file: str) -> bool:
             job_id      TEXT NOT NULL, 
             status      TEXT CHECK (p_status IN ('pending', 'completed')) NOT NULL DEFAULT 'pending',
             PRIMARY KEY (job_id)
+            )
         """
 
         cursor.execute(create_table_query)
