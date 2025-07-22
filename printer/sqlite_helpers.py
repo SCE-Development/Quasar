@@ -14,9 +14,9 @@ def maybe_create_table(sqlite_file: str) -> bool:
     try:
         create_table_query = """
         CREATE TABLE IF NOT EXISTS logs (
-            date        DATETIME DEFAULT CURRENT_TIMESTAMP 
+            date        DATETIME DEFAULT CURRENT_TIMESTAMP, 
             job_id      TEXT NOT NULL, 
-            status    TEXT CHECK (p_status IN ('pending', 'completed')) NOT NULL default 'pending',
+            status      TEXT CHECK (p_status IN ('pending', 'completed')) NOT NULL DEFAULT 'pending',
             PRIMARY KEY (job_id)
         """
 
@@ -34,7 +34,7 @@ def insert_print_job(sqlite_file: str, job_id: str):
     timestamp = datetime.now()
     try:
         sql = "INSERT INTO logs(job_id) VALUES (?)"
-        cursor.execute(sql, job_id)
+        cursor.execute(sql, (job_id,))
         db.commit()
         return timestamp
     except sqlite3.IntegrityError:
