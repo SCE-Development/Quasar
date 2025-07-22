@@ -15,6 +15,7 @@ import prometheus_client
 import uvicorn
 
 from metrics import MetricsHandler
+import sqlite_helpers
 
 
 metrics_handler = MetricsHandler.instance()
@@ -135,6 +136,7 @@ def send_file_to_printer(
         return None
     try:
         print_id = print_job.stdout.read().strip().split(" ")[3]
+        sqlite_helpers.insert_print_job(print_id)
         logging.info(f"extracted print id is {print_id}")
         return print_id
     except Exception:
