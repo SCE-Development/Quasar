@@ -73,6 +73,11 @@ def get_args() -> argparse.Namespace:
         help="update sleepy time, default is 2mins",
         default=2,
     )
+    parser.add_argument(
+        "--database-file-path",
+        required=True,
+        help="path to sqlite database file"
+    )
     return parser.parse_args()
 
 
@@ -136,7 +141,7 @@ def send_file_to_printer(
         return None
     try:
         print_id = print_job.stdout.read().strip().split(" ")[3]
-        sqlite_helpers.insert_print_job(print_id)
+        sqlite_helpers.insert_print_job(args.database_file_path, print_id)
         logging.info(f"extracted print id is {print_id}")
         return print_id
     except Exception:
@@ -223,6 +228,8 @@ if __name__ == "server":
             daemon=True,
         )
         t.start()
+ 
+        sqlite_helpers.maybe_create_table(args.database_file_path)  
 
         if not args.development and os.path.exists(args.config_json_path):
             thread = threading.Thread(
