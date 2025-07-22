@@ -16,7 +16,7 @@ def maybe_create_table(sqlite_file: str) -> bool:
         CREATE TABLE IF NOT EXISTS logs (
             date        DATETIME DEFAULT CURRENT_TIMESTAMP, 
             job_id      TEXT NOT NULL, 
-            status      TEXT CHECK (p_status IN ('pending', 'completed')) NOT NULL DEFAULT 'pending',
+            status      TEXT CHECK (status IN ('pending', 'completed')) NOT NULL DEFAULT 'pending',
             PRIMARY KEY (job_id)
             )
         """
