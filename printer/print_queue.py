@@ -31,4 +31,3 @@ class PrintQueue:
             if printer_job_count <= 2:
                 logging.info("FED REQUEST INTO PRINTER")
                 self._queue.pop(0)
-        

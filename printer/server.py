@@ -157,9 +157,9 @@ def send_file_to_printer(
 
 def maybe_delete_pdf(file_path):
     if args.dont_delete_pdfs:
-        #logging.info(
-        #    f"--dont-delete-pdfs is set, skipping deletion of file {file_path}"
-        #)
+        logging.info(
+           f"--dont-delete-pdfs is set, skipping deletion of file {file_path}"
+        )
         return
     pathlib.Path(file_path).unlink()
 
