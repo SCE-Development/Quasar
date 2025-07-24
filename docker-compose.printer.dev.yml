@@ -1,0 +1,21 @@
+version: '2'
+services:
+  sce-printer:
+    container_name: sce-printer-dev
+    build:
+      context: .
+      dockerfile: ./printer/Dockerfile.printer.dev
+    ports:
+      # we use port 14000 as that is what the website expects
+      # the printing server to be running on
+      - 14000:14000
+    volumes:
+      - ./config:/app/config
+      - ./printer:/app/printer
+      - ./tmp:/tmp
+    command:
+      - --development
+      - --port=14000
+      - --dont-delete-pdfs
+      - --config-json-path=/app/config/config.json
+      - --dev-printer
