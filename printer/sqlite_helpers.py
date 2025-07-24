@@ -6,7 +6,6 @@ import subprocess
 import datetime
 
 LPSTAT_CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
-DEBUG_CMDS = ["echo HP_LaserJet_p2015dn_Right-52 root              5120   Sat May 31 18:19:38 2025", "echo HP_LaserJet_p2015dn_Right-53 root              5120   Sat May 31 18:19:39 2025"]
 DEBUG_PTH = "./tmp.db"
 DEBUG = True
 SLEEP_TIME = 1
@@ -124,29 +123,49 @@ def poll_lpstat(sqlite_file):
         time.sleep(SLEEP_TIME)
 
 
+
+def generate_incrementing_id(sqlite_file: str, base_id: str) -> str:
+    
+    db = sqlite3.connect(sqlite_file)
+    cursor = db.cursor() 
+    cursor.execute("SELECT COUNT(*) FROM logs")
+    
+    current_count = cursor.fetchone()[0]
+    new_count = current_count + 1
+    return f"{base_id}-{new_count}"
+
+
 def debug_poll_lpstat():
-    insert_print_job(DEBUG_PTH, "HP_LaserJet_p2015dn_Right-52")
+    printer_queue_name = "HP_LaserJet_p2015dn_Right"
+    
+    first_job_id = generate_incrementing_id(DEBUG_PTH, printer_queue_name)
+    insert_print_job(DEBUG_PTH, first_job_id)
+    second_job_id = generate_incrementing_id(DEBUG_PTH, printer_queue_name)
     inserted = False
+
     for x in range(7):
-        cmd = DEBUG_CMDS[0]
+        cmd = f"echo {first_job_id}"
         if x > 4: 
-            cmd = DEBUG_CMDS[1]
+            cmd = f"echo {second_job_id}"
         elif x > 2:
-            cmd = " & ".join(DEBUG_CMDS)
+            cmd = f"echo {first_job_id} & echo {second_job_id}"
             if not inserted:
-                insert_print_job(DEBUG_PTH, "HP_LaserJet_p2015dn_Right-53")
+                # Generate the next dynamic job ID and insert it
+                insert_print_job(DEBUG_PTH, second_job_id)
                 inserted = True
 
         try:
             query_lpstat(DEBUG_PTH, cmd)
             print_db(DEBUG_PTH)
         except Exception as e:
-            logging.error(f"Error occured: {e}")
+            logging.error(f"Error occurred: {e}")
+        
+        print("-" * 20) # Separator for clarity
         time.sleep(SLEEP_TIME)
-   
+    
     query_lpstat(DEBUG_PTH, "")
     print_db(DEBUG_PTH)
-
+    
 if DEBUG:
     maybe_create_table(DEBUG_PTH)
     debug_poll_lpstat()
