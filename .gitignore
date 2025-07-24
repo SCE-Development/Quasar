@@ -17,4 +17,4 @@ venv/
 
 tmp/
 
-.db
+*.db
