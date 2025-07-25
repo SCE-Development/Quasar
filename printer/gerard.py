@@ -84,7 +84,7 @@ def create_print_job(cmd=""):
         print_id = print_job.stdout.read().strip().split(" ")[3]
         return print_id
     except:
-        return None
+        return ""
 
 
 
