@@ -210,14 +210,14 @@ if __name__ == "server":
  
         sqlite_helpers.maybe_create_table(args.database_file_path)  
 
-        t2 = threading.Thread(
-            target=sqlite_helpers.poll_lpstat,
-            args=(
-                args.database_file_path
-            ),
-            daemon=True
-        )
-        t2.start()
+        # t2 = threading.Thread(
+        #     target=sqlite_helpers.poll_lpstat,
+        #     args=(
+        #         args.database_file_path
+        #     ),
+        #     daemon=True
+        # )
+        # t2.start()
 
         if not args.development and os.path.exists(args.config_json_path):
             thread = threading.Thread(
