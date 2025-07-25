@@ -79,12 +79,11 @@ def create_print_job(cmd=""):
         logging.error(
             f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}"
         )
-        return None
+        raise subprocess.CalledProcessError(print_job.returncode, cmd)
     try:
         print_id = print_job.stdout.read().strip().split(" ")[3]
         return print_id
-    except Exception as e:
-        logging.error(f"There was an error printing: {e}")
+    except:
         return None
 
 
