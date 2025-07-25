@@ -41,7 +41,7 @@ import sqlite_helpers
 
 LPSTAT_CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
 DEBUG_PTH = "./tmp.db"
-DEBUG = True
+DEBUG = False
 SLEEP_TIME = 1
 
 running_jobs = set()
