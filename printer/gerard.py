@@ -37,7 +37,6 @@ import logging
 import sqlite3
 import time
 import subprocess
-import sqlite_helpers
 
 LPSTAT_CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
 DEBUG_PTH = "./tmp.db"
@@ -63,7 +62,6 @@ iter = IDIterator()
 def create_print_job(cmd=""):
     if DEBUG:
         job_id = f"HP_LaserJet_p2015dn_Right-{next(iter)}"
-        sqlite_helpers.insert_print_job(DEBUG_PTH, job_id)
         return job_id
     
     print_job = subprocess.Popen(
@@ -83,7 +81,8 @@ def create_print_job(cmd=""):
     try:
         print_id = print_job.stdout.read().strip().split(" ")[3]
         return print_id
-    except:
+    except Exception as e:
+        logging.exception(f"unable to parse print job from stdout {print_job.stdout.read()}")
         return ""
 
 
