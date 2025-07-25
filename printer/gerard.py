@@ -82,7 +82,6 @@ def create_print_job(cmd=""):
         return None
     try:
         print_id = print_job.stdout.read().strip().split(" ")[3]
-        sqlite_helpers.insert_print_job(DEBUG_PTH, print_id)
         return print_id
     except Exception as e:
         logging.error(f"There was an error printing: {e}")
