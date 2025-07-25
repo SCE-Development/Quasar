@@ -7,6 +7,7 @@ import threading
 import time
 import uuid
 import collector
+import gerard
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -124,35 +125,13 @@ def send_file_to_printer(
             f"server is in development mode, command would've been `{command}`"
         )
         return None
+    
+    job_id = gerard.create_print_job(command)
+    if not job_id:
+        return ""
+    return job_id
 
-    print_job = subprocess.Popen(
-        command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-    print_job.wait()
-
-    if print_job.returncode != 0:
-        logging.error(
-            f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}"
-        )
-        return None
-    try:
-        print_id = print_job.stdout.read().strip().split(" ")[3]
-        sqlite_helpers.insert_print_job(args.database_file_path, print_id)
-        logging.info(f"extracted print id is {print_id}")
-        return print_id
-    except Exception:
-        logging.exception(
-            f"failed to extract print id from stdout: {print_job.stdout.read()}"
-        )
-        # need to find a better value to return when the command exited
-        # with code 0 but the output could not be parsed for a job id.
-        return ''
-
-
+    
 def maybe_delete_pdf(file_path):
     if args.dont_delete_pdfs:
         logging.info(
