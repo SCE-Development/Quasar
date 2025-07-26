@@ -67,7 +67,7 @@ def create_print_job(num_copies, maybe_page_range, sides, printer_name, file_pat
     try:
         lp_command_output = print_job.stdout.read()
         logging.info(f"lp command stdout was {lp_command_output}")
-        print_id = lp_command_output().split(" ")[3]
+        print_id = lp_command_output.split(" ")[3]
         return print_id
     except Exception:
         logging.exception(f"unable to parse print job from stdout")
