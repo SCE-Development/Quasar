@@ -17,7 +17,7 @@ DEBUG_PTH = "./tmp.db"
 DEBUG = False
 SLEEP_TIME = 1
 
-running_jobs = set()
+jobs_seen_last = set()
 current_jobs = set()
 logger = logging.getLogger(__name__)
 
@@ -86,25 +86,25 @@ def print_db(sqlite_file: str):
 
 
 def update_completed_jobs(sqlite_file):
-    global running_jobs, current_jobs
+    global jobs_seen_last, current_jobs
     db = sqlite3.connect(sqlite_file)
     cursor = db.cursor()
 
     # everything in the previous set that IS NOT in the current set
-    completed_jobs = running_jobs.difference(current_jobs)
+    completed_jobs = jobs_seen_last.difference(current_jobs)
     completed_job_ids = [(job_id,) for job_id in completed_jobs]
+    logging.info(f"marking {completed_jobs} as completed in sqlite")
 
     sql_update = "UPDATE logs SET status = 'completed' WHERE job_id = ?"
     cursor.executemany(sql_update, completed_job_ids)
     db.commit()
 
-    running_jobs.clear()
-    running_jobs.update(current_jobs)
+    jobs_seen_last = current_jobs.copy()
     current_jobs.clear()
 
 
 def query_lpstat(sqlite_file, cmd):
-    global running_jobs, current_jobs
+    global jobs_seen_last, current_jobs
     p = subprocess.Popen(
         cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
@@ -123,7 +123,7 @@ def query_lpstat(sqlite_file, cmd):
     for job in jobs:
         job_id = job.strip().split(" ")[0]
         current_jobs.add(job_id)
-        running_jobs.add(job_id)
+        jobs_seen_last.add(job_id)
 
     update_completed_jobs(sqlite_file)
 
@@ -132,6 +132,6 @@ def poll_lpstat(sqlite_file):
     while True:
         try:
             query_lpstat(sqlite_file, LPSTAT_CMD)
-        except Exception as e:
-            logging.error(f"Error occured: {e}")
+        except Exception:
+            logging.exception("what happened to query_lpstat?")
         time.sleep(SLEEP_TIME)
