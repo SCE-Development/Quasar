@@ -1,38 +1,3 @@
-"""
-## changes for rn
-- sqlite_helpers.py should only contain code that has to do with inserting and querying job ids
-- follow the below doc to create an iterator that will return an incrementing number
-    https://docs.google.com/document/d/1OUAKLbre3m9d6-gywAfYpqgTGErKRRWy_UAHWk1D67A/edit?tab=t.0#heading=h.kce7czbd2le8
-    - we will use the above to create the numerical suffix for the job id, not sqlite
-- abstract the below code to a function called create_print_job. it will return a string print job id, or None if there was some error
-```
-print_job = subprocess.Popen(
-    command,
-    shell=True,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.PIPE,
-    text=True,
-)
-print_job.wait()
-
-if print_job.returncode != 0:
-    logging.error(
-        f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}"
-    )
-    return None
-try:
-    print_id = print_job.stdout.read().strip().split(" ")[3]
-```
-- once we have the above working, add an if statement for if we are in dev mode
-- if we are in dev mode, create a fake print job and return it
-- make sure ur code writes this dynamically generated job id to sqlite
-
-**make a pr with just the above changes, the movement of job id to a function and the creation of the iterator class**
-once this is done, we will discuss how to mock lpstat job ids, like how to match up the numbers with what the iterator returns
-
-"""
-
-
 import logging
 import sqlite3
 import time

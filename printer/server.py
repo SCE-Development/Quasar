@@ -127,9 +127,8 @@ def send_file_to_printer(
         return None
     
     job_id = gerard.create_print_job(command)
-    if not job_id:
-        return job_id
-    sqlite_helpers.insert_print_job(args.database_file_path, job_id)
+    if job_id:
+        sqlite_helpers.insert_print_job(args.database_file_path, job_id)
     return job_id
 
     
