@@ -20,6 +20,7 @@ from metrics import MetricsHandler
 
 
 print_queue = PrintQueue()
+printer_lock = asyncio.Lock()
 metrics_handler = MetricsHandler.instance()
 app = FastAPI()
 
@@ -119,7 +120,7 @@ def send_file_to_printer(
 
     # only the right printer works right now, so we default to it
     PRINTER_NAME = "dev_printer" if args.dev_printer else os.environ.get("RIGHT_PRINTER_NAME")
-    command = f"lp -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
+    command = f"lp -H hold -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
     metrics_handler.print_jobs_recieved.inc()
     
     if args.development and not args.dev_printer:
@@ -186,41 +187,41 @@ async def read_item(
       "sides": string value from user input on clark frontend; we insert this into the lp command,
     }
     """
+    async with printer_lock:
+        if (args.dev_printer or not args.development) and not print_queue.actual_queue_available() :
+            print_queue.add(file.filename)
+            timeout = 0
+            while print_queue.in_queue(file.filename):
+                timeout += 1
 
-    if args.dev_printer or not args.development:
-        print_queue.add(file.filename)
-        timeout = 0
-        while print_queue.in_queue(file.filename):
-            timeout += 1
+                if timeout > 300:
+                    raise Exception("/print TIMED OUT AFTER 300 SECONDS WHILE WAITING IN THE PRINTER QUEUE")
+                
+                await asyncio.sleep(1)
 
-            if timeout > 120:
-                raise Exception("/print TIMED OUT AFTER 120 SECONDS WHILE WAITING IN THE PRINTER QUEUE")
-            
-            await asyncio.sleep(1)
+        try:
+            base = pathlib.Path("/tmp")
+            file_id = str(uuid.uuid4())
+            file_path = str(base / file_id)
+            with open(file_path, "wb") as f:
+                f.write(await file.read())
+            print_id = send_file_to_printer(
+                str(file_path),
+                copies,
+                sides=sides,
+            )
 
-    try:
-        base = pathlib.Path("/tmp")
-        file_id = str(uuid.uuid4())
-        file_path = str(base / file_id)
-        with open(file_path, "wb") as f:
-            f.write(await file.read())
-        print_id = send_file_to_printer(
-            str(file_path),
-            copies,
-            sides=sides,
-        )
+            maybe_delete_pdf(file_path)
 
-        maybe_delete_pdf(file_path)
-
-        if not args.development and print_id is None:
-            raise Exception("unable to extract print id from print request")
-        return {"print_id": print_id}
-    except Exception:
-        logging.exception("printing failed!")
-        return HTTPException(
-            status_code=500,
-            detail="printing failed, check logs",
-        )
+            if not args.development and print_id is None:
+                raise Exception("unable to extract print id from print request")
+            return {"print_id": print_id}
+        except Exception:
+            logging.exception("printing failed!")
+            return HTTPException(
+                status_code=500,
+                detail="printing failed, check logs",
+            )
     
 
 # we have a separate __name__ check here due to how FastAPI starts
