@@ -120,7 +120,7 @@ def send_file_to_printer(
 
     # only the right printer works right now, so we default to it
     PRINTER_NAME = "dev_printer" if args.dev_printer else os.environ.get("RIGHT_PRINTER_NAME")
-    command = f"lp -H hold -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
+    command = f"lp -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
     metrics_handler.print_jobs_recieved.inc()
     
     if args.development and not args.dev_printer:
