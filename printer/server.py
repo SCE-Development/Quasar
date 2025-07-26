@@ -6,7 +6,6 @@ import subprocess
 import threading
 import time
 import uuid
-import collector
 import gerard
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -15,6 +14,7 @@ from fastapi.responses import PlainTextResponse
 import prometheus_client
 import uvicorn
 
+import collector
 from metrics import MetricsHandler
 import sqlite_helpers
 
@@ -77,7 +77,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--database-file-path",
         help="path to sqlite database file",
-        default="/tmp/jobs.db"
+        default="/tmp/jobs.db",
     )
     return parser.parse_args()
 
@@ -118,20 +118,16 @@ def send_file_to_printer(
 
     # only the right printer works right now, so we default to it
     PRINTER_NAME = os.environ.get("RIGHT_PRINTER_NAME")
-    command = f"lp -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
     metrics_handler.print_jobs_recieved.inc()
-    if args.development:
-        logging.warning(
-            f"server is in development mode, command would've been `{command}`"
-        )
-        return None
-    
-    job_id = gerard.create_print_job(command)
+
+    job_id = gerard.create_print_job(
+        num_copies, maybe_page_range, sides, PRINTER_NAME, file_path, args.development
+    )
     if job_id:
         sqlite_helpers.insert_print_job(args.database_file_path, job_id)
     return job_id
 
-    
+
 def maybe_delete_pdf(file_path):
     if args.dont_delete_pdfs:
         logging.info(
@@ -207,8 +203,8 @@ if __name__ == "server":
             daemon=True,
         )
         t.start()
- 
-        sqlite_helpers.maybe_create_table(args.database_file_path)  
+
+        sqlite_helpers.maybe_create_table(args.database_file_path)
 
         # t2 = threading.Thread(
         #     target=sqlite_helpers.poll_lpstat,
