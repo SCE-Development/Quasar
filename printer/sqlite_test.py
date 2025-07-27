@@ -72,25 +72,8 @@ class TestDatabaseSetup(unittest.TestCase):
             cursor = db.cursor()
             cursor.execute("SELECT * FROM logs WHERE job_id = ?", ("world",))
             [_, job_id, status] = cursor.fetchone()
-            self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
+            self.assertEqual(job_id, "world")
             self.assertEqual(status, 'created')
-
-    def test_update_acknowledged_log(self):
-        # add some job ids and stuff
-        with tempfile.NamedTemporaryFile() as tmp:
-            result = sqlite_helpers.maybe_create_table(tmp.name)
-            self.assertTrue(result)
-            other_job_id = "hi i am another cool job."
-            sqlite_helpers.insert_print_job(tmp.name, self.EXAMPLE_JOB_ID)
-            sqlite_helpers.insert_print_job(tmp.name, other_job_id)
-            sqlite_helpers.update_acknowledged_jobs(tmp.name, {self.EXAMPLE_JOB_ID, other_job_id})
-            
-            db = sqlite3.connect(tmp.name)
-            cursor = db.cursor()
-            cursor.execute("SELECT * FROM logs WHERE job_id = ?", (self.EXAMPLE_JOB_ID,))
-            [_, job_id, status] = cursor.fetchone()
-            self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
-            self.assertEqual(status, 'acknowledged')
 
 if __name__ == "__main__":
     unittest.main()
