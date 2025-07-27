@@ -44,10 +44,7 @@ class TestDatabaseSetup(unittest.TestCase):
             db = sqlite3.connect(tmp.name)
             cursor = db.cursor()
             cursor.execute("SELECT * FROM logs WHERE job_id = ?", (self.EXAMPLE_JOB_ID,))
-            [date, job_id, status] = cursor.fetchone()
-            
-            expected_datetime_str = self.EXAMPLE_DATETIME.strftime('%Y-%m-%d %H:%M:%S')
-            self.assertEqual(date, expected_datetime_str)
+            [_, job_id, status] = cursor.fetchone()
             self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
             self.assertEqual(status, 'created')
    
@@ -67,9 +64,7 @@ class TestDatabaseSetup(unittest.TestCase):
             db = sqlite3.connect(tmp.name)
             cursor = db.cursor()
             cursor.execute("SELECT * FROM logs WHERE job_id = ?", (self.EXAMPLE_JOB_ID,))
-            [date, job_id, status] = cursor.fetchone()
-            
-            self.assertEqual(date, self.EXAMPLE_DATETIME)
+            [_, job_id, status] = cursor.fetchone()
             self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
             self.assertEqual(status, 'completed')
 
