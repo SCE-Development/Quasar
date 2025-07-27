@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+import sqlite_helpers
 import subprocess
 import time
 
@@ -85,24 +86,6 @@ def print_db(sqlite_file: str):
     print("-------------------------------")
 
 
-def update_completed_jobs(sqlite_file):
-    global jobs_seen_last, current_jobs
-    db = sqlite3.connect(sqlite_file)
-    cursor = db.cursor()
-
-    # everything in the previous set that IS NOT in the current set
-    completed_jobs = jobs_seen_last.difference(current_jobs)
-    completed_job_ids = [(job_id,) for job_id in completed_jobs]
-    logging.info(f"marking {completed_jobs} as completed in sqlite")
-
-    sql_update = "UPDATE logs SET status = 'completed' WHERE job_id = ?"
-    cursor.executemany(sql_update, completed_job_ids)
-    db.commit()
-
-    jobs_seen_last = current_jobs.copy()
-    current_jobs.clear()
-
-
 def query_lpstat(sqlite_file, cmd):
     global jobs_seen_last, current_jobs
     p = subprocess.Popen(
@@ -116,7 +99,7 @@ def query_lpstat(sqlite_file, cmd):
 
     output = p.stdout.read().strip()
     if len(output) == 0:
-        update_completed_jobs(sqlite_file)
+        sqlite_helpers.update_completed_jobs(sqlite_file, jobs_seen_last, current_jobs)
         return
     # 2 things at once; add new jobs to new one while also retrieving current job_ids
     jobs = output.split("\n")
@@ -125,7 +108,7 @@ def query_lpstat(sqlite_file, cmd):
         current_jobs.add(job_id)
         jobs_seen_last.add(job_id)
 
-    update_completed_jobs(sqlite_file)
+    sqlite_helpers.update_completed_jobs(sqlite_file, jobs_seen_last, current_jobs)
 
 
 def poll_lpstat(sqlite_file):
