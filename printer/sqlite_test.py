@@ -33,8 +33,7 @@ class TestDatabaseSetup(unittest.TestCase):
     
     @mock.patch("sqlite_helpers.datetime")
     def test_insert_log(self, mock_datetime):
-        mock_datetime.fromisoformat.return_value = self.EXAMPLE_DATETIME
-        mock_datetime.now.return_value = self.EXAMPLE_DATETIME
+        mock_datetime.datetime.now.return_value = self.EXAMPLE_DATETIME
 
         with tempfile.NamedTemporaryFile() as tmp:
             result = sqlite_helpers.maybe_create_table(tmp.name)
@@ -55,7 +54,6 @@ class TestDatabaseSetup(unittest.TestCase):
     @mock.patch("sqlite_helpers.datetime")
     def test_update_completed_log(self, mock_datetime):
         mock_datetime.fromisoformat.return_value = self.EXAMPLE_DATETIME
-        mock_datetime.now.return_value = self.EXAMPLE_DATETIME
 
         # add some job ids and stuff
         with tempfile.NamedTemporaryFile() as tmp:
@@ -71,8 +69,7 @@ class TestDatabaseSetup(unittest.TestCase):
             cursor.execute("SELECT * FROM logs WHERE job_id = ?", (self.EXAMPLE_JOB_ID,))
             [date, job_id, status] = cursor.fetchone()
             
-            expected_datetime_str = self.EXAMPLE_DATETIME.strftime('%Y-%m-%d %H:%M:%S')
-            self.assertEqual(date, expected_datetime_str)
+            self.assertEqual(date, self.EXAMPLE_DATETIME)
             self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
             self.assertEqual(status, 'completed')
 
