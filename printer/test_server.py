@@ -2,6 +2,8 @@ import importlib
 import io
 import os
 import subprocess
+import sqlite_helpers
+import sqlite3
 import unittest
 from unittest import mock
 
@@ -291,7 +293,6 @@ class TestFastAPI(unittest.TestCase):
         )
 
         mock_pathlib_unlink.assert_called_once()
-
 
 if __name__ == "__main__":
     unittest.main()
