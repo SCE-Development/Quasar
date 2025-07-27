@@ -31,15 +31,11 @@ class TestDatabaseSetup(unittest.TestCase):
             self.assertEqual(table, "logs")
 
     
-    @mock.patch("sqlite_helpers.datetime")
-    def test_insert_log(self, mock_datetime):
-        mock_datetime.datetime.now.return_value = self.EXAMPLE_DATETIME
-
+    def test_insert_log(self):
         with tempfile.NamedTemporaryFile() as tmp:
             result = sqlite_helpers.maybe_create_table(tmp.name)
             self.assertTrue(result)
             result = sqlite_helpers.insert_print_job(tmp.name, self.EXAMPLE_JOB_ID)
-            self.assertEqual(result, self.EXAMPLE_DATETIME)
             
             db = sqlite3.connect(tmp.name)
             cursor = db.cursor()
@@ -48,18 +44,19 @@ class TestDatabaseSetup(unittest.TestCase):
             self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
             self.assertEqual(status, 'created')
    
-    @mock.patch("sqlite_helpers.datetime")
-    def test_update_completed_log(self, mock_datetime):
-        mock_datetime.fromisoformat.return_value = self.EXAMPLE_DATETIME
-
+    def test_update_completed_log(self):
         # add some job ids and stuff
         with tempfile.NamedTemporaryFile() as tmp:
             result = sqlite_helpers.maybe_create_table(tmp.name)
             self.assertTrue(result)
-            other_job_id = "hi i am another cool job."
+
+            jobs_seen_last = {self.EXAMPLE_JOB_ID, "hello", "world"}
+
             sqlite_helpers.insert_print_job(tmp.name, self.EXAMPLE_JOB_ID)
-            sqlite_helpers.insert_print_job(tmp.name, other_job_id)
-            sqlite_helpers.update_completed_jobs(tmp.name, {self.EXAMPLE_JOB_ID, other_job_id}, {other_job_id})
+            sqlite_helpers.insert_print_job(tmp.name, "hello")
+            sqlite_helpers.insert_print_job(tmp.name, "world")
+
+            sqlite_helpers.update_completed_jobs(tmp.name, jobs_seen_last, {"hello", "world"})
             
             db = sqlite3.connect(tmp.name)
             cursor = db.cursor()
@@ -67,6 +64,33 @@ class TestDatabaseSetup(unittest.TestCase):
             [_, job_id, status] = cursor.fetchone()
             self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
             self.assertEqual(status, 'completed')
+            jobs_seen_last.remove(self.EXAMPLE_JOB_ID)
+            
+            sqlite_helpers.update_completed_jobs(tmp.name, jobs_seen_last, {"world"})
+            
+            db = sqlite3.connect(tmp.name)
+            cursor = db.cursor()
+            cursor.execute("SELECT * FROM logs WHERE job_id = ?", ("world",))
+            [_, job_id, status] = cursor.fetchone()
+            self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
+            self.assertEqual(status, 'created')
+
+    def test_update_acknowledged_log(self):
+        # add some job ids and stuff
+        with tempfile.NamedTemporaryFile() as tmp:
+            result = sqlite_helpers.maybe_create_table(tmp.name)
+            self.assertTrue(result)
+            other_job_id = "hi i am another cool job."
+            sqlite_helpers.insert_print_job(tmp.name, self.EXAMPLE_JOB_ID)
+            sqlite_helpers.insert_print_job(tmp.name, other_job_id)
+            sqlite_helpers.update_acknowledged_jobs(tmp.name, {self.EXAMPLE_JOB_ID, other_job_id})
+            
+            db = sqlite3.connect(tmp.name)
+            cursor = db.cursor()
+            cursor.execute("SELECT * FROM logs WHERE job_id = ?", (self.EXAMPLE_JOB_ID,))
+            [_, job_id, status] = cursor.fetchone()
+            self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
+            self.assertEqual(status, 'acknowledged')
 
 if __name__ == "__main__":
     unittest.main()
