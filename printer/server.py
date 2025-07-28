@@ -53,12 +53,6 @@ def get_args() -> argparse.Namespace:
         help="PORT name for server to listen on. defaults to 9000",
     )
     parser.add_argument(
-        "--dev-printer",
-        action="store_true",
-        default=False,
-        help="specify if the development virtual printer should be used",
-    )
-    parser.add_argument(
         "--config-json-path",
         default="/app/config/config.json",
         help="path to config json path",
@@ -119,11 +113,11 @@ def send_file_to_printer(
         maybe_page_range = f"-o page-ranges={page_range}"
 
     # only the right printer works right now, so we default to it
-    PRINTER_NAME = "dev_printer" if args.dev_printer else os.environ.get("RIGHT_PRINTER_NAME")
+    PRINTER_NAME = os.environ.get("RIGHT_PRINTER_NAME")
     command = f"lp -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
     metrics_handler.print_jobs_recieved.inc()
     
-    if args.development and not args.dev_printer:
+    if args.development:
         logging.warning(
             f"server is in development mode, command would've been `{command}`"
         )
@@ -188,7 +182,7 @@ async def read_item(
     }
     """
     async with printer_lock:
-        if (args.dev_printer or not args.development) and not print_queue.actual_queue_available() :
+        if not args.development and not print_queue.actual_queue_available():
             print_queue.add(file.filename)
             timeout = 0
             while print_queue.in_queue(file.filename):
@@ -233,7 +227,7 @@ async def read_item(
 # the thread interacts with an instance different than the one the
 # server uses
 if __name__ == "server":
-    if args.dev_printer or not args.development:
+    if not args.development:
         queue_thread = threading.Thread(
             target=print_queue.feed_into_printer,
             daemon=True
