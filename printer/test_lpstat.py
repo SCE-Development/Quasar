@@ -154,3 +154,6 @@ class TestGerardWithMockedDB(unittest.TestCase):
         ]
         mock_cursor.executemany.assert_has_calls(expected_calls, any_order=True)
         self.assertEqual(gerard.current_jobs, {job_id_2})
+
+if __name__ == "__main__":
+    unittest.main()
