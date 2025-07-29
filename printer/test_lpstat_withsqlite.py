@@ -23,6 +23,7 @@ class TestLpStatSqlite(unittest.TestCase):
             self.assertTrue(db_result)
 
             gerard.query_lpstat(tmp.name, gerard.LPSTAT_CMD)
+            self.assertEqual(gerard.jobs_seen_last, {job_id})
 
             mock_popen.assert_called_once()
             self.assertEqual(
@@ -35,7 +36,6 @@ class TestLpStatSqlite(unittest.TestCase):
                     text=True,
                 )
             )
-            self.assertEqual(gerard.current_jobs, {job_id})
 
     @mock.patch("gerard.subprocess.Popen")
     def test_query_lpstat_acknowledged_single(self, mock_popen):
@@ -73,7 +73,7 @@ class TestLpStatSqlite(unittest.TestCase):
             [_, sql_job_id, status] = cursor.fetchone()
             self.assertEqual(sql_job_id, job_id)
             self.assertEqual(status, 'acknowledged')
-            self.assertEqual(gerard.current_jobs, {job_id})
+            self.assertEqual(gerard.jobs_seen_last, {job_id})
 
     @mock.patch("gerard.subprocess.Popen")
     def test_query_lpstat_completed_single(self, mock_popen):
@@ -111,7 +111,7 @@ class TestLpStatSqlite(unittest.TestCase):
             [_, sql_job_id, status] = cursor.fetchone()
             self.assertEqual(sql_job_id, job_id)
             self.assertEqual(status, 'completed')
-            self.assertEqual(gerard.current_jobs, {})
+            self.assertEqual(gerard.jobs_seen_last, {})
         
     @mock.patch("gerard.subprocess.Popen")
     def test_query_lpstat_acknowledged_multiple(self, mock_popen):
@@ -147,7 +147,7 @@ class TestLpStatSqlite(unittest.TestCase):
                     text=True,
                 )
             )
-            self.assertEqual(gerard.current_jobs, {job_id_1, job_id_2})
+            self.assertEqual(gerard.jobs_seen_last, {job_id_1, job_id_2})
 
             db = sqlite3.connect(tmp.name)
             cursor = db.cursor()
@@ -194,7 +194,7 @@ class TestLpStatSqlite(unittest.TestCase):
                     text=True,
                 )
             )
-            self.assertEqual(gerard.current_jobs, {})
+            self.assertEqual(gerard.jobs_seen_last, {})
 
 
             db = sqlite3.connect(tmp.name)
@@ -242,7 +242,7 @@ class TestLpStatSqlite(unittest.TestCase):
                     text=True,
                 )
             )
-            self.assertEqual(gerard.current_jobs, {job_id_2})
+            self.assertEqual(gerard.jobs_seen_last, {job_id_2})
 
             db = sqlite3.connect(tmp.name)
             cursor = db.cursor()
