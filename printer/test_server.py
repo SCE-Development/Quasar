@@ -2,8 +2,6 @@ import importlib
 import io
 import os
 import subprocess
-import sqlite_helpers
-import sqlite3
 import unittest
 from unittest import mock
 

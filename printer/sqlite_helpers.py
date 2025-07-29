@@ -43,19 +43,24 @@ def insert_print_job(sqlite_file: str, job_id: str):
         return None
     
 
-def update_completed_jobs(sqlite_file, jobs_seen_last, current_jobs):
+def update_jobs(sqlite_file, jobs_seen_last, current_jobs):
     db = sqlite3.connect(sqlite_file)
     cursor = db.cursor()
 
     # everything in the previous set that IS NOT in the current set
     completed_jobs = jobs_seen_last.difference(current_jobs)
     completed_job_ids = [(job_id,) for job_id in completed_jobs]
+    current_job_ids = [(job_id,) for job_id in current_jobs]
     logging.info(f"marking {completed_jobs} as completed in sqlite")
 
     sql_update = "UPDATE logs SET status = 'completed' WHERE job_id = ?"
     cursor.executemany(sql_update, completed_job_ids)
-    db.commit()
 
+    sql_set_acknowledged = "UPDATE logs SET status = 'acknowledged' WHERE job_id = ? AND status != 'acknowledged'"
+    cursor.executemany(sql_set_acknowledged, current_job_ids)
+
+    db.commit()
+    
     jobs_seen_last = current_jobs.copy()
     current_jobs.clear()
 
