@@ -56,7 +56,7 @@ class TestDatabaseSetup(unittest.TestCase):
             sqlite_helpers.insert_print_job(tmp.name, "hello")
             sqlite_helpers.insert_print_job(tmp.name, "world")
 
-            sqlite_helpers.update_completed_jobs(tmp.name, jobs_seen_last, {"hello", "world"})
+            sqlite_helpers.update_jobs(tmp.name, jobs_seen_last, {"hello", "world"})
             
             db = sqlite3.connect(tmp.name)
             cursor = db.cursor()
@@ -66,7 +66,7 @@ class TestDatabaseSetup(unittest.TestCase):
             self.assertEqual(status, 'completed')
             jobs_seen_last.remove(self.EXAMPLE_JOB_ID)
             
-            sqlite_helpers.update_completed_jobs(tmp.name, jobs_seen_last, {"world"})
+            sqlite_helpers.update_jobs(tmp.name, jobs_seen_last, {"world"})
             
             db = sqlite3.connect(tmp.name)
             cursor = db.cursor()
