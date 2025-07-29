@@ -73,7 +73,7 @@ class TestDatabaseSetup(unittest.TestCase):
             cursor.execute("SELECT * FROM logs WHERE job_id = ?", ("world",))
             [_, job_id, status] = cursor.fetchone()
             self.assertEqual(job_id, "world")
-            self.assertEqual(status, 'created')
+            self.assertEqual(status, 'acknowledged')
 
 if __name__ == "__main__":
     unittest.main()
