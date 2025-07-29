@@ -28,4 +28,4 @@ jobs:
       run: |
         python printer/test_server.py
         python printer/sqlite_test.py
-        python printer/test_lpstat.py
+        python printer/test_lpstat_withsqlite.py
