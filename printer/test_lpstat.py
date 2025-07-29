@@ -30,28 +30,7 @@ class TestGerardWithMockedDB(unittest.TestCase):
             "UPDATE logs SET status = 'acknowledged' WHERE job_id = ? AND status != 'acknowledged'",
             [(job_id,)],
         )
-        self.assertEqual(gerard.current_jobs, {job_id})
-
-    @mock.patch("sqlite_helpers.sqlite3.connect")
-    @mock.patch("gerard.subprocess.Popen")
-    def test_query_lpstat_acknowledged_single(self, mock_popen, mock_connect):
-        job_id = "print_job-1"
-        mock_popen.return_value.stdout.read.return_value = job_id
-        mock_popen.return_value.returncode = 0
-        fake_db_path = "/fake/path.db"
-        mock_cursor = mock_connect.return_value.cursor.return_value
-
-        sqlite_helpers.insert_print_job(fake_db_path, job_id)
-        gerard.query_lpstat(fake_db_path, gerard.LPSTAT_CMD)
-
-        mock_cursor.execute.assert_called_with(
-            "INSERT INTO logs (job_id) VALUES (?)", (job_id,)
-        )
-        mock_cursor.executemany.assert_called_with(
-            "UPDATE logs SET status = 'acknowledged' WHERE job_id = ? AND status != 'acknowledged'",
-            [(job_id,)],
-        )
-        self.assertEqual(gerard.current_jobs, {job_id})
+        self.assertEqual(gerard.jobs_seen_last, {job_id})
 
     @mock.patch("sqlite_helpers.sqlite3.connect")
     @mock.patch("gerard.subprocess.Popen")
@@ -67,7 +46,7 @@ class TestGerardWithMockedDB(unittest.TestCase):
         mock_connect.return_value.cursor.return_value.executemany.assert_called_with(
             "UPDATE logs SET status = 'completed' WHERE job_id = ?", [(job_id,)]
         )
-        self.assertEqual(gerard.current_jobs, {})
+        self.assertEqual(gerard.jobs_seen_last, {})
 
     @mock.patch("sqlite_helpers.sqlite3.connect")
     @mock.patch("gerard.subprocess.Popen")
@@ -88,7 +67,7 @@ class TestGerardWithMockedDB(unittest.TestCase):
         )
         call_args = mock_connect.return_value.cursor.return_value.executemany.call_args[0][1]
         self.assertCountEqual(call_args, [(job_id_1,), (job_id_2,)])
-        self.assertEqual(gerard.current_jobs, {job_id_1, job_id_2})
+        self.assertEqual(gerard.jobs_seen_last, {job_id_1, job_id_2})
 
     
     @mock.patch("sqlite_helpers.sqlite3.connect")
@@ -108,7 +87,7 @@ class TestGerardWithMockedDB(unittest.TestCase):
         )
         call_args = mock_connect.return_value.cursor.return_value.executemany.call_args[0][1]
         self.assertCountEqual(call_args, [(job_id_1,), (job_id_2,)])
-        self.assertEqual(gerard.current_jobs, {job_id_1, job_id_2})
+        self.assertEqual(gerard.jobs_seen_last, {job_id_1, job_id_2})
 
     @mock.patch("sqlite_helpers.sqlite3.connect")
     @mock.patch("gerard.subprocess.Popen")
@@ -128,7 +107,7 @@ class TestGerardWithMockedDB(unittest.TestCase):
         )
         call_args = mock_connect.return_value.cursor.return_value.executemany.call_args[0][1]
         self.assertCountEqual(call_args, [(job_id_1,), (job_id_2,)])
-        self.assertEqual(gerard.current_jobs, {})
+        self.assertEqual(gerard.jobs_seen_last, {})
 
     @mock.patch("sqlite_helpers.sqlite3.connect")
     @mock.patch("gerard.subprocess.Popen")
@@ -153,7 +132,7 @@ class TestGerardWithMockedDB(unittest.TestCase):
             ),
         ]
         mock_cursor.executemany.assert_has_calls(expected_calls, any_order=True)
-        self.assertEqual(gerard.current_jobs, {job_id_2})
+        self.assertEqual(gerard.jobs_seen_last, {job_id_2})
 
 if __name__ == "__main__":
     unittest.main()

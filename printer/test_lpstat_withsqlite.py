@@ -9,6 +9,11 @@ import gerard
 
 class TestLpStatSqlite(unittest.TestCase):
 
+    def setUp(self):
+        gerard.jobs_seen_last.clear()
+        gerard.current_jobs.clear()
+
+
     @mock.patch("gerard.subprocess.Popen")
     def test_query_lpstat_parsing_single(self, mock_popen):
         job_id = "print_job-1"
