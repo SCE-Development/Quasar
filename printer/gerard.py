@@ -99,7 +99,7 @@ def query_lpstat(sqlite_file, cmd):
 
     output = p.stdout.read().strip()
     if len(output) == 0:
-        sqlite_helpers.update_completed_jobs(sqlite_file, jobs_seen_last, current_jobs)
+        sqlite_helpers.update_jobs(sqlite_file, jobs_seen_last, current_jobs)
         return
     # 2 things at once; add new jobs to new one while also retrieving current job_ids
     jobs = output.split("\n")
@@ -108,7 +108,7 @@ def query_lpstat(sqlite_file, cmd):
         current_jobs.add(job_id)
         jobs_seen_last.add(job_id)
 
-    sqlite_helpers.update_completed_jobs(sqlite_file, jobs_seen_last, current_jobs)
+    sqlite_helpers.update_jobs(sqlite_file, jobs_seen_last, current_jobs)
 
 
 def poll_lpstat(sqlite_file):
