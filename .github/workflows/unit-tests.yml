@@ -23,9 +23,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r printer/requirements.txt
-
+        
     - name: Run tests
       run: |
         python printer/test_server.py
-        python printer/sqlite_test.py
+        python printer/test_sqlite.py
         python printer/test_lpstat.py
