@@ -65,7 +65,8 @@ def update_jobs(sqlite_file, jobs_seen_last, current_jobs):
 
     db.commit()
     
-    jobs_seen_last = current_jobs.copy()
+    jobs_seen_last.clear()
+    jobs_seen_last.update(current_jobs.copy())
     current_jobs.clear()
 
 def get_logs(sqlite_file):
