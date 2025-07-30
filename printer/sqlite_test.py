@@ -74,7 +74,6 @@ class TestDatabaseSetup(unittest.TestCase):
         [_, job_id, status] = cursor.fetchone()
         self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
         self.assertEqual(status, 'completed')
-        jobs_seen_last.remove(self.EXAMPLE_JOB_ID)
         
         sqlite_helpers.update_jobs(tmp.name, jobs_seen_last, {"world"})
         
