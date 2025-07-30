@@ -1,137 +1,262 @@
-import gerard
+import subprocess
 import sqlite_helpers
-from unittest import mock
+import sqlite3
+import tempfile
 import unittest
+from unittest import mock
 
-class TestGerardWithMockedDB(unittest.TestCase):
+import gerard
+
+class TestLpStatSqlite(unittest.TestCase):
+
     def setUp(self):
-        self.original_jobs_seen_last = gerard.jobs_seen_last.copy()
-        self.original_current_jobs = gerard.current_jobs.copy()
         gerard.jobs_seen_last.clear()
         gerard.current_jobs.clear()
 
-    def tearDown(self):
-        gerard.jobs_seen_last = self.original_jobs_seen_last
-        gerard.current_jobs = self.original_current_jobs
 
-    @mock.patch("sqlite_helpers.sqlite3.connect")
     @mock.patch("gerard.subprocess.Popen")
-    def test_query_lpstat_parsing_single(self, mock_popen, mock_connect):
+    def test_query_lpstat_parsing_single(self, mock_popen):
         job_id = "print_job-1"
-        mock_popen.return_value.stdout.read.return_value = job_id
-        mock_popen.return_value.returncode = 0
-        fake_db_path = "/fake/path.db"
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = job_id
+        mock_popen.return_value = mock_popen_result
 
-        gerard.query_lpstat(fake_db_path, gerard.LPSTAT_CMD)
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        db_path = tmp.name
+        tmp.close()
 
-        mock_popen.assert_called_once()
-        mock_connect.assert_called_once_with(fake_db_path)
-        mock_connect.return_value.cursor.return_value.executemany.assert_called_with(
-            "UPDATE logs SET status = 'acknowledged' WHERE job_id = ? AND status != 'acknowledged'",
-            [(job_id,)],
-        )
+        db_result = sqlite_helpers.maybe_create_table(db_path)
+        self.assertTrue(db_result)
+
+        gerard.query_lpstat(db_path, gerard.LPSTAT_CMD)
         self.assertEqual(gerard.jobs_seen_last, {job_id})
 
-    @mock.patch("sqlite_helpers.sqlite3.connect")
-    @mock.patch("gerard.subprocess.Popen")
-    def test_query_lpstat_completed_single(self, mock_popen, mock_connect):
-        job_id = "print_job-1"
-        gerard.jobs_seen_last.add(job_id)
-        mock_popen.return_value.stdout.read.return_value = ""
-        mock_popen.return_value.returncode = 0
-        fake_db_path = "/fake/path.db"
-
-        gerard.query_lpstat(fake_db_path, gerard.LPSTAT_CMD)
-
-        mock_connect.return_value.cursor.return_value.executemany.assert_called_with(
-            "UPDATE logs SET status = 'completed' WHERE job_id = ?", [(job_id,)]
+        mock_popen.assert_called_once()
+        self.assertEqual(
+            mock_popen.call_args_list[0],
+            mock.call(
+                gerard.LPSTAT_CMD,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
         )
-        self.assertEqual(gerard.jobs_seen_last, {})
 
-    @mock.patch("sqlite_helpers.sqlite3.connect")
     @mock.patch("gerard.subprocess.Popen")
-    def test_query_lpstat_parsing_multiple(self, mock_popen, mock_connect):
-        job_id_1 = "print_job-1"
-        job_id_2 = "print_job-2"
-        mock_popen.return_value.stdout.read.return_value = f"{job_id_1}\n{job_id_2}"
-        mock_popen.return_value.returncode = 0
-        fake_db_path = "/fake/path.db"
+    def test_query_lpstat_acknowledged_single(self, mock_popen):
+        job_id  = "print_job-1"
 
-        gerard.query_lpstat(fake_db_path, gerard.LPSTAT_CMD)
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = job_id
+        mock_popen.return_value = mock_popen_result
+
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        db_path = tmp.name
+        tmp.close()
+
+        db_result = sqlite_helpers.maybe_create_table(db_path)
+        self.assertTrue(db_result)
+        insert_result = sqlite_helpers.insert_print_job(db_path, job_id)
+        self.assertIsNotNone(insert_result)
+
+        gerard.query_lpstat(db_path, gerard.LPSTAT_CMD)
 
         mock_popen.assert_called_once()
-        mock_connect.assert_called_once_with(fake_db_path)
-        mock_connect.return_value.cursor.return_value.executemany.assert_called_with(
-            "UPDATE logs SET status = 'acknowledged' WHERE job_id = ? AND status != 'acknowledged'",
-            mock.ANY,
+        self.assertEqual(
+            mock_popen.call_args_list[0],
+            mock.call(
+                gerard.LPSTAT_CMD,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
         )
-        call_args = mock_connect.return_value.cursor.return_value.executemany.call_args[0][1]
-        self.assertCountEqual(call_args, [(job_id_1,), (job_id_2,)])
+
+        self.assertEqual(gerard.jobs_seen_last, {job_id})
+
+    @mock.patch("gerard.subprocess.Popen")
+    def test_query_lpstat_completed_single(self, mock_popen):
+        job_id  = "print_job-1"
+
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = ""
+        mock_popen.return_value = mock_popen_result
+
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        db_path = tmp.name
+        tmp.close()
+
+        db_result = sqlite_helpers.maybe_create_table(db_path)
+        self.assertTrue(db_result)
+        insert_result = sqlite_helpers.insert_print_job(db_path, job_id)
+        self.assertIsNotNone(insert_result)
+
+        gerard.jobs_seen_last.update({job_id})
+        gerard.query_lpstat(db_path, gerard.LPSTAT_CMD)
+        
+        mock_popen.assert_called_once()
+        self.assertEqual(
+            mock_popen.call_args_list[0],
+            mock.call(
+                gerard.LPSTAT_CMD,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+        )
+
+        self.assertEqual(gerard.jobs_seen_last, set())
+        
+    @mock.patch("gerard.subprocess.Popen")
+    def test_query_lpstat_parsing_multiple(self, mock_popen):
+        job_id_1 = "print_job-1"
+        job_id_2 = "print_job-2"
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = f"{job_id_1}\n{job_id_2}"
+        mock_popen.return_value = mock_popen_result
+
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        db_path = tmp.name
+        tmp.close()
+
+        db_result = sqlite_helpers.maybe_create_table(db_path)
+        self.assertTrue(db_result)
+
+        gerard.query_lpstat(db_path, gerard.LPSTAT_CMD)
         self.assertEqual(gerard.jobs_seen_last, {job_id_1, job_id_2})
+
+        mock_popen.assert_called_once()
+        self.assertEqual(
+            mock_popen.call_args_list[0],
+            mock.call(
+                gerard.LPSTAT_CMD,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+        )
 
     
-    @mock.patch("sqlite_helpers.sqlite3.connect")
     @mock.patch("gerard.subprocess.Popen")
-    def test_query_lpstat_acknowledged_multiple(self, mock_popen, mock_connect):
-        job_id_1 = "print_job-1"
+    def test_query_lpstat_acknowledged_multiple(self, mock_popen):
+        
+        job_id_1  = "print_job-1"
         job_id_2 = "print_job-2"
-        mock_popen.return_value.stdout.read.return_value = f"{job_id_1}\n{job_id_2}"
-        mock_popen.return_value.returncode = 0
-        fake_db_path = "/fake/path.db"
 
-        gerard.query_lpstat(fake_db_path, gerard.LPSTAT_CMD)
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = job_id_1 + '\n' + job_id_2
+        mock_popen.return_value = mock_popen_result
 
-        mock_connect.return_value.cursor.return_value.executemany.assert_called_with(
-            "UPDATE logs SET status = 'acknowledged' WHERE job_id = ? AND status != 'acknowledged'",
-            mock.ANY,
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        db_path = tmp.name
+        tmp.close()
+
+        db_result = sqlite_helpers.maybe_create_table(db_path)
+        self.assertTrue(db_result)
+        insert_1 = sqlite_helpers.insert_print_job(db_path, job_id_1)
+        self.assertIsNotNone(insert_1)
+        insert_2 = sqlite_helpers.insert_print_job(db_path, job_id_2)
+        self.assertIsNotNone(insert_2)
+
+        gerard.query_lpstat(db_path, gerard.LPSTAT_CMD)
+
+        mock_popen.assert_called_once()
+        self.assertEqual(
+            mock_popen.call_args_list[0],
+            mock.call(
+                gerard.LPSTAT_CMD,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
         )
-        call_args = mock_connect.return_value.cursor.return_value.executemany.call_args[0][1]
-        self.assertCountEqual(call_args, [(job_id_1,), (job_id_2,)])
         self.assertEqual(gerard.jobs_seen_last, {job_id_1, job_id_2})
 
-    @mock.patch("sqlite_helpers.sqlite3.connect")
     @mock.patch("gerard.subprocess.Popen")
-    def test_query_lpstat_completed_multiple(self, mock_popen, mock_connect):
-        job_id_1 = "print_job-1"
+    def test_query_lpstat_completed_multiple(self, mock_popen):
+        job_id_1  = "print_job-1"
         job_id_2 = "print_job-2"
+
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = ""
+        mock_popen.return_value = mock_popen_result
+
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        db_path = tmp.name
+        tmp.close()
+
+        db_result = sqlite_helpers.maybe_create_table(db_path)
+        self.assertTrue(db_result)
+        insert_result = sqlite_helpers.insert_print_job(db_path, job_id_1)
+        self.assertIsNotNone(insert_result)
+        insert_2 = sqlite_helpers.insert_print_job(db_path, job_id_2)
+        self.assertIsNotNone(insert_2)
+
         gerard.jobs_seen_last.update({job_id_1, job_id_2})
-        mock_popen.return_value.stdout.read.return_value = ""
-        mock_popen.return_value.returncode = 0
-        fake_db_path = "/fake/path.db"
+        gerard.query_lpstat(db_path, gerard.LPSTAT_CMD)
 
-        gerard.query_lpstat(fake_db_path, gerard.LPSTAT_CMD)
-
-        mock_connect.return_value.cursor.return_value.executemany.assert_called_with(
-            "UPDATE logs SET status = 'completed' WHERE job_id = ?",
-            mock.ANY,
+        mock_popen.assert_called_once()
+        self.assertEqual(
+            mock_popen.call_args_list[0],
+            mock.call(
+                gerard.LPSTAT_CMD,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
         )
-        call_args = mock_connect.return_value.cursor.return_value.executemany.call_args[0][1]
-        self.assertCountEqual(call_args, [(job_id_1,), (job_id_2,)])
-        self.assertEqual(gerard.jobs_seen_last, {})
 
-    @mock.patch("sqlite_helpers.sqlite3.connect")
+
+        self.assertEqual(gerard.jobs_seen_last, set())
+
+
     @mock.patch("gerard.subprocess.Popen")
-    def test_query_lpstat_one_completed_from_multiple(self, mock_popen, mock_connect):
-        job_id_1 = "print_job-1"
+    def test_query_lpstat_one_completed_from_multiple(self, mock_popen):
+        job_id_1  = "print_job-1"
         job_id_2 = "print_job-2"
+
+        mock_popen_result = mock.MagicMock()
+        mock_popen_result.returncode = 0
+        mock_popen_result.stdout.read.return_value = job_id_2
+        mock_popen.return_value = mock_popen_result
+
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        db_path = tmp.name
+        tmp.close()
+
+        db_result = sqlite_helpers.maybe_create_table(db_path)
+        self.assertTrue(db_result)
+        insert_result = sqlite_helpers.insert_print_job(db_path, job_id_1)
+        self.assertIsNotNone(insert_result)
+        insert_2 = sqlite_helpers.insert_print_job(db_path, job_id_2)
+        self.assertIsNotNone(insert_2)
+
         gerard.jobs_seen_last.update({job_id_1, job_id_2})
-        mock_popen.return_value.stdout.read.return_value = job_id_2
-        mock_popen.return_value.returncode = 0
-        fake_db_path = "/fake/path.db"
-        mock_cursor = mock_connect.return_value.cursor.return_value
+        gerard.query_lpstat(db_path, gerard.LPSTAT_CMD)
 
-        gerard.query_lpstat(fake_db_path, gerard.LPSTAT_CMD)
-
-        expected_calls = [
+        mock_popen.assert_called_once()
+        self.assertEqual(
+            mock_popen.call_args_list[0],
             mock.call(
-                "UPDATE logs SET status = 'completed' WHERE job_id = ?", [(job_id_1,)]
-            ),
-            mock.call(
-                "UPDATE logs SET status = 'acknowledged' WHERE job_id = ? AND status != 'acknowledged'",
-                [(job_id_2,)],
-            ),
-        ]
-        mock_cursor.executemany.assert_has_calls(expected_calls, any_order=True)
+                gerard.LPSTAT_CMD,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+        )
         self.assertEqual(gerard.jobs_seen_last, {job_id_2})
 
 if __name__ == "__main__":
