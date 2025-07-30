@@ -96,6 +96,7 @@ class TestLpStatSqlite(unittest.TestCase):
             insert_result = sqlite_helpers.insert_print_job(tmp.name, job_id)
             self.assertIsNotNone(insert_result)
 
+            gerard.jobs_seen_last.update({job_id})
             gerard.query_lpstat(tmp.name, gerard.LPSTAT_CMD)
 
             mock_popen.assert_called_once()
@@ -186,6 +187,7 @@ class TestLpStatSqlite(unittest.TestCase):
             insert_2 = sqlite_helpers.insert_print_job(tmp.name, job_id_2)
             self.assertIsNotNone(insert_2)
 
+            gerard.jobs_seen_last.update({job_id_1, job_id_2})
             gerard.query_lpstat(tmp.name, gerard.LPSTAT_CMD)
 
             mock_popen.assert_called_once()
@@ -199,8 +201,7 @@ class TestLpStatSqlite(unittest.TestCase):
                     text=True,
                 )
             )
-            self.assertEqual(gerard.jobs_seen_last, {})
-
+            self.assertEqual(gerard.jobs_seen_last, set())
 
             db = sqlite3.connect(tmp.name)
             cursor = db.cursor()
@@ -234,6 +235,7 @@ class TestLpStatSqlite(unittest.TestCase):
             insert_2 = sqlite_helpers.insert_print_job(tmp.name, job_id_2)
             self.assertIsNotNone(insert_2)
 
+            gerard.jobs_seen_last.update({job_id_1, job_id_2})
             gerard.query_lpstat(tmp.name, gerard.LPSTAT_CMD)
 
             mock_popen.assert_called_once()

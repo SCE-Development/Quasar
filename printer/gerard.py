@@ -20,8 +20,13 @@ SLEEP_TIME = 1
 
 jobs_seen_last = set()
 current_jobs = set()
-logger = logging.getLogger(__name__)
 
+logging.basicConfig(
+    # in mondo we trust
+    format="%(asctime)s.%(msecs)03dZ %(levelname)s:%(name)s:%(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+    level=logging.INFO,
+)
 
 class IDIterator:
     def __init__(self):

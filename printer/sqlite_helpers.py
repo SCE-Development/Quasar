@@ -3,8 +3,12 @@ import logging
 import sqlite3
 import datetime
 
-logger = logging.getLogger(__name__)
-
+logging.basicConfig(
+    # in mondo we trust
+    format="%(asctime)s.%(msecs)03dZ %(levelname)s:%(name)s:%(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+    level=logging.INFO,
+)
 def maybe_create_table(sqlite_file: str) -> bool:
     db = sqlite3.connect(sqlite_file)
     cursor = db.cursor()
@@ -23,7 +27,7 @@ def maybe_create_table(sqlite_file: str) -> bool:
         db.commit()
         return True
     except Exception:
-        logger.exception("Unable to create printer table")
+        logging.exception("Unable to create printer table")
         return False
 
 def insert_print_job(sqlite_file: str, job_id: str):
@@ -39,7 +43,7 @@ def insert_print_job(sqlite_file: str, job_id: str):
     except sqlite3.IntegrityError:
         return None
     except Exception:
-        logger.exception("Inserting print job had an error")
+        logging.exception("Inserting print job had an error")
         return None
     
 
