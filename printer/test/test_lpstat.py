@@ -94,14 +94,14 @@ class TestLpStatSqlite(unittest.TestCase):
 
         # Check correct jobs marked as completed and acknowledged
         mock_mark_completed.assert_called_once_with(
-            "dummy.db", [("HP_LaserJet_p2015dn_Right-52",)]
+            "dummy.db", ["HP_LaserJet_p2015dn_Right-52"]
         )
         mock_mark_acknowledged.assert_called_once()
         database_name, acknowledged_jobs = mock_mark_acknowledged.call_args_list[0].args
         self.assertEqual(database_name, "dummy.db")
         self.assertCountEqual(
             acknowledged_jobs,
-            [("HP_LaserJet_p2015dn_Right-53",), ("HP_LaserJet_p2015dn_Right-54",)],
+            ["HP_LaserJet_p2015dn_Right-53", "HP_LaserJet_p2015dn_Right-54"],
         )
 
         # Ensure state was cleared and updated
