@@ -6,7 +6,6 @@ import subprocess
 import threading
 import time
 import uuid
-import gerard
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,9 +13,11 @@ from fastapi.responses import PlainTextResponse
 import prometheus_client
 import uvicorn
 
-import collector
-from metrics import MetricsHandler
-import sqlite_helpers
+from modules import collector
+from modules import gerard
+from modules import lpstat_helpers
+from modules.metrics import MetricsHandler
+from modules import sqlite_helpers
 
 
 metrics_handler = MetricsHandler.instance()
@@ -207,7 +208,7 @@ if __name__ == "server":
         sqlite_helpers.maybe_create_table(args.database_file_path)
 
         # t2 = threading.Thread(
-        #     target=sqlite_helpers.poll_lpstat,
+        #     target=lpstat_helpers.poll_lpstat,
         #     args=(
         #         args.database_file_path
         #     ),

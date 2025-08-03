@@ -1,9 +1,16 @@
 import datetime
+import os
+import sqlite3
+import sys
 import tempfile
 import unittest
-import sqlite3
-import sqlite_helpers
 from unittest import mock
+
+# this allows imports from the modules folder to work
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from modules import sqlite_helpers
+
 
 class TestDatabaseSetup(unittest.TestCase):
     """

@@ -2,12 +2,16 @@ import importlib
 import io
 import os
 import subprocess
+import sys
 import unittest
 from unittest import mock
 
 from fastapi.testclient import TestClient
 
-import gerard
+# this allows imports from the modules folder to work
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from modules import gerard
 import server
 
 
@@ -291,6 +295,11 @@ class TestFastAPI(unittest.TestCase):
         )
 
         mock_pathlib_unlink.assert_called_once()
+
+    @mock.patch("gerard.subprocess.Popen")
+    def test_parse_id(self, mock_popen):
+
+        gerard.create_print_job()
 
 if __name__ == "__main__":
     unittest.main()

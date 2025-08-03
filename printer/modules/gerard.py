@@ -1,9 +1,13 @@
+"""this file is for parsing lp command output.
+epicgdog made these files so instead of calling it lp_helpers.py its gerard.py
+"""
+
 import logging
 import sqlite3
-import sqlite_helpers
 import subprocess
 import time
 
+# from modules import sqlite_helpers
 
 LPSTAT_CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
 LP_COMMAND = """
@@ -41,7 +45,7 @@ class IDIterator:
 print_job_suffix = IDIterator()
 
 
-def create_print_job(num_copies, maybe_page_range, sides, printer_name, file_path, is_development_mode):
+def create_print_job(num_copies, maybe_page_range, sides, printer_name, file_path, is_development_mode=False):
     command = LP_COMMAND.format(
         num_copies=num_copies,
         maybe_page_range=maybe_page_range,
@@ -59,7 +63,7 @@ def create_print_job(num_copies, maybe_page_range, sides, printer_name, file_pat
 
     logging.info(f"running command {command}")
     print_job = subprocess.Popen(
-        command,
+        command,    
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -79,18 +83,6 @@ def create_print_job(num_copies, maybe_page_range, sides, printer_name, file_pat
         logging.exception(f"unable to parse print job from stdout")
         return ""
 
-
-def print_db(sqlite_file: str):
-    sql_query = "SELECT * FROM logs"
-    db = sqlite3.connect(sqlite_file)
-    cursor = db.cursor()
-    cursor.execute(sql_query)
-    print("-------------------------------")
-    for x in cursor.fetchall():
-        print(x)
-    print("-------------------------------")
-
-
 def query_lpstat(sqlite_file, cmd):
     global jobs_seen_last, current_jobs
     p = subprocess.Popen(
@@ -104,7 +96,7 @@ def query_lpstat(sqlite_file, cmd):
 
     output = p.stdout.read().strip()
     if len(output) == 0:
-        sqlite_helpers.update_jobs(sqlite_file, jobs_seen_last, current_jobs)
+        # sqlite_helpers.update_jobs(sqlite_file, jobs_seen_last, current_jobs)
         return
     # 2 things at once; add new jobs to new one while also retrieving current job_ids
     jobs = output.split("\n")
@@ -113,7 +105,7 @@ def query_lpstat(sqlite_file, cmd):
         current_jobs.add(job_id)
         jobs_seen_last.add(job_id)
 
-    sqlite_helpers.update_jobs(sqlite_file, jobs_seen_last, current_jobs)
+    # sqlite_helpers.update_jobs(sqlite_file, jobs_seen_last, current_jobs)
 
 
 def poll_lpstat(sqlite_file):
