@@ -9,6 +9,8 @@ logging.basicConfig(
     datefmt="%Y-%m-%dT%H:%M:%S",
     level=logging.INFO,
 )
+
+
 def maybe_create_table(sqlite_file: str) -> bool:
     db = sqlite3.connect(sqlite_file)
     cursor = db.cursor()
@@ -30,6 +32,7 @@ def maybe_create_table(sqlite_file: str) -> bool:
         logging.exception("Unable to create printer table")
         return False
 
+
 def insert_print_job(sqlite_file: str, job_id: str):
     try:
         with sqlite3.connect(sqlite_file, timeout=10.0) as db:
@@ -45,17 +48,36 @@ def insert_print_job(sqlite_file: str, job_id: str):
     except Exception:
         logging.exception("Inserting print job had an error")
         return None
-    
 
-def update_jobs(sqlite_file, jobs_seen_last, current_jobs):
+
+def mark_jobs_with_status(sqlite_file, jobs, status):
     db = sqlite3.connect(sqlite_file)
     cursor = db.cursor()
+
+    logging.info(f"marking {jobs} as {status} in sqlite")
+
+    sql_update = (
+        f"UPDATE logs SET status = {status} WHERE job_id = ? AND status != {status}"
+    )
+    cursor.executemany(sql_update, jobs)
+
+    db.commit()
+
+
+def mark_jobs_acknowledged(sqlite_file, jobs):
+    mark_jobs_with_status(sqlite_file, jobs, "acknowledged")
+
+
+def mark_jobs_completed(sqlite_file, jobs):
+    mark_jobs_with_status(sqlite_file, jobs, "completed")
+
+
+def update_jobs(sqlite_file, jobs_seen_last, current_jobs):
 
     # everything in the previous set that IS NOT in the current set
     completed_jobs = jobs_seen_last.difference(current_jobs)
     completed_job_ids = [(job_id,) for job_id in completed_jobs]
     current_job_ids = [(job_id,) for job_id in current_jobs]
-    logging.info(f"marking {completed_jobs} as completed in sqlite")
 
     sql_update = "UPDATE logs SET status = 'completed' WHERE job_id = ?"
     cursor.executemany(sql_update, completed_job_ids)
@@ -63,20 +85,6 @@ def update_jobs(sqlite_file, jobs_seen_last, current_jobs):
     sql_set_acknowledged = "UPDATE logs SET status = 'acknowledged' WHERE job_id = ? AND status != 'acknowledged'"
     cursor.executemany(sql_set_acknowledged, current_job_ids)
 
-    db.commit()
-    
     jobs_seen_last.clear()
     jobs_seen_last.update(current_jobs.copy())
     current_jobs.clear()
-
-def get_logs(sqlite_file):
-    db = sqlite3.connect(sqlite_file)
-    cursor = db.cursor()
-    
-    sql = f"""
-    SELECT * FROM logs 
-    ORDER BY date
-    """
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    return result

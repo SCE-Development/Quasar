@@ -81,7 +81,7 @@ class TestFastAPI(unittest.TestCase):
                     maybe_page_range="",
                     sides="one-sided",
                     printer_name="HP_P2015_DN",
-                    file_path="/tmp/test-id"
+                    file_path="/tmp/test-id",
                 ),
                 shell=True,
                 stdout=subprocess.PIPE,
@@ -141,7 +141,7 @@ class TestFastAPI(unittest.TestCase):
                     maybe_page_range="",
                     sides="one-sided",
                     printer_name="HP_P2015_DN",
-                    file_path="/tmp/test-id"
+                    file_path="/tmp/test-id",
                 ),
                 shell=True,
                 stdout=subprocess.PIPE,
@@ -188,12 +188,8 @@ class TestFastAPI(unittest.TestCase):
         test_file = io.BytesIO(b"dummy file content")
 
         mock_popen_result = mock.MagicMock()
-        mock_popen_result.stdout.read.return_value = (
-            "mocked stdout value"
-        )
-        mock_popen_result.stderr.read.return_value = (
-            "hello future"
-        )
+        mock_popen_result.stdout.read.return_value = "mocked stdout value"
+        mock_popen_result.stderr.read.return_value = "hello future"
         mock_popen_result.returncode = 1
         mock_popen.return_value = mock_popen_result
 
@@ -230,7 +226,7 @@ class TestFastAPI(unittest.TestCase):
                     maybe_page_range="",
                     sides="dark-side",
                     printer_name="HP_P2015_DN",
-                    file_path="/tmp/test-id"
+                    file_path="/tmp/test-id",
                 ),
                 shell=True,
                 stdout=subprocess.PIPE,
@@ -285,7 +281,7 @@ class TestFastAPI(unittest.TestCase):
                     maybe_page_range="",
                     sides="one-sided",
                     printer_name="HP_P2015_DN",
-                    file_path="/tmp/test-id"
+                    file_path="/tmp/test-id",
                 ),
                 shell=True,
                 stdout=subprocess.PIPE,
@@ -295,6 +291,7 @@ class TestFastAPI(unittest.TestCase):
         )
 
         mock_pathlib_unlink.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()

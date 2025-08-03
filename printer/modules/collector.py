@@ -2,7 +2,6 @@ import time
 import enum
 import logging
 import json
-import asyncio
 
 from pysnmp.hlapi import *
 

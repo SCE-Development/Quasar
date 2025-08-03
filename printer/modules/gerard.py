@@ -32,6 +32,7 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+
 class IDIterator:
     def __init__(self):
         self._current = 0
@@ -45,7 +46,14 @@ class IDIterator:
 print_job_suffix = IDIterator()
 
 
-def create_print_job(num_copies, maybe_page_range, sides, printer_name, file_path, is_development_mode=False):
+def create_print_job(
+    num_copies,
+    maybe_page_range,
+    sides,
+    printer_name,
+    file_path,
+    is_development_mode=False,
+):
     command = LP_COMMAND.format(
         num_copies=num_copies,
         maybe_page_range=maybe_page_range,
@@ -63,7 +71,7 @@ def create_print_job(num_copies, maybe_page_range, sides, printer_name, file_pat
 
     logging.info(f"running command {command}")
     print_job = subprocess.Popen(
-        command,    
+        command,
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -82,6 +90,7 @@ def create_print_job(num_copies, maybe_page_range, sides, printer_name, file_pat
     except Exception:
         logging.exception(f"unable to parse print job from stdout")
         return ""
+
 
 def query_lpstat(sqlite_file, cmd):
     global jobs_seen_last, current_jobs
