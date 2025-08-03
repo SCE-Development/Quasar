@@ -6,7 +6,7 @@ import asyncio
 
 from pysnmp.hlapi import *
 
-from metrics import MetricsHandler
+from modules.metrics import MetricsHandler
 
 metrics_handler = MetricsHandler.instance()
 
