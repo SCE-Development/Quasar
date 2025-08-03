@@ -57,7 +57,7 @@ class TestDatabaseSetup(unittest.TestCase):
         self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
         self.assertEqual(status, "created")
 
-    def test_update_completed_log(self):
+    def test_mark_jobs_acknowledged(self):
         tmp = tempfile.NamedTemporaryFile(delete=False)
         db_path = tmp.name
         tmp.close()
@@ -65,29 +65,44 @@ class TestDatabaseSetup(unittest.TestCase):
         result = sqlite_helpers.maybe_create_table(db_path)
         self.assertTrue(result)
 
-        jobs_seen_last = {self.EXAMPLE_JOB_ID, "hello", "world"}
-
-        sqlite_helpers.insert_print_job(tmp.name, self.EXAMPLE_JOB_ID)
         sqlite_helpers.insert_print_job(tmp.name, "hello")
         sqlite_helpers.insert_print_job(tmp.name, "world")
 
-        sqlite_helpers.update_jobs(tmp.name, jobs_seen_last, {"hello", "world"})
-
+        sqlite_helpers.mark_jobs_acknowledged(tmp.name, ["hello"])
         db = sqlite3.connect(tmp.name)
         cursor = db.cursor()
-        cursor.execute("SELECT * FROM logs WHERE job_id = ?", (self.EXAMPLE_JOB_ID,))
+        cursor.execute("SELECT * FROM logs WHERE job_id = ?", ("hello",))
         [_, job_id, status] = cursor.fetchone()
-        self.assertEqual(job_id, self.EXAMPLE_JOB_ID)
-        self.assertEqual(status, "completed")
+        self.assertEqual(job_id, "hello")
+        self.assertEqual(status, "acknowledged")
 
-        sqlite_helpers.update_jobs(tmp.name, jobs_seen_last, {"world"})
-
-        db = sqlite3.connect(tmp.name)
-        cursor = db.cursor()
         cursor.execute("SELECT * FROM logs WHERE job_id = ?", ("world",))
         [_, job_id, status] = cursor.fetchone()
         self.assertEqual(job_id, "world")
-        self.assertEqual(status, "acknowledged")
+        self.assertEqual(status, "created")
+
+    def test_mark_jobs_completed(self):
+        tmp = tempfile.NamedTemporaryFile(delete=False)
+        db_path = tmp.name
+        tmp.close()
+
+        result = sqlite_helpers.maybe_create_table(db_path)
+        self.assertTrue(result)
+
+        sqlite_helpers.insert_print_job(tmp.name, "hello")
+        sqlite_helpers.insert_print_job(tmp.name, "world")
+
+        sqlite_helpers.mark_jobs_completed(tmp.name, ["hello", "world"])
+
+        db = sqlite3.connect(tmp.name)
+        cursor = db.cursor()
+        cursor.execute("SELECT job_id FROM logs WHERE status = 'completed'")
+        stuff = cursor.fetchall()
+        # make sure it has length
+
+        self.assertEqual(len(stuff), 2)
+        job_ids = [row[0] for row in stuff]
+        self.assertCountEqual(job_ids, ["hello", "world"])
 
 
 if __name__ == "__main__":

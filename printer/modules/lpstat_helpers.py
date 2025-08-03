@@ -70,10 +70,10 @@ def poll_lpstat(sqlite_file):
             completed_jobs = jobs_seen_last - current_jobs
 
             sqlite_helpers.mark_jobs_completed(
-                sqlite_file, [(job,) for job in completed_jobs]
+                sqlite_file, [job for job in completed_jobs]
             )
             sqlite_helpers.mark_jobs_acknowledged(
-                sqlite_file, [(job,) for job in current_jobs]
+                sqlite_file, [job for job in current_jobs]
             )
 
             jobs_seen_last.clear()

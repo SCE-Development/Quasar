@@ -53,13 +53,13 @@ def insert_print_job(sqlite_file: str, job_id: str):
 def mark_jobs_with_status(sqlite_file, jobs, status):
     db = sqlite3.connect(sqlite_file)
     cursor = db.cursor()
-
-    logging.info(f"marking {jobs} as {status} in sqlite")
+    job_ids = [(job_id,) for job_id in jobs]
+    logging.info(f"marking {job_ids} as {status} in sqlite")
 
     sql_update = (
-        f"UPDATE logs SET status = {status} WHERE job_id = ? AND status != {status}"
+        f"UPDATE logs SET status = '{status}' WHERE job_id = ?"
     )
-    cursor.executemany(sql_update, jobs)
+    cursor.executemany(sql_update, job_ids)
 
     db.commit()
 
@@ -70,21 +70,3 @@ def mark_jobs_acknowledged(sqlite_file, jobs):
 
 def mark_jobs_completed(sqlite_file, jobs):
     mark_jobs_with_status(sqlite_file, jobs, "completed")
-
-
-def update_jobs(sqlite_file, jobs_seen_last, current_jobs):
-
-    # everything in the previous set that IS NOT in the current set
-    completed_jobs = jobs_seen_last.difference(current_jobs)
-    completed_job_ids = [(job_id,) for job_id in completed_jobs]
-    current_job_ids = [(job_id,) for job_id in current_jobs]
-
-    sql_update = "UPDATE logs SET status = 'completed' WHERE job_id = ?"
-    cursor.executemany(sql_update, completed_job_ids)
-
-    sql_set_acknowledged = "UPDATE logs SET status = 'acknowledged' WHERE job_id = ? AND status != 'acknowledged'"
-    cursor.executemany(sql_set_acknowledged, current_job_ids)
-
-    jobs_seen_last.clear()
-    jobs_seen_last.update(current_jobs.copy())
-    current_jobs.clear()
