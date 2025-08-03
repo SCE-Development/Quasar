@@ -296,10 +296,5 @@ class TestFastAPI(unittest.TestCase):
 
         mock_pathlib_unlink.assert_called_once()
 
-    @mock.patch("gerard.subprocess.Popen")
-    def test_parse_id(self, mock_popen):
-
-        gerard.create_print_job()
-
 if __name__ == "__main__":
     unittest.main()
