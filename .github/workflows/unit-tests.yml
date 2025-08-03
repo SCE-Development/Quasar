@@ -26,6 +26,6 @@ jobs:
         
     - name: Run tests
       run: |
-        python printer/test_server.py
-        python printer/test_sqlite.py
-        python printer/test_lpstat.py
+        python printer/test/test_server.py
+        python printer/test/test_sqlite.py
+        python printer/test/test_lpstat.py
