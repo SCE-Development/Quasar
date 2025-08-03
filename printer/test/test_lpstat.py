@@ -20,7 +20,7 @@ class TestLpStatSqlite(unittest.TestCase):
         lpstat_helpers.current_jobs.clear()
 
 
-    @mock.patch("lpstat_helpers.subprocess.Popen")
+    @mock.patch("modules.lpstat_helpers.subprocess.Popen")
     def test_query_lpstat_parsing_single(self, mock_popen):
         job_id = "print_job-1"
         mock_popen_result = mock.MagicMock()
@@ -50,7 +50,7 @@ class TestLpStatSqlite(unittest.TestCase):
             )
         )
 
-    @mock.patch("lpstat_helpers.subprocess.Popen")
+    @mock.patch("modules.lpstat_helpers.subprocess.Popen")
     def test_query_lpstat_acknowledged_single(self, mock_popen):
         job_id  = "print_job-1"
 
@@ -84,7 +84,7 @@ class TestLpStatSqlite(unittest.TestCase):
 
         self.assertEqual(lpstat_helpers.jobs_seen_last, {job_id})
 
-    @mock.patch("lpstat_helpers.subprocess.Popen")
+    @mock.patch("modules.lpstat_helpers.subprocess.Popen")
     def test_query_lpstat_completed_single(self, mock_popen):
         job_id  = "print_job-1"
 
@@ -119,7 +119,7 @@ class TestLpStatSqlite(unittest.TestCase):
 
         self.assertEqual(lpstat_helpers.jobs_seen_last, set())
         
-    @mock.patch("lpstat_helpers.subprocess.Popen")
+    @mock.patch("modules.lpstat_helpers.subprocess.Popen")
     def test_query_lpstat_parsing_multiple(self, mock_popen):
         job_id_1 = "print_job-1"
         job_id_2 = "print_job-2"
@@ -151,7 +151,7 @@ class TestLpStatSqlite(unittest.TestCase):
         )
 
     
-    @mock.patch("lpstat_helpers.subprocess.Popen")
+    @mock.patch("modules.lpstat_helpers.subprocess.Popen")
     def test_query_lpstat_acknowledged_multiple(self, mock_popen):
         
         job_id_1  = "print_job-1"
@@ -188,7 +188,7 @@ class TestLpStatSqlite(unittest.TestCase):
         )
         self.assertEqual(lpstat_helpers.jobs_seen_last, {job_id_1, job_id_2})
 
-    @mock.patch("lpstat_helpers.subprocess.Popen")
+    @mock.patch("modules.lpstat_helpers.subprocess.Popen")
     def test_query_lpstat_completed_multiple(self, mock_popen):
         job_id_1  = "print_job-1"
         job_id_2 = "print_job-2"
@@ -228,7 +228,7 @@ class TestLpStatSqlite(unittest.TestCase):
         self.assertEqual(lpstat_helpers.jobs_seen_last, set())
 
 
-    @mock.patch("lpstat_helpers.subprocess.Popen")
+    @mock.patch("modules.lpstat_helpers.subprocess.Popen")
     def test_query_lpstat_one_completed_from_multiple(self, mock_popen):
         job_id_1  = "print_job-1"
         job_id_2 = "print_job-2"
