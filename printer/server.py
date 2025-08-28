@@ -207,13 +207,13 @@ async def read_item(
 @app.post("/status")
 async def status(print_id: str = Body(...)):
     if args.development:
-      mock_printer.log()
-      status = mock_printer.get_job_status(print_id)
+        mock_printer.log()
+        status = mock_printer.get_job_status(print_id)
 
-      if (status == "PRINTED"):
-          mock_printer.remove_job(print_id)
+        if (status == "PRINTED"):
+            mock_printer.remove_job(print_id)
 
-      return {"status": status}
+        return {"status": status}
 
 # we have a separate __name__ check here due to how FastAPI starts
 # a server. the file is first ran (where __name__ == "__main__")
