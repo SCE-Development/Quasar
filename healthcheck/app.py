@@ -10,7 +10,7 @@ import prometheus_client
 app = Flask(__name__)
 
 last_acccess = prometheus_client.Gauge(
-    "last_accessed",
+    "last_health_check_request",
     "last time accessed",
 )
 
@@ -18,7 +18,7 @@ last_acccess = prometheus_client.Gauge(
 def api():
     metric = time.time()
     last_acccess.set(metric)
-    return jsonify({"last_accessed": metric})
+    return jsonify({"now": metric})
     
 @app.route('/metrics')
 def get_metrics():
