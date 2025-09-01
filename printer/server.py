@@ -209,7 +209,7 @@ if __name__ == "server" and not args.development:
     t2 = threading.Thread(
         target=lpstat_helpers.poll_lpstat,
         args=(
-            args.database_file_path
+            args.database_file_path,
         ),
         daemon=True
     )

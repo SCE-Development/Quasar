@@ -89,7 +89,7 @@ def get_snmp_data(ip):
             metrics_handler.device_unreachable.set(1)
             continue
         if errorStatus:
-            logging.error(
+            logging.debug(
                 f"Error status from {ip} for metric {oid.metric_value}: {errorStatus.prettyPrint()}"
             )
             # SNMP OIDs related to errors often dissappear when

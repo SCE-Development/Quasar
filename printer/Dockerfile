@@ -3,6 +3,7 @@
 FROM drpsychick/airprint-bridge:jammy
 
 WORKDIR /app
+
 RUN apt-get update
 
 RUN apt install -y python3 python3-pip python3-venv jq ssh
@@ -16,12 +17,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY ./printer/requirements.txt  /app/printer/requirements.txt
 
 RUN /opt/venv/bin/pip install -r /app/printer/requirements.txt
-
-COPY ./config/config.json /app/config/config.json
-
-COPY ./printer/what.sh /app/printer/what.sh
-
-COPY ./printer/*.py /app/printer/
 
 EXPOSE 9000
 

@@ -55,7 +55,7 @@ def poll_lpstat(sqlite_file):
     global jobs_seen_last
     while True:
         try:
-            current_jobs = set(query_lpstat(sqlite_file))
+            current_jobs = set(query_lpstat())
             completed_jobs = jobs_seen_last - current_jobs
 
             sqlite_helpers.mark_jobs_completed(
