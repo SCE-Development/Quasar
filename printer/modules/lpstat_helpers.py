@@ -1,22 +1,11 @@
 import logging
-import sqlite3
 import subprocess
 import time
 
 from modules import sqlite_helpers
 
 LPSTAT_CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
-LP_COMMAND = """
-lp \
-    -n {num_copies} {maybe_page_range} \
-    -o sides={sides} \
-    -o media=na_letter_8.5x11in \
-    -d {printer_name} \
-    {file_path}
-"""
-DEBUG_PTH = "./tmp.db"
-DEBUG = False
-SLEEP_TIME = 1
+SLEEP_TIME = 2
 
 jobs_seen_last = set()
 

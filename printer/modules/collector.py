@@ -45,11 +45,18 @@ def fetch_ips_from_config(config_file_path):
                 raise Exception("No printers defined in config file")
 
             ip_list = []
-            for printer in printer_configs:
-                if isinstance(printer_configs[printer], dict):
-                    ip = printer_configs[printer]["IP"]
-                    logging.info(f"Adding printer {printer} with IP {ip}")
-                    ip_list.append(ip)
+            for printer_name in printer_configs:
+                resolved_config = printer_configs.get(printer_name, {})
+                if not resolved_config.get("ENABLED"):
+                    logging.info(f"{printer_name} is not enabled, skipping")
+                    continue
+                ip = resolved_config.get("IP")
+                if not ip:
+                    logging.info(f"{printer_name} config {resolved_config} did not have an ip, skipping")
+                    continue
+
+                logging.info(f"found printer {printer_name} with IP {ip}")
+                ip_list.append(ip)
             return ip_list
 
     except Exception as e:

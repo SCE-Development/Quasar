@@ -194,38 +194,37 @@ async def read_item(
 # metrics_handler referenced by the rest of the file. otherwise,
 # the thread interacts with an instance different than the one the
 # server uses
-if __name__ == "server":
-    if not args.development:
-        # set the last time we opened an ssh tunnel to now because
-        # when the script runs for the first time, we did so in what.sh
-        metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
-        t = threading.Thread(
-            target=maybe_reopen_ssh_tunnel,
+if __name__ == "server" and not args.development:
+    # set the last time we opened an ssh tunnel to now because
+    # when the script runs for the first time, we did so in what.sh
+    metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
+    t = threading.Thread(
+        target=maybe_reopen_ssh_tunnel,
+        daemon=True,
+    )
+    t.start()
+
+    sqlite_helpers.maybe_create_table(args.database_file_path)
+
+    t2 = threading.Thread(
+        target=lpstat_helpers.poll_lpstat,
+        args=(
+            args.database_file_path
+        ),
+        daemon=True
+    )
+    t2.start()
+
+    if os.path.exists(args.config_json_path):
+        thread = threading.Thread(
+            target=collector.scrape_snmp,
+            args=(
+                collector.fetch_ips_from_config(args.config_json_path),
+                args.sleep_duration_minutes,
+            ),
             daemon=True,
         )
-        t.start()
-
-        sqlite_helpers.maybe_create_table(args.database_file_path)
-
-        # t2 = threading.Thread(
-        #     target=lpstat_helpers.poll_lpstat,
-        #     args=(
-        #         args.database_file_path
-        #     ),
-        #     daemon=True
-        # )
-        # t2.start()
-
-        if not args.development and os.path.exists(args.config_json_path):
-            thread = threading.Thread(
-                target=collector.scrape_snmp,
-                args=(
-                    collector.fetch_ips_from_config(args.config_json_path),
-                    args.sleep_duration_minutes,
-                ),
-                daemon=True,
-            )
-            thread.start()
+        thread.start()
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)

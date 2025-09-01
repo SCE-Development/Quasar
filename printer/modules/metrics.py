@@ -4,10 +4,6 @@ import prometheus_client
 
 
 class Metrics(enum.Enum):
-    # name, desc, type, labelnames=()
-    # above default value referenced from the metrics constructor
-    # in the prometheus_client library, see
-    # https://github.com/prometheus/client_python/blob/fd4da6cde36a1c278070cf18b4b9f72956774b05/prometheus_client/metrics.py#L115
     PRINT_JOBS_RECIEVED = (
         "print_jobs_recieved",
         "number of urls asked to play from the frontend",
