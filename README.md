@@ -53,3 +53,20 @@ sce link q
 ### its go time
 - just run `docker-compose up --build -d`
 - the logs of the server can be observed with `docker logs sce-printer --tail 300 -f`
+
+### example curl command to print a blank pdf
+```sh
+# get the full path of your folder
+pwd
+
+# download a blank pdf
+curl --output blank.pdf https://mag.wcoomd.org/uploads/2018/05/blank.pdf
+
+# curl the server
+curl -X POST \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@/full/path/to/blank.pdf" \
+  -F "copies=2" \
+  -F "sides=one-sided" \
+  http://localhost:9000/print
+```

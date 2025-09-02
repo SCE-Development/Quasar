@@ -3,6 +3,7 @@ epicgdog made these files so instead of calling it lp_helpers.py its gerard.py
 """
 
 import logging
+import shlex
 import subprocess
 
 
@@ -59,14 +60,15 @@ def create_print_job(
         job_id = f"HP_LaserJet_p2015dn_Right-{next(print_job_suffix)}"
         return job_id
 
+    args_list = shlex.split(command.strip())
     logging.info(f"running command {command}")
     print_job = subprocess.Popen(
-        command,
-        shell=True,
+        args_list,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
     )
+    print_job.wait(timeout=3)
     if print_job.returncode != 0:
         logging.error(
             f"print job returned nonzero code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}"

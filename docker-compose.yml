@@ -12,6 +12,8 @@ services:
       - ~/.ssh/id_ed25519-tunnel:/app/ssh_key
       - ~/.ssh/known_hosts:/app/known_hosts
       - "/etc/cups/ppd/:/etc/cups/ppd"
+      - ./config:/app/config
+      - ./printer:/app/printer
       - quasar_data:/tmp/
     tty: true
 

@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN apt-get update
 
-RUN apt install -y python3 python3-pip python3-venv jq ssh
+RUN apt install -y python3 python3-pip python3-venv jq ssh ghostscript
 
 # Create the virtual environment with Python
 RUN python3 -m venv /opt/venv
