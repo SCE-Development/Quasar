@@ -1,7 +1,7 @@
 import os
+import shlex
 import subprocess
 import sys
-import tempfile
 import unittest
 from unittest import mock
 
@@ -40,14 +40,13 @@ class TestGerard(unittest.TestCase):
         self.assertEqual(
             mock_popen.call_args_list[0],
             mock.call(
-                gerard.LP_COMMAND.format(
+                shlex.split(gerard.LP_COMMAND.format(
                     num_copies=1,
                     maybe_page_range="1",
                     sides="one-side",
                     printer_name="HP_P2015_DN",
                     file_path="/tmp/test-id",
-                ),
-                shell=True,
+                )),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -76,14 +75,13 @@ class TestGerard(unittest.TestCase):
         self.assertEqual(
             mock_popen.call_args_list[0],
             mock.call(
-                gerard.LP_COMMAND.format(
+                shlex.split(gerard.LP_COMMAND.format(
                     num_copies=1,
                     maybe_page_range="",
                     sides="dark-side",
                     printer_name="HP_P2015_DN",
                     file_path="/tmp/test-id",
-                ),
-                shell=True,
+                )),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -114,14 +112,13 @@ class TestGerard(unittest.TestCase):
         self.assertEqual(
             mock_popen.call_args_list[0],
             mock.call(
-                gerard.LP_COMMAND.format(
+                shlex.split(gerard.LP_COMMAND.format(
                     num_copies=1,
                     maybe_page_range="1",
                     sides="one-side",
                     printer_name="HP_P2015_DN",
                     file_path="/tmp/test-id",
-                ),
-                shell=True,
+                )),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
