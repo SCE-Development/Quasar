@@ -165,8 +165,10 @@ async def read_item(
         base = pathlib.Path("/tmp")
         file_id = str(uuid.uuid4())
         file_path = str(base / file_id)
+        bytes_written = 0
         with open(file_path, "wb") as f:
-            f.write(await file.read())
+            bytes_written = f.write(await file.read())
+        logging.info(f"wrote {bytes_written} bytes to {file_path}")
         print_id = send_file_to_printer(
             str(file_path),
             copies,
