@@ -59,8 +59,8 @@ def fetch_ips_from_config(config_file_path):
                 ip_list.append(ip)
             return ip_list
 
-    except Exception as e:
-        logging.error(f"error opening config file: {e}")
+    except Exception:
+        logging.exception(f"error opening config file")
 
 
 def scrape_snmp(ip_list, sleep_duration_minutes=5):
