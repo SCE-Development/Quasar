@@ -1,13 +1,18 @@
 import importlib
 import io
 import os
+import shlex
 import subprocess
+import sys
 import unittest
 from unittest import mock
 
-
 from fastapi.testclient import TestClient
 
+# this allows imports from the modules folder to work
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from modules import gerard
 import server
 
 
@@ -72,8 +77,13 @@ class TestFastAPI(unittest.TestCase):
         self.assertEqual(
             mock_popen.call_args_list[0],
             mock.call(
-                "lp -n 1  -o sides=one-sided -o media=na_letter_8.5x11in -d HP_P2015_DN /tmp/test-id",
-                shell=True,
+                shlex.split(gerard.LP_COMMAND.format(
+                    num_copies=1,
+                    maybe_page_range="",
+                    sides="one-sided",
+                    printer_name="HP_P2015_DN",
+                    file_path="/tmp/test-id",
+                )),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -126,8 +136,13 @@ class TestFastAPI(unittest.TestCase):
         self.assertEqual(
             mock_popen.call_args_list[0],
             mock.call(
-                "lp -n 1  -o sides=one-sided -o media=na_letter_8.5x11in -d HP_P2015_DN /tmp/test-id",
-                shell=True,
+                shlex.split(gerard.LP_COMMAND.format(
+                    num_copies=1,
+                    maybe_page_range="",
+                    sides="one-sided",
+                    printer_name="HP_P2015_DN",
+                    file_path="/tmp/test-id",
+                )),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -172,6 +187,8 @@ class TestFastAPI(unittest.TestCase):
         test_file = io.BytesIO(b"dummy file content")
 
         mock_popen_result = mock.MagicMock()
+        mock_popen_result.stdout.read.return_value = "mocked stdout value"
+        mock_popen_result.stderr.read.return_value = "hello future"
         mock_popen_result.returncode = 1
         mock_popen.return_value = mock_popen_result
 
@@ -203,8 +220,13 @@ class TestFastAPI(unittest.TestCase):
         self.assertEqual(
             mock_popen.call_args_list[0],
             mock.call(
-                "lp -n 1  -o sides=dark-side -o media=na_letter_8.5x11in -d HP_P2015_DN /tmp/test-id",
-                shell=True,
+                shlex.split(gerard.LP_COMMAND.format(
+                    num_copies=1,
+                    maybe_page_range="",
+                    sides="dark-side",
+                    printer_name="HP_P2015_DN",
+                    file_path="/tmp/test-id",
+                )),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -252,8 +274,13 @@ class TestFastAPI(unittest.TestCase):
         self.assertEqual(
             mock_popen.call_args_list[0],
             mock.call(
-                "lp -n 1  -o sides=one-sided -o media=na_letter_8.5x11in -d HP_P2015_DN /tmp/test-id",
-                shell=True,
+                shlex.split(gerard.LP_COMMAND.format(
+                    num_copies=1,
+                    maybe_page_range="",
+                    sides="one-sided",
+                    printer_name="HP_P2015_DN",
+                    file_path="/tmp/test-id",
+                )),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,

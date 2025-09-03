@@ -6,7 +6,6 @@ import subprocess
 import threading
 import time
 import uuid
-import collector
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +13,11 @@ from fastapi.responses import PlainTextResponse
 import prometheus_client
 import uvicorn
 
-from metrics import MetricsHandler
+from modules import collector
+from modules import gerard
+from modules import lpstat_helpers
+from modules.metrics import MetricsHandler
+from modules import sqlite_helpers
 
 
 metrics_handler = MetricsHandler.instance()
@@ -72,6 +75,11 @@ def get_args() -> argparse.Namespace:
         help="update sleepy time, default is 2mins",
         default=2,
     )
+    parser.add_argument(
+        "--database-file-path",
+        help="path to sqlite database file",
+        default="/tmp/jobs.db",
+    )
     return parser.parse_args()
 
 
@@ -111,39 +119,14 @@ def send_file_to_printer(
 
     # only the right printer works right now, so we default to it
     PRINTER_NAME = os.environ.get("RIGHT_PRINTER_NAME")
-    command = f"lp -n {num_copies} {maybe_page_range} -o sides={sides} -o media=na_letter_8.5x11in -d {PRINTER_NAME} {file_path}"
     metrics_handler.print_jobs_recieved.inc()
-    if args.development:
-        logging.warning(
-            f"server is in development mode, command would've been `{command}`"
-        )
-        return None
 
-    print_job = subprocess.Popen(
-        command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
+    job_id = gerard.create_print_job(
+        num_copies, maybe_page_range, sides, PRINTER_NAME, file_path, args.development
     )
-    print_job.wait()
-
-    if print_job.returncode != 0:
-        logging.error(
-            f"command returned code {print_job.returncode} stderr: {print_job.stderr.read()} stdout: {print_job.stdout.read()}"
-        )
-        return None
-    try:
-        print_id = print_job.stdout.read().strip().split(" ")[3]
-        logging.info(f"extracted print id is {print_id}")
-        return print_id
-    except Exception:
-        logging.exception(
-            f"failed to extract print id from stdout: {print_job.stdout.read()}"
-        )
-        # need to find a better value to return when the command exited
-        # with code 0 but the output could not be parsed for a job id.
-        return ''
+    if job_id:
+        sqlite_helpers.insert_print_job(args.database_file_path, job_id)
+    return job_id
 
 
 def maybe_delete_pdf(file_path):
@@ -182,8 +165,10 @@ async def read_item(
         base = pathlib.Path("/tmp")
         file_id = str(uuid.uuid4())
         file_path = str(base / file_id)
+        bytes_written = 0
         with open(file_path, "wb") as f:
-            f.write(await file.read())
+            bytes_written = f.write(await file.read())
+        logging.info(f"wrote {bytes_written} bytes to {file_path}")
         print_id = send_file_to_printer(
             str(file_path),
             copies,
@@ -211,27 +196,37 @@ async def read_item(
 # metrics_handler referenced by the rest of the file. otherwise,
 # the thread interacts with an instance different than the one the
 # server uses
-if __name__ == "server":
-    if not args.development:
-        # set the last time we opened an ssh tunnel to now because
-        # when the script runs for the first time, we did so in what.sh
-        metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
-        t = threading.Thread(
-            target=maybe_reopen_ssh_tunnel,
+if __name__ == "server" and not args.development:
+    # set the last time we opened an ssh tunnel to now because
+    # when the script runs for the first time, we did so in what.sh
+    metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
+    t = threading.Thread(
+        target=maybe_reopen_ssh_tunnel,
+        daemon=True,
+    )
+    t.start()
+
+    sqlite_helpers.maybe_create_table(args.database_file_path)
+
+
+    if os.path.exists(args.config_json_path):
+        t2 = threading.Thread(
+            target=lpstat_helpers.poll_lpstat,
+            args=(
+                args.database_file_path,
+            ),
+            daemon=True
+        )
+        t2.start()
+        thread = threading.Thread(
+            target=collector.scrape_snmp,
+            args=(
+                collector.fetch_ips_from_config(args.config_json_path),
+                args.sleep_duration_minutes,
+            ),
             daemon=True,
         )
-        t.start()
-
-        if not args.development and os.path.exists(args.config_json_path):
-            thread = threading.Thread(
-                target=collector.scrape_snmp,
-                args=(
-                    collector.fetch_ips_from_config(args.config_json_path),
-                    args.sleep_duration_minutes,
-                ),
-                daemon=True,
-            )
-            thread.start()
+        thread.start()
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host=args.host, port=args.port, reload=True)

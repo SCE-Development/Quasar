@@ -16,3 +16,6 @@ config.json
 venv/
 
 tmp/
+
+*.db
+.python-version

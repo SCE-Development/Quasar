@@ -1,5 +1,6 @@
 #!/bin/sh
 
+set -x
 # get Core-v4 ip from config.json
 CORE_V4_IP=$(cat /app/config/config.json | jq -r ".HEALTH_CHECK.CORE_V4_IP") 
 

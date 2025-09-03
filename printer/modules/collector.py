@@ -2,11 +2,10 @@ import time
 import enum
 import logging
 import json
-import asyncio
 
 from pysnmp.hlapi import *
 
-from metrics import MetricsHandler
+from modules.metrics import MetricsHandler
 
 metrics_handler = MetricsHandler.instance()
 
@@ -46,15 +45,22 @@ def fetch_ips_from_config(config_file_path):
                 raise Exception("No printers defined in config file")
 
             ip_list = []
-            for printer in printer_configs:
-                if isinstance(printer_configs[printer], dict):
-                    ip = printer_configs[printer]["IP"]
-                    logging.info(f"Adding printer {printer} with IP {ip}")
-                    ip_list.append(ip)
+            for printer_name in printer_configs:
+                resolved_config = printer_configs.get(printer_name, {})
+                if not resolved_config.get("ENABLED"):
+                    logging.info(f"{printer_name} is not enabled, skipping")
+                    continue
+                ip = resolved_config.get("IP")
+                if not ip:
+                    logging.info(f"{printer_name} config {resolved_config} did not have an ip, skipping")
+                    continue
+
+                logging.info(f"found printer {printer_name} with IP {ip}")
+                ip_list.append(ip)
             return ip_list
 
-    except Exception as e:
-        logging.error(f"error opening config file: {e}")
+    except Exception:
+        logging.exception(f"error opening config file")
 
 
 def scrape_snmp(ip_list, sleep_duration_minutes=5):
@@ -83,7 +89,7 @@ def get_snmp_data(ip):
             metrics_handler.device_unreachable.set(1)
             continue
         if errorStatus:
-            logging.error(
+            logging.debug(
                 f"Error status from {ip} for metric {oid.metric_value}: {errorStatus.prettyPrint()}"
             )
             # SNMP OIDs related to errors often dissappear when
