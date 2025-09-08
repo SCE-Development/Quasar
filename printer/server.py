@@ -175,9 +175,9 @@ async def read_item(
     """
     incoming request to print looks like
     {
-      "file": file data
-      "copies": integer or whatever, we insert this into the lp command,
-      "sides": string value from user input on clark frontend; we insert this into the lp command,
+        "file": file data
+        "copies": integer or whatever, we insert this into the lp command,
+        "sides": string value from user input on clark frontend; we insert this into the lp command,
     }
     """
     try:
@@ -204,14 +204,15 @@ async def read_item(
             detail="printing failed, check logs",
         )
 
-@app.post("/status")
-async def status(print_id: str = Body(...)):
+@app.get("/status/")
+async def status(id: str = ''):
+    logging.info(id)
     if args.development:
         mock_printer.log()
-        status = mock_printer.get_job_status(print_id)
+        status = mock_printer.get_job_status(id)
 
         if (status == "PRINTED"):
-            mock_printer.remove_job(print_id)
+            mock_printer.remove_job(id)
 
         return {"status": status}
 

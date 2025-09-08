@@ -4,6 +4,7 @@ import logging
 class MockPrinter():
     _instance = None
     _current_print_id_num = 0
+    _current_time_left = 10
     _jobs = {}
     _queue = []
 
@@ -21,7 +22,7 @@ class MockPrinter():
     
     def remove_job(self, id: str) -> None:
         if id in self._jobs:
-            self._jobs.pop(id, None)
+            self._jobs.pop(id)
 
     def lp(self) -> str:
         print_id = "HP_LaserJet_p2015dn_Right-" + str(self._current_print_id_num)
@@ -32,13 +33,18 @@ class MockPrinter():
 
     def update(self) -> None:
         while True: 
-            time.sleep(10)
+            time.sleep(1)
 
             if self._queue.__len__() == 0:
                 continue
 
+            if (self._current_time_left > 0):
+                self._current_time_left -= 1
+                continue
+
             self._jobs[self._queue[0]] = "PRINTED"
             self._queue.pop(0)
+            self._current_time_left = 10
 
     def log(self) -> None:
         logging.info("-----------------")
