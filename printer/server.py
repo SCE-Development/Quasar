@@ -119,6 +119,10 @@ def send_file_to_printer(
 
     # only the right printer works right now, so we default to it
     PRINTER_NAME = os.environ.get("RIGHT_PRINTER_NAME")
+
+    if (args.development):
+        PRINTER_NAME = "HP_LaserJet_p2015dn_Right"
+
     metrics_handler.print_jobs_recieved.inc()
 
     job_id = gerard.create_print_job(
@@ -148,6 +152,9 @@ def api():
 def metrics():
     return prometheus_client.generate_latest()
 
+@app.get("/status/")
+async def status(id: str = ''):
+    return {status: "PRINTED"}
 
 @app.post("/print")
 async def read_item(
