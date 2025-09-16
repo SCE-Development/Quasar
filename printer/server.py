@@ -63,6 +63,14 @@ def get_args() -> argparse.Namespace:
         default=False,
         help="specify if server should run in development. this means requests won't get sent to a printer but logger instead",
     )
+
+    parser.add_argument(
+        "--dev-printer",
+        action="store_true",
+        default=False,
+        help="specify if we should use the virtual dev printer. requests will be processed as if it were a real printer",
+    )
+
     parser.add_argument(
         "--dont-delete-pdfs",
         action="store_true",
@@ -120,13 +128,13 @@ def send_file_to_printer(
     # only the right printer works right now, so we default to it
     PRINTER_NAME = os.environ.get("RIGHT_PRINTER_NAME")
 
-    if (args.development):
+    if (args.dev_printer):
         PRINTER_NAME = "HP_LaserJet_p2015dn_Right"
 
     metrics_handler.print_jobs_recieved.inc()
 
     job_id = gerard.create_print_job(
-        num_copies, maybe_page_range, sides, PRINTER_NAME, file_path, args.development
+        num_copies, maybe_page_range, sides, PRINTER_NAME, file_path, args.development, args.dev_printer
     )
     if job_id:
         sqlite_helpers.insert_print_job(args.database_file_path, job_id)
@@ -154,7 +162,7 @@ def metrics():
 
 @app.get("/status/")
 async def status(id: str = ''):
-    return {status: "PRINTED"}
+    return {"status": "PRINTED"}
 
 @app.post("/print")
 async def read_item(
@@ -203,15 +211,16 @@ async def read_item(
 # metrics_handler referenced by the rest of the file. otherwise,
 # the thread interacts with an instance different than the one the
 # server uses
-if __name__ == "server" and not args.development:
+if __name__ == "server" and (not args.development or args.dev_printer):
     # set the last time we opened an ssh tunnel to now because
     # when the script runs for the first time, we did so in what.sh
-    metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
-    t = threading.Thread(
-        target=maybe_reopen_ssh_tunnel,
-        daemon=True,
-    )
-    t.start()
+    if not args.dev_printer:
+        metrics_handler.ssh_tunnel_last_opened.set(int(time.time()))
+        t = threading.Thread(
+            target=maybe_reopen_ssh_tunnel,
+            daemon=True,
+        )
+        t.start()
 
     sqlite_helpers.maybe_create_table(args.database_file_path)
 

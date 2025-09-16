@@ -18,3 +18,4 @@ services:
       - --port=14000
       - --dont-delete-pdfs
       - --config-json-path=/app/config/config.json
+      - --dev-printer
