@@ -61,11 +61,11 @@ def create_print_job(
         file_path=file_path,
     )
 
-    if is_development_mode:
+    if is_development_mode and not is_dev_printer:
         logging.warning(
             f"server is in development mode, command would've been `{command}`"
         )
-        job_id = f"HP_LaserJet_p2015dn_Right-{next(print_job_suffix)}"
+        job_id = f"HP_LaserJet_p2015dn_Right-{next(print_job_suffix)}" 
         return job_id
  
 
