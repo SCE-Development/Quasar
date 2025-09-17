@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# MAKE SURE THIS FILE IS USING LF FOR ITS EOL SEQUENCE!!!!!!!!!!!
+# OTHERWISE DOCKER WILL COMPLAIN THAT THIS FILE DOESNT EXIST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 /root/start-cups.sh > /dev/null 2>&1 & 
 
 sleep 10
