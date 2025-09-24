@@ -49,11 +49,8 @@ def create_print_job(
 ):
     hold_time = "immediate"
     if is_dev_printer:
-        future_datetime = datetime.fromtimestamp(datetime.utcnow().timestamp() + 60)
-        # per CUPS docs, -H only accepts HH:MM
-        # so a virtual print can take up to a
-        # minute to complete
-        hold_time = f"{future_datetime.hour}:{future_datetime.minute}"
+        future_datetime = datetime.fromtimestamp(datetime.utcnow().timestamp() + 5)
+        hold_time = f"{future_datetime.hour}:{future_datetime.minute}:{future_datetime.second}"
 
 
     command = LP_COMMAND.format(
