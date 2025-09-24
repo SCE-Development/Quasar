@@ -51,8 +51,8 @@ def create_print_job(
     if is_dev_printer:
         future_datetime = datetime.fromtimestamp(datetime.utcnow().timestamp() + 60)
         # per CUPS docs, -H only accepts HH:MM
-        # so, rather unfortunately, a virtual print
-        # will take, at minimum, 1 minute 
+        # so a virtual print can take up to a
+        # minute to complete
         hold_time = f"{future_datetime.hour}:{future_datetime.minute}"
 
 

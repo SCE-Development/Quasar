@@ -6,6 +6,7 @@ import subprocess
 import threading
 import time
 import uuid
+import sqlite3
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -162,7 +163,12 @@ def metrics():
 
 @app.get("/status/")
 async def status(id: str = ''):
-    return {"status": "PRINTED"}
+    db = sqlite3.connect(args.database_file_path)
+    cursor = db.cursor()
+    cursor.execute(f"SELECT status FROM logs WHERE job_id = ?", (id,))
+    status = cursor.fetchone()[0]
+
+    return {"status": status}
 
 @app.post("/print")
 async def read_item(
