@@ -163,6 +163,9 @@ def metrics():
 
 @app.get("/status/")
 async def status(id: str = ''):
+    if not args.dev_printer and args.development:
+        return {"status": "completed"}
+    
     db = sqlite3.connect(args.database_file_path)
     cursor = db.cursor()
     cursor.execute(f"SELECT status FROM logs WHERE job_id = ?", (id,))
