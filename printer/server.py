@@ -166,12 +166,15 @@ async def status(id: str = ''):
     if not args.dev_printer and args.development:
         return {"status": "completed"}
     
-    db = sqlite3.connect(args.database_file_path)
-    cursor = db.cursor()
-    cursor.execute(f"SELECT status FROM logs WHERE job_id = ?", (id,))
-    status = cursor.fetchone()[0]
-
-    return {"status": status}
+    try: 
+        db = sqlite3.connect(args.database_file_path)
+        cursor = db.cursor()
+        cursor.execute(f"SELECT status FROM logs WHERE job_id = ?", (id,))
+        status = cursor.fetchone()[0]
+        return {"status": status}
+    except Exception:
+        logging.exception("failed to get status of job with id: " + id)
+        return {"status": "failed"}
 
 @app.post("/print")
 async def read_item(

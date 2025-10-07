@@ -5,7 +5,7 @@ epicgdog made these files so instead of calling it lp_helpers.py its gerard.py
 import logging
 import shlex
 import subprocess
-from datetime import datetime
+import datetime
 
 LP_COMMAND = """
 lp \
@@ -66,7 +66,7 @@ def create_print_job(
         logging.warning(
             f"server is in development mode, command would've been `{command}`"
         )
-        job_id = f"HP_LaserJet_p2015dn_Right-{next(print_job_suffix)}" 
+        job_id = f"HP_LaserJet_p2015dn_Right-{next(print_job_suffix)}"
         return job_id
 
     args_list = shlex.split(command.strip())
