@@ -49,7 +49,7 @@ def create_print_job(
 ):
     hold_time = "immediate"
     if is_dev_printer:
-        future_datetime = datetime.fromtimestamp(datetime.utcnow().timestamp() + 5)
+        future_datetime = datetime.datetime.fromtimestamp(datetime.datetime.utcnow().timestamp() + 5)
         hold_time = f"{future_datetime.hour}:{future_datetime.minute}:{future_datetime.second}"
 
 
