@@ -44,7 +44,7 @@ def create_print_job(
     printer_name,
     file_path,
     is_development_mode=False,
-    no_dev_printer=False
+    # no_dev_printer=False
 ):
     hold_time = "immediate"
     if is_development_mode:
@@ -61,7 +61,7 @@ def create_print_job(
         file_path=file_path,
     )
 
-    if no_dev_printer:
+    if is_development_mode:
         logging.warning(
             f"server is in development mode, command would've been `{command}`"
         )
