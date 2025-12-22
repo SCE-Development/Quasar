@@ -4,10 +4,9 @@ import time
 
 from modules import sqlite_helpers
 
-LPSTAT_CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
-SLEEP_TIME = 2
 
-jobs_seen_last = set()
+LPSTAT_CMD = "lpstat -o -W completed HP_LaserJet_p2015dn_Right"
+SLEEP_TIME = 2
 
 logging.basicConfig(
     # in mondo we trust
@@ -18,8 +17,14 @@ logging.basicConfig(
 
 
 def query_lpstat():
-    global jobs_seen_last
     global current_jobs
+    """
+    the output of this command looks like
+    ben@ben:/app# lpstat -W completed -o HP_LaserJet_p2015dn_Right
+    HP_LaserJet_p2015dn_Right-3 ben              5120   Mon Dec 22 21:43:54 2025
+    HP_LaserJet_p2015dn_Right-2 ben              8192   Mon Dec 22 21:43:23 2025
+    HP_LaserJet_p2015dn_Right-1 ben              8192   Mon Dec 22 21:41:08 2025
+    """
     p = subprocess.Popen(
         LPSTAT_CMD,
         shell=True,
@@ -52,21 +57,12 @@ def query_lpstat():
 
 
 def poll_lpstat(sqlite_file):
-    global jobs_seen_last
     while True:
         try:
-            current_jobs = set(query_lpstat())
-            completed_jobs = jobs_seen_last - current_jobs
-
+            completed_jobs = set(query_lpstat())
             sqlite_helpers.mark_jobs_completed(
                 sqlite_file, [job for job in completed_jobs]
             )
-            sqlite_helpers.mark_jobs_acknowledged(
-                sqlite_file, [job for job in current_jobs]
-            )
-
-            jobs_seen_last.clear()
-            jobs_seen_last.update(current_jobs)
 
         except Exception:
             logging.exception("what happened to query_lpstat?")
