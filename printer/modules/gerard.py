@@ -45,10 +45,9 @@ def create_print_job(
     printer_name,
     file_path,
     is_development_mode=False,
-    is_dev_printer=False,
 ):
     hold_time = "immediate"
-    if is_dev_printer:
+    if is_development_mode:
         future_datetime = datetime.datetime.fromtimestamp(datetime.datetime.utcnow().timestamp() + 5)
         hold_time = f"{future_datetime.hour}:{future_datetime.minute}:{future_datetime.second}"
 
