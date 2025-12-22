@@ -132,19 +132,31 @@ class TestGerard(unittest.TestCase):
 
         self.assertEqual(
             gerard.create_print_job(
+<<<<<<< HEAD
                 1, "1", "one-side", "HP_P2015_DN", "/tmp/test-id", True,
+=======
+                1, "1", "one-side", "HP_P2015_DN", "/tmp/test-id", True, True
+>>>>>>> 65023cf (fix tests)
             ),
             "HP_LaserJet_p2015dn_Right-0",
         )
         self.assertEqual(
             gerard.create_print_job(
+<<<<<<< HEAD
                 1, "1", "one-side", "HP_P2015_DN", "/tmp/test-id", True,
+=======
+                1, "1", "one-side", "HP_P2015_DN", "/tmp/test-id", True, True
+>>>>>>> 65023cf (fix tests)
             ),
             "HP_LaserJet_p2015dn_Right-1",
         )
         self.assertEqual(
             gerard.create_print_job(
+<<<<<<< HEAD
                 1, "1", "one-side", "HP_P2015_DN", "/tmp/test-id", True,
+=======
+                1, "1", "one-side", "HP_P2015_DN", "/tmp/test-id", True, True
+>>>>>>> 65023cf (fix tests)
             ),
             "HP_LaserJet_p2015dn_Right-2",
         )
