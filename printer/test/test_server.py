@@ -78,6 +78,7 @@ class TestFastAPI(unittest.TestCase):
             mock_popen.call_args_list[0],
             mock.call(
                 shlex.split(gerard.LP_COMMAND.format(
+                    hold_time="immediate",
                     num_copies=1,
                     maybe_page_range="",
                     sides="one-sided",
@@ -137,6 +138,7 @@ class TestFastAPI(unittest.TestCase):
             mock_popen.call_args_list[0],
             mock.call(
                 shlex.split(gerard.LP_COMMAND.format(
+                    hold_time="immediate", 
                     num_copies=1,
                     maybe_page_range="",
                     sides="one-sided",
@@ -221,6 +223,7 @@ class TestFastAPI(unittest.TestCase):
             mock_popen.call_args_list[0],
             mock.call(
                 shlex.split(gerard.LP_COMMAND.format(
+                    hold_time="immediate",
                     num_copies=1,
                     maybe_page_range="",
                     sides="dark-side",
@@ -275,6 +278,7 @@ class TestFastAPI(unittest.TestCase):
             mock_popen.call_args_list[0],
             mock.call(
                 shlex.split(gerard.LP_COMMAND.format(
+                    hold_time="immediate",
                     num_copies=1,
                     maybe_page_range="",
                     sides="one-sided",

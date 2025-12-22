@@ -6,6 +6,7 @@ import subprocess
 import threading
 import time
 import uuid
+import sqlite3
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -63,6 +64,7 @@ def get_args() -> argparse.Namespace:
         default=False,
         help="specify if server should run in development. this means requests won't get sent to a printer but logger instead",
     )
+
     parser.add_argument(
         "--dont-delete-pdfs",
         action="store_true",
@@ -119,6 +121,10 @@ def send_file_to_printer(
 
     # only the right printer works right now, so we default to it
     PRINTER_NAME = os.environ.get("RIGHT_PRINTER_NAME")
+
+    if (args.development):
+        PRINTER_NAME = "HP_LaserJet_p2015dn_Right"
+
     metrics_handler.print_jobs_recieved.inc()
 
     job_id = gerard.create_print_job(
@@ -148,6 +154,17 @@ def api():
 def metrics():
     return prometheus_client.generate_latest()
 
+@app.get("/status/")
+async def status(id: str = ''):
+    try: 
+        db = sqlite3.connect(args.database_file_path)
+        cursor = db.cursor()
+        cursor.execute(f"SELECT status FROM logs WHERE job_id = ?", (id,))
+        status = cursor.fetchone()[0]
+        return {"status": status}
+    except Exception:
+        logging.exception("failed to get status of job with id: " + id)
+        return {"status": "failed"}
 
 @app.post("/print")
 async def read_item(

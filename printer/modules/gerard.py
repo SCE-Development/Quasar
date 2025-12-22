@@ -5,10 +5,11 @@ epicgdog made these files so instead of calling it lp_helpers.py its gerard.py
 import logging
 import shlex
 import subprocess
-
+import datetime
 
 LP_COMMAND = """
 lp \
+    -H {hold_time} \
     -n {num_copies} {maybe_page_range} \
     -o sides={sides} \
     -o media=na_letter_8.5x11in \
@@ -36,7 +37,6 @@ class IDIterator:
 
 print_job_suffix = IDIterator()
 
-
 def create_print_job(
     num_copies,
     maybe_page_range,
@@ -44,8 +44,16 @@ def create_print_job(
     printer_name,
     file_path,
     is_development_mode=False,
+    # no_dev_printer=False
 ):
+    hold_time = "immediate"
+    if is_development_mode:
+        future_datetime = datetime.datetime.fromtimestamp(datetime.datetime.utcnow().timestamp() + 5)
+        hold_time = f"{future_datetime.hour}:{future_datetime.minute}:{future_datetime.second}"
+
+
     command = LP_COMMAND.format(
+        hold_time=hold_time,
         num_copies=num_copies,
         maybe_page_range=maybe_page_range,
         sides=sides,
@@ -59,6 +67,7 @@ def create_print_job(
         )
         job_id = f"HP_LaserJet_p2015dn_Right-{next(print_job_suffix)}"
         return job_id
+ 
 
     args_list = shlex.split(command.strip())
     logging.info(f"running command {command}")
