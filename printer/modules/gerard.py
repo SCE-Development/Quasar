@@ -37,7 +37,6 @@ class IDIterator:
 
 print_job_suffix = IDIterator()
 
-
 def create_print_job(
     num_copies,
     maybe_page_range,
@@ -45,6 +44,7 @@ def create_print_job(
     printer_name,
     file_path,
     is_development_mode=False,
+    no_dev_printer=False
 ):
     hold_time = "immediate"
     if is_development_mode:
@@ -60,6 +60,14 @@ def create_print_job(
         printer_name=printer_name,
         file_path=file_path,
     )
+
+    if no_dev_printer:
+        logging.warning(
+            f"server is in development mode, command would've been `{command}`"
+        )
+        job_id = f"HP_LaserJet_p2015dn_Right-{next(print_job_suffix)}"
+        return job_id
+ 
 
     args_list = shlex.split(command.strip())
     logging.info(f"running command {command}")
