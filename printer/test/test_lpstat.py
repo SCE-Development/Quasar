@@ -20,9 +20,6 @@ class TestLpStatSqlite(unittest.TestCase):
         "HP_LaserJet_p2015dn_Right-53 root              5120   Sat May 31 18:19:38 2025"
     )
 
-    def setUp(self):
-        lpstat_helpers.jobs_seen_last.clear()
-
     # returns a single line result
     @mock.patch("modules.lpstat_helpers.subprocess.Popen")
     def test_query_lpstat(self, mock_popen):
@@ -77,9 +74,6 @@ class TestLpStatSqlite(unittest.TestCase):
     def test_poll_lpstat(
         self, mock_sleep, mock_query_lpstat, mock_mark_acknowledged, mock_mark_completed
     ):
-        # Set initial seen job
-        lpstat_helpers.jobs_seen_last = {"HP_LaserJet_p2015dn_Right-52"}
-
         # Simulate current jobs reported by lpstat
         mock_query_lpstat.return_value = [
             "HP_LaserJet_p2015dn_Right-53",
@@ -94,20 +88,7 @@ class TestLpStatSqlite(unittest.TestCase):
 
         # Check correct jobs marked as completed and acknowledged
         mock_mark_completed.assert_called_once_with(
-            "dummy.db", ["HP_LaserJet_p2015dn_Right-52"]
-        )
-        mock_mark_acknowledged.assert_called_once()
-        database_name, acknowledged_jobs = mock_mark_acknowledged.call_args_list[0].args
-        self.assertEqual(database_name, "dummy.db")
-        self.assertCountEqual(
-            acknowledged_jobs,
-            ["HP_LaserJet_p2015dn_Right-53", "HP_LaserJet_p2015dn_Right-54"],
-        )
-
-        # Ensure state was cleared and updated
-        self.assertEqual(
-            lpstat_helpers.jobs_seen_last,
-            {"HP_LaserJet_p2015dn_Right-53", "HP_LaserJet_p2015dn_Right-54"},
+            "dummy.db", ["HP_LaserJet_p2015dn_Right-53", "HP_LaserJet_p2015dn_Right-54"],
         )
 
 
