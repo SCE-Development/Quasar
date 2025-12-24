@@ -4,7 +4,7 @@ import time
 
 from modules import sqlite_helpers
 
-LPSTAT_CMD = "lpstat -o HP_LaserJet_p2015dn_Right"
+LPSTAT_CMD = "lpstat -o -W completed HP_LaserJet_p2015dn_Right"
 SLEEP_TIME = 2
 
 jobs_seen_last = set()

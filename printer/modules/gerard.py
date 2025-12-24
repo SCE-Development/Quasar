@@ -44,7 +44,6 @@ def create_print_job(
     printer_name,
     file_path,
     is_development_mode=False,
-    # no_dev_printer=False
 ):
     hold_time = "immediate"
     if is_development_mode:

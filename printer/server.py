@@ -132,6 +132,13 @@ def send_file_to_printer(
     )
     if job_id:
         sqlite_helpers.insert_print_job(args.database_file_path, job_id)
+        if args.development:
+            def mock_printing():
+                time.sleep(5)
+                # pretend the job was completed after some time
+                sqlite_helpers.mark_jobs_completed(args.database_file_path, [job_id])
+
+            threading.Thread(target=mock_printing).start()
     return job_id
 
 
