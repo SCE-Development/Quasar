@@ -64,6 +64,12 @@ def get_args() -> argparse.Namespace:
         default=False,
         help="specify if server should run in development. this means requests won't get sent to a printer but logger instead",
     )
+    parser.add_argument(
+        "--development-job-completed-seconds",
+        type=int,
+        default=5,
+        help="[development mode only] number of seconds to wait before marking a job completed, defaults to 5",
+    )
 
     parser.add_argument(
         "--dont-delete-pdfs",
@@ -134,7 +140,7 @@ def send_file_to_printer(
         sqlite_helpers.insert_print_job(args.database_file_path, job_id)
         if args.development:
             def mock_printing():
-                time.sleep(5)
+                time.sleep(args.development_job_completed_seconds)
                 # pretend the job was completed after some time
                 sqlite_helpers.mark_jobs_completed(args.database_file_path, [job_id])
 

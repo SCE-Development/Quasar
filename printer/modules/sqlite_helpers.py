@@ -56,7 +56,7 @@ def mark_jobs_with_status(sqlite_file, jobs, status):
     job_ids = [(job_id,) for job_id in jobs]
     if not job_ids:
         return
-    logging.info(f"marking {job_ids} as {status} in sqlite")
+    logging.debug(f"marking {job_ids} as {status} in sqlite")
 
     sql_update = (
         f"UPDATE logs SET status = '{status}' WHERE job_id = ?"
