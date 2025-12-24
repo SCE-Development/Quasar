@@ -6,7 +6,7 @@ from modules import sqlite_helpers
 
 
 LPSTAT_CMD = "lpstat -o -W completed HP_LaserJet_p2015dn_Right"
-SLEEP_TIME = 2
+POLL_LPSTAT_INTERVAL_SECONDS = 2
 
 logging.basicConfig(
     # in mondo we trust
@@ -66,4 +66,4 @@ def poll_lpstat(sqlite_file):
 
         except Exception:
             logging.exception("what happened to query_lpstat?")
-        time.sleep(SLEEP_TIME)
+        time.sleep(POLL_LPSTAT_INTERVAL_SECONDS)
