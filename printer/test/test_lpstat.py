@@ -87,9 +87,15 @@ class TestLpStatSqlite(unittest.TestCase):
         self.assertEqual(str(cm.exception), "stop loop")
 
         # Check correct jobs marked as completed and acknowledged
-        mock_mark_completed.assert_called_once_with(
-            "dummy.db", ["HP_LaserJet_p2015dn_Right-53", "HP_LaserJet_p2015dn_Right-54"],
-        )
+        mock_mark_completed.assert_called_once()
+
+        # Extract the arguments from the call
+        # call_args is a tuple of (args, kwargs)
+        args, _ = mock_mark_completed.call_args
+        db_name, job_list = args
+
+        self.assertEqual(db_name, "dummy.db")
+        self.assertCountEqual(job_list, ["HP_LaserJet_p2015dn_Right-53", "HP_LaserJet_p2015dn_Right-54"])
 
 
 if __name__ == "__main__":

@@ -35,14 +35,27 @@ def maybe_create_table(sqlite_file: str) -> bool:
 
 def insert_print_job(sqlite_file: str, job_id: str):
     try:
-        with sqlite3.connect(sqlite_file, timeout=10.0) as db:
-            cursor = db.cursor()
-            timestamp = datetime.datetime.now()
-            db = sqlite3.connect(sqlite_file)
-            sql = "INSERT INTO logs (job_id) VALUES (?)"
+        with sqlite3.connect(sqlite_file, timeout=10.0) as conn:
+            cursor = conn.cursor()
+
+            """
+            yes i know we could do 
+
+            INSERT INTO logs (job_id, status, date) 
+            VALUES (?, 'created', CURRENT_TIMESTAMP)
+            ON CONFLICT(job_id) DO UPDATE SET 
+                status = excluded.status,
+                date = excluded.date;
+
+            but i dont care i dont feel like updating the schema on the real server
+            """
+            cursor.execute("DELETE FROM logs WHERE job_id = ?", (job_id,))
+
+            sql = "INSERT INTO logs (job_id, status, date) VALUES (?, 'created', CURRENT_TIMESTAMP)"
             cursor.execute(sql, (job_id,))
-            db.commit()
-            return timestamp
+
+            conn.commit()
+            return datetime.datetime.now()
     except sqlite3.IntegrityError:
         return None
     except Exception:
