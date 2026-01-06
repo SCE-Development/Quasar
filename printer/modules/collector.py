@@ -92,8 +92,8 @@ def scrape_html(ip):
         try:
             pages_remaining = int(element.text.strip())
             metrics_handler.snmp_metric.labels(name="pages_remaining", ip=ip).set(pages_remaining)
-        except Exception:
-            pass
+        except ValueError:
+            continue
 
 def scrape_snmp(ip_list, sleep_duration_minutes=5):
     while True:
