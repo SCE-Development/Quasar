@@ -5,6 +5,11 @@ import json
 
 from pysnmp.hlapi import *
 
+# imports for parsing html
+import requests
+import bs4
+from bs4 import BeautifulSoup
+
 from modules.metrics import MetricsHandler
 
 metrics_handler = MetricsHandler.instance()
@@ -62,11 +67,40 @@ def fetch_ips_from_config(config_file_path):
     except Exception:
         logging.exception(f"error opening config file")
 
+def scrape_html(ip):
+
+    url = "http://" + ip + "/"
+
+    try:
+        page = requests.get(url, timeout=5)
+        page.raise_for_status()
+    except Exception:
+        logging.exception("failed to fetch printer html page")
+        return
+
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    content = soup.find_all('td')
+    text = "%"
+    ink_level = ""
+    for element in content:
+        if text in str(element.string):
+            ink_level = float((element.text.strip()).rstrip('%'))
+            metrics_handler.snmp_metric.labels(name="ink_level", ip=ip).set(ink_level)
+    content = soup.find_all('td', class_='tableDataCellStand width30')
+    pages_remaining = 0
+    for element in content:
+        try:
+            pages_remaining = int(element.text.strip())
+            metrics_handler.snmp_metric.labels(name="pages_remaining", ip=ip).set(pages_remaining)
+        except Exception:
+            pass
 
 def scrape_snmp(ip_list, sleep_duration_minutes=5):
     while True:
         for ip in ip_list:
             get_snmp_data(ip)
+            scrape_html(ip)
         time.sleep(sleep_duration_minutes * 60)
 
 
