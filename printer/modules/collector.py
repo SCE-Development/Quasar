@@ -63,32 +63,32 @@ def fetch_ips_from_config(config_file_path):
     except Exception:
         logging.exception(f"error opening config file")
 
-def scrape_html(ip):
-
-    url = "http://" + ip + "/"
-
+def scrape_html(ip: str):
+    url = f"http://{ip}/"
+    
     try:
-        page = requests.get(url, timeout=5)
-        page.raise_for_status()
-    except Exception:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+    except requests.RequestException:
         logging.exception("failed to fetch printer html page")
         return
 
-    soup = BeautifulSoup(page.content, 'html.parser')
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-    content = soup.find_all('td')
-    text = "%"
-    ink_level = ""
-    for element in content:
-        if text in str(element.string):
-            ink_level = float((element.text.strip()).rstrip('%'))
-            metrics_handler.snmp_metric.labels(name="ink_level", ip=ip).set(ink_level)
-    content = soup.find_all('td', class_='tableDataCellStand width30')
-    pages_remaining = 0
-    for element in content:
+    ink_td = soup.find('td', string=lambda s: s and '%' in s)
+    if ink_td:
         try:
-            pages_remaining = int(element.text.strip())
-            metrics_handler.snmp_metric.labels(name="pages_remaining", ip=ip).set(pages_remaining)
+            # Clean: strip whitespace, remove %, convert to float
+            level = float(ink_td.text.strip().rstrip('%'))
+            metrics_handler.snmp_metric.labels(name="ink_level", ip=ip).set(level)
+        except ValueError:
+            logging.warning(f"Could not parse ink level from: {ink_td.text}")
+
+    page_cells = soup.select('td.tableDataCellStand.width30')
+    for cell in page_cells:
+        try:
+            count = int(cell.text.strip())
+            metrics_handler.snmp_metric.labels(name="pages_remaining", ip=ip).set(count)
         except ValueError:
             continue
 
