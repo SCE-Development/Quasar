@@ -3,12 +3,9 @@ import enum
 import logging
 import json
 
-from pysnmp.hlapi import *
-
-# imports for parsing html
-import requests
-import bs4
 from bs4 import BeautifulSoup
+from pysnmp.hlapi import *
+import requests
 
 from modules.metrics import MetricsHandler
 
