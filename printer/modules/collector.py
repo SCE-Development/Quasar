@@ -3,7 +3,9 @@ import enum
 import logging
 import json
 
+from bs4 import BeautifulSoup
 from pysnmp.hlapi import *
+import requests
 
 from modules.metrics import MetricsHandler
 
@@ -19,7 +21,6 @@ logging.basicConfig(
 
 
 class SnmpOid(enum.Enum):
-    INK_LEVEL = ("ink_level", "1.3.6.1.2.1.43.11.1.1.9.1.1")
     INK_CAPACITY = ("ink_capacity", "1.3.6.1.2.1.43.11.1.1.8.1.1")
     PAGE_COUNT = ("page_count", "1.3.6.1.2.1.43.10.2.1.4.1.1")
     TRAY_EMPTY = ("tray_empty", "1.3.6.1.2.1.43.18.1.1.8.1.13", True)
@@ -62,11 +63,40 @@ def fetch_ips_from_config(config_file_path):
     except Exception:
         logging.exception(f"error opening config file")
 
+def scrape_html(ip: str):
+    url = f"http://{ip}/"
+    
+    try:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+    except requests.RequestException:
+        logging.exception("failed to fetch printer html page")
+        return
+
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    ink_td = soup.find('td', string=lambda s: s and '%' in s)
+    if ink_td:
+        try:
+            # Clean: strip whitespace, remove %, convert to float
+            level = float(ink_td.text.strip().rstrip('%'))
+            metrics_handler.snmp_metric.labels(name="ink_level", ip=ip).set(level)
+        except ValueError:
+            logging.warning(f"Could not parse ink level from: {ink_td.text}")
+
+    page_cells = soup.select('td.tableDataCellStand.width30')
+    for cell in page_cells:
+        try:
+            count = int(cell.text.strip())
+            metrics_handler.snmp_metric.labels(name="pages_remaining", ip=ip).set(count)
+        except ValueError:
+            continue
 
 def scrape_snmp(ip_list, sleep_duration_minutes=5):
     while True:
         for ip in ip_list:
             get_snmp_data(ip)
+            scrape_html(ip)
         time.sleep(sleep_duration_minutes * 60)
 
 
