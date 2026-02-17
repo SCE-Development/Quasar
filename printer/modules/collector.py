@@ -23,13 +23,6 @@ logging.basicConfig(
 class SnmpOid(enum.Enum):
     INK_CAPACITY = ("ink_capacity", "1.3.6.1.2.1.43.11.1.1.8.1.1")
     PAGE_COUNT = ("page_count", "1.3.6.1.2.1.43.10.2.1.4.1.1")
-    TRAY_EMPTY = ("tray_empty", "1.3.6.1.2.1.43.18.1.1.8.1.13", True)
-    # we observed each printer emitting a different SNMP OID for
-    # an empty paper tray, the below accounts for this second OID.
-    # the _2 at the end of this metric does imply that the printer has
-    # 2 trays. tray_empty_2 is an indication of the same exact issue
-    # as tray_empty: an empty paper tray.
-    TRAY_EMPTY_2 = ("tray_empty_2", "1.3.6.1.2.1.43.18.1.1.8.1.2", True)
 
     def __init__(self, metric_name, metric_value, is_error=False):
         self.metric_name = metric_name
@@ -74,6 +67,14 @@ def scrape_html(ip: str):
         return
 
     soup = BeautifulSoup(response.content, 'html.parser')
+
+    status_td = soup.find('td', class_='itemLargeFont')
+    if status_td:
+        status_text = status_td.get_text().strip().lower()
+        is_paper_empty = 1 if "load paper" in status_text else 0
+        metrics_handler.snmp_error.labels(name="tray_empty", ip=ip).set(is_paper_empty)
+    else:
+        logging.warning(f"Could not find html element on printer page")
 
     ink_td = soup.find('td', string=lambda s: s and '%' in s)
     if ink_td:
